@@ -1,3 +1,4 @@
+import inspect
 import sys
 import unittest.mock
 from argparse import Namespace
@@ -29,7 +30,7 @@ class TestArgumentParsing(unittest.TestCase):
         args = parser.parse_known_args()
         self.assertEqual("bla", args[0].example_arg)
         self.assertEqual("1234", args[0].solution)
-        self.assertEqual(examplecommand.run, args[0].func)
+        self.assertEqual(inspect.getsource(examplecommand.run), inspect.getsource(args[0].func))
 
 
 if __name__ == '__main__':
