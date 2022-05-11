@@ -1,0 +1,1 @@
+# Template plugin for extending Album commandline features
