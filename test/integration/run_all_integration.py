@@ -1,17 +1,14 @@
 import time
 import unittest
 
-from test.integration import test_integration_server
+from test.integration import test_integration_examplecommand
 
 
 def main():
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
 
-    ### integration
-
-    # album
-    suite.addTests(loader.loadTestsFromModule(test_integration_server))
+    suite.addTests(loader.loadTestsFromModule(test_integration_examplecommand))
 
     runner = unittest.TextTestRunner(verbosity=3)
     result = runner.run(suite)
