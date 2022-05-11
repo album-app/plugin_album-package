@@ -64,7 +64,7 @@
     - conda install -y mamba -c conda-forge
     - conda activate album
     - pip install album
-    - pip install --no-cache-dir https://gitlab.com/album-app/album-server/-/archive/$CI_COMMIT_REF_NAME/album-server-$CI_COMMIT_REF_NAME.zip
+    - pip install --no-cache-dir $CI_PROJECT_DIR
     - which python
     - pwd
     - ls ${CONDA_PREFIX}
@@ -96,7 +96,7 @@
   before_script:
     - echo "$(uname)"
     - sw_vers
-    - tmpdir=$(mktemp -d /tmp/album-server-test.XXXXXX)
+    - tmpdir=$(mktemp -d /tmp/$CI_PROJECT_NAME-test.XXXXXX)
     - echo $tmpdir
     - echo $tmpdir > /tmp/tmpdir
     - curl https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh --output $tmpdir/miniconda.sh
@@ -108,7 +108,7 @@
     - conda install -y mamba -c conda-forge
     - conda activate album
     - pip install album
-    - pip install --no-cache-dir https://gitlab.com/album-app/album-server/-/archive/$CI_COMMIT_REF_NAME/album-server-$CI_COMMIT_REF_NAME.zip
+    - pip install --no-cache-dir $CI_PROJECT_DIR
     - python -V
   after_script:
     - tmpdir=$(</tmp/tmpdir)
@@ -231,7 +231,7 @@ cmdline linux:
   stage: build
   script:
     # album commands
-    - album server -h
+    - album examplecommand -h
 
 
 unit tests linux:
@@ -264,12 +264,12 @@ unit tests windows:
   extends: .windows_base_template
   stage: test
   script:
-    - $cmnd = powershell.exe -command {conda create -y --channel=conda-forge -n album python=3.7 pip git 2>&1 | Write-Host; conda activate album 2>&1 | Write-Host; pip install album 2>&1 | Write-Host; pip install --no-cache-dir https://gitlab.com/album-app/album-server/-/archive/$env:CI_COMMIT_REF_NAME/album-server-$env:CI_COMMIT_REF_NAME.zip 2>&1 | Write-Host; python -m unittest test\unit\run_all_unit.py 2>&1 | Write-Host; exit(0)}
+    - $cmnd = powershell.exe -command {conda create -y --channel=conda-forge -n album python=3.7 pip git 2>&1 | Write-Host; conda activate album 2>&1 | Write-Host; pip install album 2>&1 | Write-Host; pip install --no-cache-dir $env:CI_PROJECT_DIR 2>&1 | Write-Host; python -m unittest test\unit\run_all_unit.py 2>&1 | Write-Host; exit(0)}
     - if ("Success" -in $cmnd[-2..-1]) {exit(0)} else {exit(1)}
 
 integration tests windows:
   extends: .windows_base_template
   stage: test
   script:
-    - $cmnd = powershell.exe -command {conda create -y --channel=conda-forge -n album python=3.7 pip git 2>&1 | Write-Host; conda activate album 2>&1 | Write-Host; pip install album 2>&1 | Write-Host; pip install --no-cache-dir https://gitlab.com/album-app/album-server/-/archive/$env:CI_COMMIT_REF_NAME/album-server-$env:CI_COMMIT_REF_NAME.zip 2>&1 | Write-Host; python -m unittest test\integration\run_all_integration.py 2>&1 | Write-Host; exit(0)}
+    - $cmnd = powershell.exe -command {conda create -y --channel=conda-forge -n album python=3.7 pip git 2>&1 | Write-Host; conda activate album 2>&1 | Write-Host; pip install album 2>&1 | Write-Host; pip install --no-cache-dir $env:CI_PROJECT_DIR 2>&1 | Write-Host; python -m unittest test\integration\run_all_integration.py 2>&1 | Write-Host; exit(0)}
     - if ("Success" -in $cmnd[-2..-1]) {exit(0)} else {exit(1)}
