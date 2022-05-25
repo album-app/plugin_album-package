@@ -231,7 +231,7 @@ cmdline linux:
   stage: build
   script:
     # album commands
-    - album examplecommand -h
+    - album build_executable -h
 
 
 unit tests linux:

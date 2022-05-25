@@ -21,7 +21,7 @@ class TestIntegrationExampleCommand(unittest.TestCase):
         with self.assertLogs(get_active_logger(), level='INFO') as cm:
 
             # run
-            sys.argv = ["", "examplecommand", "solution.py"]
+            sys.argv = ["", "build_executable", "solution.py"]
             self.assertIsNone(main())
 
             # assert

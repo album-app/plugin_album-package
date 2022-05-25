@@ -26,9 +26,9 @@ class TestArgumentParsing(unittest.TestCase):
 
     def test_create_parser(self):
         parser = create_parser()
-        sys.argv = ["", "examplecommand", "1234", "--example_arg", "bla"]
+        sys.argv = ["", "build_executable", "1234", "--data_path", "bla"]
         args = parser.parse_known_args()
-        self.assertEqual("bla", args[0].example_arg)
+        self.assertEqual("bla", args[0].data_path)
         self.assertEqual("1234", args[0].solution)
         self.assertEqual(inspect.getsource(examplecommand.run), inspect.getsource(args[0].func))
 
