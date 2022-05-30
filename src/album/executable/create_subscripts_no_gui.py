@@ -1,19 +1,13 @@
-import platform
-
-from album.api import Album
-from album.runner.album_logging import get_active_logger
-from os.path import exists
 import os
-import sys
+import platform
 from pathlib import Path
-import subprocess
 
 
 # hier sollen die run_solution , execute_solution und install_hook scripte erstellt und zurückgegeben werden
 
-def run(solution, output_path, solution_coordinates):
+def run(output_path, solution_coordinates):
     create_hook(output_path)
-    create_run_solution(solution, output_path, solution_coordinates)
+    create_run_solution(output_path, solution_coordinates)
     create_execute_solution(output_path)
 
 
@@ -31,7 +25,7 @@ def create_hook(output_path):
     file.write('import os\n')
     file.write('from pathlib import Path\n')
     file.write('import subprocess\n')
-    file.write('if not (os.path.isdir(Path(os.path.expanduser(\'~\')).joinpath(\'.album\'))):\n')
+    file.write('if not (os.path.isdir(Path(os.path.expanduser(\'~\')).joinpath(\'.album\',\'env\'))):\n')
     file.write('\tprint("Album missing, installing album.....")\n')
     file.write('\tsubprocess.call([Path(os.path.realpath(__file__)).parent.joinpath(\'')
     file.write(str(install_script_name))
@@ -41,7 +35,7 @@ def create_hook(output_path):
     file.close()
 
 
-def create_run_solution(solution, output_path, solution_coordinates):
+def create_run_solution(output_path, solution_coordinates):
     run_solution_path = Path(output_path).joinpath('run_solution.py')
     file = open(run_solution_path, "w", encoding='utf-8')
     file.write('from album.api import Album\n')
@@ -69,6 +63,7 @@ def create_run_solution(solution, output_path, solution_coordinates):
     file.write('album.run(\'')
     file.write(str(solution_coordinates))
     file.write('\',params)\n')
+    file.close()
 
 
 def create_execute_solution(output_path):
@@ -81,7 +76,10 @@ def create_execute_solution(output_path):
     file.write('python_path = Path(os.path.expanduser(\'~\')).joinpath(\'.album\', \'env\', \'album\', '
                '\'python.exe\')\n')
     file.write('run_sol_path =')
-    file.write(repr(str(Path(output_path).joinpath('run_solution.py'))))
+    #file.write('\'.\\run_solution.py\'')
+    file.write(repr(str(Path(output_path).joinpath('solution','run_solution.py'))))
     file.write('\n')
     file.write('python_call = \'%s %s\' %(python_path,run_sol_path)\n')
     file.write('subprocess.call(python_call)\n')
+    file.close()
+

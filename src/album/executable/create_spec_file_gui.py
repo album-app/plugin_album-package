@@ -1,5 +1,3 @@
-from album.api import Album
-from album.runner.album_logging import get_active_logger
 import os
 import platform
 from pathlib import Path
@@ -18,6 +16,9 @@ def run(output_path, solution):
     elif platform.system() == 'Darwin':
         install_script_path = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('resources',
                                                                                              'install_album_macos.sh')
+
+    #test_files = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('resources', 'test_solution')
+
     spec_path = Path(output_path).joinpath('build_executable_gui.spec')
 
     file = open(spec_path, "w")
@@ -30,6 +31,9 @@ def run(output_path, solution):
     file.write(repr(str(install_script_path)))
     # file.write(',\'.\')],')
     file.write(', \'.\'),')
+    #file.write('(')
+    #file.write(repr(str(Path(test_files).joinpath('*'))))
+    #file.write(', \'test_files\'),')
     file.write('(')
     file.write(repr(str(Path(solution).parent.joinpath('*'))))
     file.write(', \'solution_files\')],\n')
@@ -68,5 +72,6 @@ def run(output_path, solution):
     file.write('\t\t\t   upx=True,\n')
     file.write('\t\t\t   upx_exclude=[],\n')
     file.write('\t\t\t   name=\'solution\')\n')
+    file.close()
 
     return spec_path

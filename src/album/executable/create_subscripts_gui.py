@@ -1,17 +1,11 @@
 import platform
 
-from album.api import Album
-from album.runner.album_logging import get_active_logger
-from os.path import exists
-import os
-import sys
 from pathlib import Path
-import subprocess
 
 
 # hier sollen die run_solution , execute_solution und install_hook scripte erstellt und zurückgegeben werden
 
-def run(solution, output_path):
+def run(output_path):
     create_hook(output_path)
     create_execute_solution(output_path)
 
@@ -30,15 +24,16 @@ def create_hook(output_path):
     file.write('import os\n')
     file.write('from pathlib import Path\n')
     file.write('import subprocess\n')
-    file.write('if not (os.path.isdir(Path(os.path.expanduser(\'~\')).joinpath(\'.album\'))) or not (os.path.isdir('
-               'Path(os.path.expanduser(\'~\')).joinpath(\'.album\', \'env\', \'album\', \'Lib\', \'site-packages\', '
-               '\'album\', \'gui\'))):\n')
+    file.write(
+        'if not (os.path.isdir(Path(os.path.expanduser(\'~\')).joinpath(\'.album\', \'env\'))) or not (os.path.isdir('
+        'Path(os.path.expanduser(\'~\')).joinpath(\'.album\', \'env\', \'album\', \'Lib\', \'site-packages\', '
+        '\'album\', \'gui\'))):\n')
     file.write('\tprint("Album or Album Gui is missing, installing the missing component.....")\n')
     file.write('\tsubprocess.call([Path(os.path.realpath(__file__)).parent.joinpath(\'')
     file.write(str(install_script_name))
     file.write('\')])\n')
-    #Muesste jetzt vom install script gemacht werden.
-    #file.write('\tsubprocess.call([Path(os.path.realpath(__file__)).joinpath(\'album\',\'miniconda3\','
+    # Muesste jetzt vom install script gemacht werden.
+    # file.write('\tsubprocess.call([Path(os.path.realpath(__file__)).joinpath(\'album\',\'miniconda3\','
     #           '\'_conda.exe\'), \"run\",\"-p\", Path(os.path.realpath(__file__)).parent.joinpath(\'album\', '
     #           '\'env\', \'album\'),\"pip\", \"install\", '
     #           '\" https://gitlab.com/album-app/plugins/album-gui/-/archive/main/album-gui-main.zip\"])\n')
@@ -73,4 +68,4 @@ def create_execute_solution(output_path):
                '\'_conda.exe\'), \"run\", \"-p\", Path(os.path.expanduser(\'~\')).parent.joinpath(\'.album\', '
                '\'env\', \'album\'), album_str, \"gui\", \"--solution\", Path(os.path.realpath('
                '__file__)).parent.joinpath(\'solution_files\', \'solution.py\')])\n')
-
+    file.close()
