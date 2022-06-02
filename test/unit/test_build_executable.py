@@ -245,31 +245,34 @@ class TestArgumentParsing(unittest.TestCase):
     # self.assertEqual('ERROR:root:Solution could not be found! Abort.', cm.output[0])
 
 
-    #def test_execute_solution_no_gui(self):
-    #    template_py_no_gui = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
-    #                                                                                        'templates',
-    #                                                                                        'no_gui',
-    #                                                                                        'execute_solution.py')
-    #    with tempfile.TemporaryDirectory() as tmpdir:
-    #        create_subscripts_no_gui.create_execute_solution(tmpdir)
-    #        created_py_no_gui = Path(tmpdir).joinpath('execute_solution.py')
-    #        created_str = ""
-    #        template_str = ""
-    #        with open(created_py_no_gui, 'r') as file:
-    #            created_str = file.read()
-    #        with open(template_py_no_gui, 'r') as file:
-    #            template_str = file.read()
-    #        print(created_str)
-    #        regex = re.match(r'run_sol_path =[\S\s\w]+[^\n]', created_str)
-    #        #start = regex.start()
-    #        #end = regex.end()
-    #        #span = regex.span()
-    #        #print('Start: ' + start)
-    #        #print('End: ' + end)
-    #        #print('span: ' + span)
-    #        print(regex.group(0))
-#
-    #        self.assertEqual(template_str, created_str)
+    def test_execute_solution_no_gui(self):
+        template_py_no_gui = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
+                                                                                            'templates',
+                                                                                            'no_gui',
+                                                                                            'execute_solution.py')
+        with tempfile.TemporaryDirectory() as tmpdir:
+            create_subscripts_no_gui.create_execute_solution(tmpdir)
+            created_py_no_gui = Path(tmpdir).joinpath('execute_solution.py')
+            created_str = ""
+            template_str = ""
+            with open(created_py_no_gui, 'r') as file:
+                created_str = file.read()
+            with open(template_py_no_gui, 'r') as file:
+                template_str = file.read()
+            ex = re.compile("run_sol_path =[\S]+")
+            regex_created = ex.search(created_str)
+            regex_template = ex.search(template_str)
+            the_path_created = re.split("=", regex_created.group(0))[1]
+            the_path_template = re.split("=", regex_template.group(0))[1]
+            cut_created_str = re.subn(the_path_created,'#', str(created_str))
+            cut_template_str = re.subn(the_path_template,'#', str(template_str))
+            print(template_str)
+            print(the_path_template)
+            print(cut_template_str)
+            print(created_str)
+            print(the_path_created)
+            print(cut_created_str)
+            self.assertEqual(template_str, created_str)
 
 
 # def test_spec_file_gui(self):
