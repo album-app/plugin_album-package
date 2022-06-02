@@ -16,7 +16,7 @@ from album.executable import build_executable, create_subscripts_gui, create_sub
 from album.runner.album_logging import get_active_logger
 
 
-class TestArgumentParsing(unittest.TestCase):
+class TestBuildExecutable(unittest.TestCase):
 
     def setUp(self) -> None:
         super().setUp()
@@ -31,7 +31,7 @@ class TestArgumentParsing(unittest.TestCase):
 
     def test_create_parser(self):
         parser = create_parser()
-        sys.argv = ["", "package", "1234", "--data_path", "bla", "--output_path", "C:\\Users\\lriecke\\Desktop"]
+        sys.argv += ["package", "1234", "--data_path", "bla", "--output_path", "C:\\Users\\lriecke\\Desktop"]
         args = parser.parse_known_args()
         self.assertEqual("bla", args[0].data_path)
         self.assertEqual("1234", args[0].solution)
@@ -54,16 +54,21 @@ class TestArgumentParsing(unittest.TestCase):
         # Wird exe correct ausgefuehrt?
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            build_executable.run(self.album, Namespace(solution=
-            Path(os.path.realpath(__file__)).parent.parent.parent.joinpath(
-                'src',
-                'resources',
-                'test_solution',
-                'solution.py'),
-                output_path=tmpdir,
-                data_path="test_data",
-                no_gui=True))
-
+            build_executable.run(
+                self.album,
+                Namespace(
+                    solution=Path(os.path.realpath(__file__)).parent.parent.parent.joinpath(
+                        'src',
+                        'resources',
+                        'test_solution',
+                        'solution.py'
+                    ),
+                    output_path=tmpdir,
+                    data_path="test_data",
+                    no_gui=True
+                )
+            )
+            #Hier muss os dependend getestet werden.
             exe_path = Path(tmpdir).joinpath('solution', 'solution.exe')
             check = os.path.isfile(exe_path) and os.access(exe_path, os.X_OK)
 
@@ -74,20 +79,26 @@ class TestArgumentParsing(unittest.TestCase):
         # Wird exe correct ausgefuehrt?
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            build_executable.run(self.album, Namespace(solution=
-            Path(os.path.realpath(__file__)).parent.parent.parent.joinpath(
-                'src',
-                'resources',
-                'test_solution',
-                'solution.py'),
-                output_path=tmpdir,
-                data_path="test_data",
-                no_gui=False))
+            build_executable.run(
+                self.album,
+                Namespace(
+                    solution=Path(os.path.realpath(__file__)).parent.parent.parent.joinpath(
+                        'src',
+                        'resources',
+                        'test_solution',
+                        'solution.py'
+                    ),
+                    output_path=tmpdir,
+                    data_path="test_data",
+                    no_gui=False
+                )
+            )
 
             exe_path = Path(tmpdir).joinpath('solution', 'solution.exe')
             check = os.path.isfile(exe_path) and os.access(exe_path, os.X_OK)
 
             self.assertTrue(check)
+
 
     def test_output_path(self):
         with tempfile.TemporaryDirectory() as tmpdir:

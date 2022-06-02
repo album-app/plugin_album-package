@@ -1,14 +1,14 @@
 import time
 import unittest
 
-from test.unit import test_examplecommand
+from test_package.unit import test_build_executable
 
 
 def main():
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
 
-    suite.addTests(loader.loadTestsFromModule(test_examplecommand))
+    suite.addTests(loader.loadTestsFromModule(test_build_executable))
 
     runner = unittest.TextTestRunner(verbosity=3)
     result = runner.run(suite)
