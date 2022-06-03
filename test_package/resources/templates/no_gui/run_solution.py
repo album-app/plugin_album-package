@@ -4,8 +4,8 @@ import sys
 import re
 from pathlib import Path
 import subprocess
-sol_dir = 'C:\\Users\\lriecke\\Desktop\\MDC\\Album\\plugins\\album-package\\src\\resources\\templates\\no_gui\\solution\\solution_files'
-album = Album.Builder().base_cache_path('C:\\Users\\Administrator\\.album\\env\\album').build()
+sol_dir = Path(os.path.realpath(__file__)).parent.parent.joinpath('solution_files')
+album = Album.Builder().base_cache_path("<base_path>").build()
 album.load_or_create_collection()
 if not album.is_installed(sol_dir):
 	album.install(sol_dir)

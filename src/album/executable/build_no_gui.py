@@ -6,7 +6,6 @@ import PyInstaller.__main__
 
 from album.api import Album
 from album.executable import create_spec_file_no_gui, create_subscripts_no_gui
-from album.runner.album_logging import get_active_logger
 
 
 def run(album_instance: Album, args):

@@ -1,33 +1,142 @@
-import sys
+import os
+import platform
 import unittest
-from unittest import mock
-from unittest.mock import patch
+from argparse import Namespace
+from pathlib import Path
 
-from album.api import Album
-from album.argument_parsing import main
-from album.core.api.model.collection_solution import ICollectionSolution
+from album.executable import build_executable
 from album.runner.album_logging import get_active_logger
+from test_package.test_common import TestCommon
 
 
-class TestIntegrationExampleCommand(unittest.TestCase):
+class TestIntegrationBuildExecutable(TestCommon):
+    def setUp(self) -> None:
+        super().setUp()
 
-    @patch('album.argument_parsing.create_album_instance', return_value=mock.create_autospec(Album))
-    def test_examplecommand(self, create_album_instance_mock):
-        #mocks
-        resolve_result = mock.create_autospec(ICollectionSolution)
-        create_album_instance_mock.return_value.resolve.return_value = resolve_result
-        resolve_result.coordinates.return_value = "my-group:my-solution:my-version"
+    def tearDown(self) -> None:
+        super().tearDown()
 
-        with self.assertLogs(get_active_logger(), level='INFO') as cm:
+    def test_execute_no_gui(self):
+        # TODO: Check if exe is executed the right way
 
-            # run
-            sys.argv = ["", "build_executable", "solution.py"]
-            self.assertIsNone(main())
+        build_executable.run(
+            self.album_mock,
+            Namespace(
+                solution=Path(os.path.realpath(__file__)).parent.parent.parent.joinpath(
+                    'test_package',
+                    'resources',
+                    'test_solution',
+                    'solution.py'
+                ),
+                output_path=self.tmp_dir.name,
+                data_path="test_data",
+                no_gui=True
+            )
+        )
 
-            # assert
-            self.assertEqual(4, len(cm.output))
-            self.assertIn('my-group:my-solution:my-version', cm.output[3])
+        if platform.system() == 'Windows':
+            exe_path = Path(self.tmp_dir.name).joinpath('solution', 'solution.exe')
+        else:
+            exe_path = Path(self.tmp_dir.name).joinpath('solution', 'solution')
+        check = os.path.isfile(exe_path) and os.access(exe_path, os.X_OK)
 
+        self.assertTrue(check)
+
+    def test_execute_gui(self):
+        build_executable.run(
+            self.album_mock,
+            Namespace(
+                solution=Path(os.path.realpath(__file__)).parent.parent.parent.joinpath(
+                    'test_package',
+                    'resources',
+                    'test_solution',
+                    'solution.py'
+                ),
+                output_path=self.tmp_dir.name,
+                data_path="test_data",
+                no_gui=False
+            )
+        )
+
+        if platform.system() == 'Windows':
+            exe_path = Path(self.tmp_dir.name).joinpath('solution', 'solution.exe')
+        else:
+            exe_path = Path(self.tmp_dir.name).joinpath('solution', 'solution')
+        check = os.path.isfile(exe_path) and os.access(exe_path, os.X_OK)
+
+        self.assertTrue(check)
+
+    def test_output_path(self):
+        build_executable.run(self.album_mock, Namespace(solution=
+        Path(os.path.realpath(__file__)).parent.parent.parent.joinpath(
+            'test_package',
+            'resources',
+            'test_solution',
+            'solution.py'),
+            output_path=Path(self.tmp_dir.name).joinpath('test_output'),
+            data_path="test_data",
+            no_gui=True))
+
+        check = os.path.isdir(Path(self.tmp_dir.name).joinpath('test_output'))
+
+        self.assertTrue(check)
+
+    def test_no_solution(self):
+        with self.assertLogs(get_active_logger(), level='ERROR') as cm:
+            build_executable.run(self.album_mock, Namespace(solution=
+            Path(os.path.realpath(__file__)).parent.parent.parent.joinpath(
+                'test_package',
+                'resources',
+                'test_solution',
+                'murks.py'),
+                output_path=Path(self.tmp_dir.name).joinpath('test_output'),
+                data_path="test_data",
+                no_gui=True))
+
+        self.assertEqual('ERROR:root:Solution could not be found! Abort.', cm.output[0])
+
+    def test_clean_up_no_gui(self):
+        build_executable.run(self.album_mock, Namespace(solution=
+        Path(os.path.realpath(__file__)).parent.parent.parent.joinpath(
+            'src',
+            'resources',
+            'test_solution',
+            'solution.py'),
+            output_path=self.tmp_dir.name,
+            data_path="test_data",
+            no_gui=True))
+        check_1 = os.path.isfile(Path(self.tmp_dir.name).joinpath('run_solution.py'))
+        check_2 = os.path.isfile(Path(self.tmp_dir.name).joinpath('execute_solution.py'))
+        check_3 = os.path.isfile(Path(self.tmp_dir.name).joinpath('install_hook.py'))
+        check_4 = os.path.isfile(Path(self.tmp_dir.name).joinpath('build_executable.spec'))
+        check_5 = os.path.isdir(Path(self.tmp_dir.name).joinpath('build'))
+
+        self.assertFalse(check_1)
+        self.assertFalse(check_2)
+        self.assertFalse(check_3)
+        self.assertFalse(check_4)
+        self.assertFalse(check_5)
+
+    def test_clean_up_gui(self):
+        build_executable.run(self.album_mock, Namespace(solution=
+        Path(os.path.realpath(__file__)).parent.parent.parent.joinpath(
+            'test_package',
+            'resources',
+            'test_solution',
+            'solution.py'),
+            output_path=self.tmp_dir.name,
+            data_path="test_data",
+            no_gui=False))
+
+        check_1 = os.path.isdir(Path(self.tmp_dir.name).joinpath('build'))
+        check_2 = os.path.isfile(Path(self.tmp_dir.name).joinpath('execute_solution_gui.py'))
+        check_3 = os.path.isfile(Path(self.tmp_dir.name).joinpath('install_hook.py'))
+        check_4 = os.path.isfile(Path(self.tmp_dir.name).joinpath('build_executable_gui.spec'))
+
+        self.assertFalse(check_1)
+        self.assertFalse(check_2)
+        self.assertFalse(check_3)
+        self.assertFalse(check_4)
 
 if __name__ == '__main__':
     unittest.main()

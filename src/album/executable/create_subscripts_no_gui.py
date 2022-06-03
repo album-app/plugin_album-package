@@ -1,5 +1,6 @@
 import os
 import platform
+import subprocess
 from pathlib import Path
 
 
@@ -25,7 +26,7 @@ def create_hook(output_path):
     file.write('import os\n')
     file.write('from pathlib import Path\n')
     file.write('import subprocess\n')
-    file.write('if not (os.path.isdir(Path(os.path.expanduser(\'~\')).joinpath(\'.album\',\'env\'))):\n')
+    file.write('if not (os.path.isdir(Path.home().joinpath(\'.album\',\'env\'))):\n')
     file.write('\tprint("Album missing, installing album.....")\n')
     file.write('\tsubprocess.call([Path(os.path.realpath(__file__)).parent.joinpath(\'')
     file.write(str(install_script_name))
@@ -33,7 +34,6 @@ def create_hook(output_path):
     file.write('else:\n')
     file.write('\tprint("Found Album. Proceeding to run the solution.")\n')
     file.close()
-
 
 def create_run_solution(output_path, solution_coordinates):
     run_solution_path = Path(output_path).joinpath('run_solution.py')
@@ -45,18 +45,16 @@ def create_run_solution(output_path, solution_coordinates):
     file.write('from pathlib import Path\n')
     file.write('import subprocess\n')
     file.write('sol_dir = ')
-    # file.write(repr(str(Path(solution).parent)))
-    file.write(repr(str(Path(output_path).joinpath('solution', 'solution_files'))))
-    file.write('\n')
+    file.write('Path(os.path.realpath(__file__)).parent.parent.joinpath(\'solution_files\')\n')
     file.write('album = Album.Builder().base_cache_path(')
-    file.write(repr(str(Path(os.path.expanduser('~')).joinpath('.album', 'env', 'album'))))
+    file.write(repr(str(Path.home().joinpath('.album', 'env', 'album'))))
     file.write(').build()\n')
     file.write('album.load_or_create_collection()\n')
     file.write('if not album.is_installed(sol_dir):\n')
     file.write('\talbum.install(sol_dir)\n')
     file.write('commands = input(\'Please enter the parameters with which the executable solution should be '
                'called:\')\n')
-    file.write('commands = re.split(r\'\s\', commands)\n')
+    file.write('commands = re.split(r\'\\s\', commands)\n')
     file.write('params = [\'\']\n')
     file.write('for p in commands:\n')
     file.write('\tparams.append(p)\n')
@@ -65,7 +63,6 @@ def create_run_solution(output_path, solution_coordinates):
     file.write('\',params)\n')
     file.close()
 
-
 def create_execute_solution(output_path):
     executer_path = Path(output_path).joinpath('execute_solution.py')
 
@@ -73,13 +70,14 @@ def create_execute_solution(output_path):
     file.write('import os\n')
     file.write('from pathlib import Path\n')
     file.write('import subprocess\n')
-    file.write('python_path = Path(os.path.expanduser(\'~\')).joinpath(\'.album\', \'env\', \'album\', '
-               '\'python.exe\')\n')
+    file.write('import shutil\n')
+    file.write('conda_path = shutil.which(\"conda\")\n')
+    file.write('env_path = Path.home().joinpath(\'.album\', \'env\', \'album\')\n')
+    file.write('python_path = Path.home().joinpath(\'.album\', \'env\', \'album\', '
+               '\'python\')\n')
     file.write('run_sol_path =')
-    #file.write('\'.\\run_solution.py\'')
-    file.write(repr(str(Path(output_path).joinpath('solution','run_solution.py'))))
+    file.write('Path(os.path.realpath(__file__)).parent.joinpath(\'subscripts\', \'run_solution.py\')')
     file.write('\n')
-    file.write('python_call = \'%s %s\' %(python_path,run_sol_path)\n')
+    file.write('python_call = \'%s %s\' %(python_path, run_sol_path)\n')
     file.write('subprocess.call(python_call)\n')
     file.close()
-

@@ -25,18 +25,13 @@ def create_hook(output_path):
     file.write('from pathlib import Path\n')
     file.write('import subprocess\n')
     file.write(
-        'if not (os.path.isdir(Path(os.path.expanduser(\'~\')).joinpath(\'.album\', \'env\'))) or not (os.path.isdir('
-        'Path(os.path.expanduser(\'~\')).joinpath(\'.album\', \'env\', \'album\', \'Lib\', \'site-packages\', '
+        'if not (os.path.isdir(Path.home().joinpath(\'.album\', \'env\'))) or not (os.path.isdir('
+        'Path.home().joinpath(\'.album\', \'env\', \'album\', \'Lib\', \'site-packages\', '
         '\'album\', \'gui\'))):\n')
     file.write('\tprint("Album or Album Gui is missing, installing the missing component.....")\n')
     file.write('\tsubprocess.call([Path(os.path.realpath(__file__)).parent.joinpath(\'')
     file.write(str(install_script_name))
     file.write('\')])\n')
-    # Muesste jetzt vom install script gemacht werden.
-    # file.write('\tsubprocess.call([Path(os.path.realpath(__file__)).joinpath(\'album\',\'miniconda3\','
-    #           '\'_conda.exe\'), \"run\",\"-p\", Path(os.path.realpath(__file__)).parent.joinpath(\'album\', '
-    #           '\'env\', \'album\'),\"pip\", \"install\", '
-    #           '\" https://gitlab.com/album-app/plugins/album-gui/-/archive/main/album-gui-main.zip\"])\n')
     file.write('else:\n')
     file.write('\tprint("Found Album. Proceeding to run the solution.")\n')
     file.close()
@@ -51,7 +46,7 @@ def create_execute_solution(output_path):
     file.write('import subprocess\n')
     file.write('from subprocess import check_output\n')
     file.write('import re\n')
-    file.write('album_path = Path(os.path.expanduser(\'~\')).joinpath(\'.album\', \'env\', \'album\', '
+    file.write('album_path = Path.home().joinpath(\'.album\', \'env\', \'album\', '
                '\'Scripts\',\'album.exe\')\n')
     file.write('album_str = \'%s\'%album_path\n')
     file.write('conda_check = check_output(\'conda info\')\n')
@@ -60,12 +55,12 @@ def create_execute_solution(output_path):
     file.write('if conda_result:\n')
     file.write('\tconda_path = re.split(\': \',conda_result.group(0))[1]\n')
     file.write('\tsubprocess.call([Path(conda_path).joinpath('
-               '\'_conda.exe\'), \"run\", \"-p\", Path(os.path.expanduser(\'~\')).joinpath(\'.album\', '
+               '\'_conda.exe\'), \"run\", \"-p\", Path.home().joinpath(\'.album\', '
                '\'env\', \'album\'), album_str, \"gui\", \"--solution\", Path(os.path.realpath('
                '__file__)).parent.joinpath(\'solution_files\', \'solution.py\')])\n')
     file.write('else:\n')
-    file.write('\tsubprocess.call([Path(os.path.expanduser(\'~\')).joinpath(\'miniconda3\','
-               '\'_conda.exe\'), \"run\", \"-p\", Path(os.path.expanduser(\'~\')).parent.joinpath(\'.album\', '
+    file.write('\tsubprocess.call([Path.home().joinpath(\'miniconda3\','
+               '\'_conda.exe\'), \"run\", \"-p\", Path.home().parent.joinpath(\'.album\', '
                '\'env\', \'album\'), album_str, \"gui\", \"--solution\", Path(os.path.realpath('
                '__file__)).parent.joinpath(\'solution_files\', \'solution.py\')])\n')
     file.close()
