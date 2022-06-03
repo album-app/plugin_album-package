@@ -1,5 +1,6 @@
 import inspect
 import os
+import platform
 import re
 import sys
 import unittest.mock
@@ -112,9 +113,20 @@ class TestUnitBuildExecutable(TestCommon):
                                                                                                 'test_solution',
                                                                                                 'solution.py'))
         created_spec_gui = Path(self.tmp_dir.name).joinpath('build_executable_gui.spec')
-        install_script_path = repr(
-            str(Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
+
+        if platform.system() == 'Windows':
+            install_script_path = repr(
+                str(Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
                                                                                'install_album_win64.bat')))
+        elif platform.system() == 'Darwin':
+            install_script_path = repr(
+                str(Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
+                                                                               'install_album_macos.sh')))
+        elif platform.system() == 'Linux':
+            install_script_path = repr(
+                str(Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
+                                                                               'install_album_linux64.sh')))
+            
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))
         hook_path = repr(str(Path(self.tmp_dir.name).joinpath('install_hook.py')))
@@ -146,9 +158,20 @@ class TestUnitBuildExecutable(TestCommon):
                                                                                                    'solution.py'))
 
         created_spec_no_gui = Path(self.tmp_dir.name).joinpath('build_executable.spec')
-        install_script_path = repr(
-            str(Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
+
+        if platform.system() == 'Windows':
+            install_script_path = repr(
+                str(Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
                                                                                'install_album_win64.bat')))
+        elif platform.system() == 'Darwin':
+            install_script_path = repr(
+                str(Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
+                                                                               'install_album_macos.sh')))
+        elif platform.system() == 'Linux':
+            install_script_path = repr(
+                str(Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
+                                                                               'install_album_linux64.sh')))
+
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))
         hook_path = repr(str(Path(self.tmp_dir.name).joinpath('install_hook.py')))
