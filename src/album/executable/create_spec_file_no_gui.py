@@ -24,7 +24,7 @@ def run(output_path, solution, res_path):
         elif platform.system() == 'Linux':
             install_script_path = Path(res_path).joinpath('install_album_linux64.sh')
         elif platform.system() == 'Darwin':
-            install_script_path = Path(res_path).parent.parent.parent.joinpath('install_album_macos.sh')
+            install_script_path = Path(res_path).joinpath('install_album_macos.sh')
 
     spec_path = Path(output_path).joinpath('build_executable.spec')
 

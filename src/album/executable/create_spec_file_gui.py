@@ -5,6 +5,7 @@ from pathlib import Path
 
 # res_path is needed since when this function is called from the unit tests on a remote runner the paths where the file
 # live can be different
+
 def run(output_path, solution, res_path):
     install_script_path = ""
     if not res_path:
