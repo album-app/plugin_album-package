@@ -65,6 +65,7 @@
     - conda activate album
     - pip install album
     - pip install --no-cache-dir $CI_PROJECT_DIR
+    - apt-get update && apt-get install -y binutils
     - which python
     - pwd
     - ls ${CONDA_PREFIX}
