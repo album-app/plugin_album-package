@@ -1,10 +1,6 @@
-import os
 import platform
-import subprocess
 from pathlib import Path
 
-
-# hier sollen die run_solution , execute_solution und install_hook scripte erstellt und zurückgegeben werden
 
 def run(output_path, solution_coordinates):
     create_hook(output_path)
@@ -35,6 +31,7 @@ def create_hook(output_path):
     file.write('\tprint("Found Album. Proceeding to run the solution.")\n')
     file.close()
 
+
 def create_run_solution(output_path, solution_coordinates):
     run_solution_path = Path(output_path).joinpath('run_solution.py')
     file = open(run_solution_path, "w", encoding='utf-8')
@@ -62,6 +59,7 @@ def create_run_solution(output_path, solution_coordinates):
     file.write(str(solution_coordinates))
     file.write('\',params)\n')
     file.close()
+
 
 def create_execute_solution(output_path):
     executer_path = Path(output_path).joinpath('execute_solution.py')

@@ -3,8 +3,6 @@ import platform
 from pathlib import Path
 
 
-# hier sollen die run_solution , execute_solution und install_hook scripte erstellt und zurückgegeben werden
-
 def run(output_path):
     create_hook(output_path)
     create_execute_solution(output_path)

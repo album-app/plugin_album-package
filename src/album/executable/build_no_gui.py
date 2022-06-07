@@ -17,7 +17,7 @@ def run(album_instance: Album, args):
         os.mkdir(Path(args.output_path))
 
     create_subscripts_no_gui.run(args.output_path, solution_coordinates)
-    spec_path = create_spec_file_no_gui.run(args.output_path, args.solution)
+    spec_path = create_spec_file_no_gui.run(args.output_path, args.solution, None)
     spec_path = str(spec_path)
     exe_path_param = '--distpath=%s' % (str(args.output_path))
     PyInstaller.__main__.run([spec_path, exe_path_param])

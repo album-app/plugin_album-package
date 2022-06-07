@@ -22,7 +22,7 @@ class TestUnitBuildExecutable(TestCommon):
 
     def test_create_parser(self):
         parser = create_parser()
-        sys.argv += ["package", "1234", "--data_path", "bla", "--output_path", "An_example_path"]
+        sys.argv = ["", "package", "1234", "--data_path", "bla", "--output_path", "An_example_path"]
         args = parser.parse_known_args()
         self.assertEqual("bla", args[0].data_path)
         self.assertEqual("1234", args[0].solution)
@@ -127,25 +127,29 @@ class TestUnitBuildExecutable(TestCommon):
         template_spec_gui = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('test_package', 'resources',
                                                                                            'templates', 'gui',
                                                                                            'build_executable_gui.spec')
+
+        res_path = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources')
+
         create_spec_file_gui.run(self.tmp_dir.name,
                                  Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('test_package',
                                                                                                 'resources',
                                                                                                 'test_solution',
-                                                                                                'solution.py'))
+                                                                                                'solution.py'),
+                                 res_path)
         created_spec_gui = Path(self.tmp_dir.name).joinpath('build_executable_gui.spec')
 
         if platform.system() == 'Windows':
             install_script_path = repr(
                 str(Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
-                                                                               'install_album_win64.bat')))
+                                                                                   'install_album_win64.bat')))
         elif platform.system() == 'Darwin':
             install_script_path = repr(
                 str(Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
-                                                                               'install_album_macos.sh')))
+                                                                                   'install_album_macos.sh')))
         elif platform.system() == 'Linux':
             install_script_path = repr(
                 str(Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
-                                                                               'install_album_linux64.sh')))
+                                                                                   'install_album_linux64.sh')))
 
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))
@@ -163,7 +167,7 @@ class TestUnitBuildExecutable(TestCommon):
         template_str = re.sub("<test_solution_path>", tmp, template_str)
         tmp = re.sub(r"\\", r"\\\\", hook_path)
         template_str = re.sub("<hook_path>", tmp, template_str)
-
+        self.maxDiff = None
         self.assertEqual(template_str, created_str)
 
     def test_spec_file_no_gui(self):
@@ -171,26 +175,30 @@ class TestUnitBuildExecutable(TestCommon):
                                                                                               'resources',
                                                                                               'templates', 'no_gui',
                                                                                               'build_executable.spec')
+
+        res_path = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources')
+
         create_spec_file_no_gui.run(self.tmp_dir.name,
                                     Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('test_package',
                                                                                                    'resources',
                                                                                                    'test_solution',
-                                                                                                   'solution.py'))
+                                                                                                   'solution.py'),
+                                    res_path)
 
         created_spec_no_gui = Path(self.tmp_dir.name).joinpath('build_executable.spec')
 
         if platform.system() == 'Windows':
             install_script_path = repr(
                 str(Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
-                                                                               'install_album_win64.bat')))
+                                                                                   'install_album_win64.bat')))
         elif platform.system() == 'Darwin':
             install_script_path = repr(
                 str(Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
-                                                                               'install_album_macos.sh')))
+                                                                                   'install_album_macos.sh')))
         elif platform.system() == 'Linux':
             install_script_path = repr(
                 str(Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
-                                                                               'install_album_linux64.sh')))
+                                                                                   'install_album_linux64.sh')))
 
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))
@@ -212,6 +220,7 @@ class TestUnitBuildExecutable(TestCommon):
         template_str = re.sub("<hook_path>", tmp, template_str)
         tmp = re.sub(r"\\", r"\\\\", run_solution_path)
         template_str = re.sub("<run_solution_path>", tmp, template_str)
+        self.maxDiff = None
         self.assertEqual(template_str, created_str)
 
     def test_run_solution(self):

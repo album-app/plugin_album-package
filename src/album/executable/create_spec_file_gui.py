@@ -3,21 +3,27 @@ import platform
 from pathlib import Path
 
 
-# hier soll das specfile für pyinstaller erstellt und zurückgegeben werden.
-
-def run(output_path, solution):
+# res_path is needed since when this function is called from the unit tests on a remote runner the paths where the file
+# live can be different
+def run(output_path, solution, res_path):
     install_script_path = ""
-    if platform.system() == 'Windows':
-        install_script_path = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('resources',
-                                                                                             'install_album_win64.bat')
-    elif platform.system() == 'Linux':
-        install_script_path = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('resources',
-                                                                                             'install_album_linux64.sh')
-    elif platform.system() == 'Darwin':
-        install_script_path = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('resources',
-                                                                                             'install_album_macos.sh')
-
-    #test_files = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('resources', 'test_solution')
+    if not res_path:
+        if platform.system() == 'Windows':
+            install_script_path = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('resources',
+                                                                                                 'install_album_win64.bat')
+        elif platform.system() == 'Linux':
+            install_script_path = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('resources',
+                                                                                                 'install_album_linux64.sh')
+        elif platform.system() == 'Darwin':
+            install_script_path = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('resources',
+                                                                                                 'install_album_macos.sh')
+    else:
+        if platform.system() == 'Windows':
+            install_script_path = Path(res_path).joinpath('install_album_win64.bat')
+        elif platform.system() == 'Linux':
+            install_script_path = Path(res_path).joinpath('install_album_linux64.sh')
+        elif platform.system() == 'Darwin':
+            install_script_path = Path(res_path).joinpath('install_album_macos.sh')
 
     spec_path = Path(output_path).joinpath('build_executable_gui.spec')
 
@@ -29,11 +35,7 @@ def run(output_path, solution):
     file.write('\t\t\t binaries=[],\n')
     file.write('\t\t\t datas=[(')
     file.write(repr(str(install_script_path)))
-    # file.write(',\'.\')],')
     file.write(', \'.\'),')
-    #file.write('(')
-    #file.write(repr(str(Path(test_files).joinpath('*'))))
-    #file.write(', \'test_files\'),')
     file.write('(')
     file.write(repr(str(Path(solution).parent.joinpath('*'))))
     file.write(', \'solution_files\')],\n')
