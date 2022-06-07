@@ -45,12 +45,22 @@ class TestUnitBuildExecutable(TestCommon):
                                                                                            'gui', 'install_hook.py')
         create_subscripts_gui.create_hook(self.tmp_dir.name)
         created_hook_gui = Path(self.tmp_dir.name).joinpath('install_hook.py')
+
+        if platform.system() == 'Windows':
+            install_script_path = 'install_album_win64.bat'
+        elif platform.system() == 'Darwin':
+            install_script_path = 'install_album_macos.sh'
+        elif platform.system() == 'Linux':
+            install_script_path = 'install_album_linux64.sh'
+
         created_str = ""
         template_str = ""
         with open(created_hook_gui, 'r') as file:
             created_str = file.read()
         with open(template_hook_gui, 'r') as file:
             template_str = file.read()
+
+        template_str = re.sub("<install_script_path>", install_script_path, template_str)
 
         self.assertEqual(template_str, created_str)
 
@@ -62,12 +72,22 @@ class TestUnitBuildExecutable(TestCommon):
                                                                                               'install_hook.py')
         create_subscripts_no_gui.create_hook(self.tmp_dir.name)
         created_hook_no_gui = Path(self.tmp_dir.name).joinpath('install_hook.py')
+
+        if platform.system() == 'Windows':
+            install_script_path = 'install_album_win64.bat'
+        elif platform.system() == 'Darwin':
+            install_script_path = 'install_album_macos.sh'
+        elif platform.system() == 'Linux':
+            install_script_path = 'install_album_linux64.sh'
+
         created_str = ""
         template_str = ""
         with open(created_hook_no_gui, 'r') as file:
             created_str = file.read()
         with open(template_hook_no_gui, 'r') as file:
             template_str = file.read()
+
+        template_str = re.sub("<install_script_path>", install_script_path, template_str)
 
         self.assertEqual(template_str, created_str)
 
@@ -126,7 +146,7 @@ class TestUnitBuildExecutable(TestCommon):
             install_script_path = repr(
                 str(Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
                                                                                'install_album_linux64.sh')))
-            
+
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))
         hook_path = repr(str(Path(self.tmp_dir.name).joinpath('install_hook.py')))
