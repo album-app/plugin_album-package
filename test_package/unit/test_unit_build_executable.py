@@ -1,5 +1,6 @@
 import inspect
 import os
+import pkgutil
 import platform
 import re
 import sys
@@ -7,7 +8,7 @@ import unittest.mock
 from pathlib import Path
 
 from album.argument_parsing import create_parser
-from album.executable import build_executable, create_subscripts_gui, create_subscripts_no_gui, create_spec_file_gui, \
+from album.package import build_executable, create_subscripts_gui, create_subscripts_no_gui, create_spec_file_gui, \
     create_spec_file_no_gui
 from test_package.test_common import TestCommon
 
@@ -70,16 +71,16 @@ class TestUnitBuildExecutable(TestCommon):
                                                                                               'install_hook.py')
         create_subscripts_no_gui.create_hook(self.tmp_dir.name)
         created_hook_no_gui = Path(self.tmp_dir.name).joinpath('install_hook.py')
-
+#todo: elifs nicht ohne else im ganzen code anpassen
         if platform.system() == 'Windows':
             install_script_path = 'install_album_win64.bat'
         elif platform.system() == 'Darwin':
             install_script_path = 'install_album_macos.sh'
         elif platform.system() == 'Linux':
             install_script_path = 'install_album_linux64.sh'
+        else:
+            raise NotImplementedError
 
-        created_str = ""
-        template_str = ""
         with open(created_hook_no_gui, 'r') as file:
             created_str = file.read()
         with open(template_hook_no_gui, 'r') as file:
@@ -93,11 +94,10 @@ class TestUnitBuildExecutable(TestCommon):
         template_py_gui = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('test_package', 'resources',
                                                                                          'templates',
                                                                                          'gui',
-                                                                                         'execute_solution_gui.py')
-        create_subscripts_gui.create_execute_solution(self.tmp_dir.name)
-        created_py_gui = Path(self.tmp_dir.name).joinpath('execute_solution_gui.py')
-        created_str = ""
-        template_str = ""
+                                                                                         'call_solution_gui.py')
+        create_subscripts_gui.create_call_solution(self.tmp_dir.name)
+        created_py_gui = Path(self.tmp_dir.name).joinpath('call_solution_gui.py')
+
         with open(created_py_gui, 'r') as file:
             created_str = file.read()
         with open(template_py_gui, 'r') as file:
@@ -109,9 +109,9 @@ class TestUnitBuildExecutable(TestCommon):
         template_py_no_gui = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('test_package', 'resources',
                                                                                             'templates',
                                                                                             'no_gui',
-                                                                                            'execute_solution.py')
-        create_subscripts_no_gui.create_execute_solution(self.tmp_dir.name)
-        created_py_no_gui = Path(self.tmp_dir.name).joinpath('execute_solution.py')
+                                                                                            'call_solution.py')
+        create_subscripts_no_gui.create_call_solution(self.tmp_dir.name)
+        created_py_no_gui = Path(self.tmp_dir.name).joinpath('call_solution.py')
         created_str = ""
         template_str = ""
         with open(created_py_no_gui, 'r') as file:
@@ -126,28 +126,20 @@ class TestUnitBuildExecutable(TestCommon):
                                                                                            'templates', 'gui',
                                                                                            'build_executable_gui.spec')
 
-        res_path = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources')
 
-        create_spec_file_gui.run(self.tmp_dir.name,
+        create_spec_file_gui.create(self.tmp_dir.name,
                                  Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('test_package',
                                                                                                 'resources',
                                                                                                 'test_solution',
-                                                                                                'solution.py'),
-                                 res_path)
+                                                                                                'solution.py'))
         created_spec_gui = Path(self.tmp_dir.name).joinpath('build_executable_gui.spec')
 
         if platform.system() == 'Windows':
-            install_script_path = repr(
-                str(Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
-                                                                                   'install_album_win64.bat')))
+            install_script_path = repr(str(pkgutil.get_data('album.package.resources', 'install_album_win64.bat')))
         elif platform.system() == 'Darwin':
-            install_script_path = repr(
-                str(Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
-                                                                                   'install_album_macos.sh')))
+            install_script_path = repr(str(pkgutil.get_data('album.package.resources', 'install_album_macos.sh')))
         elif platform.system() == 'Linux':
-            install_script_path = repr(
-                str(Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
-                                                                                   'install_album_linux64.sh')))
+            install_script_path = repr(str(pkgutil.get_data('album.package.resources', 'install_album_linux64.bat')))
 
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))
@@ -174,29 +166,20 @@ class TestUnitBuildExecutable(TestCommon):
                                                                                               'templates', 'no_gui',
                                                                                               'build_executable.spec')
 
-        res_path = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources')
-
-        create_spec_file_no_gui.run(self.tmp_dir.name,
+        create_spec_file_no_gui.create(self.tmp_dir.name,
                                     Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('test_package',
                                                                                                    'resources',
                                                                                                    'test_solution',
-                                                                                                   'solution.py'),
-                                    res_path)
+                                                                                                   'solution.py'))
 
         created_spec_no_gui = Path(self.tmp_dir.name).joinpath('build_executable.spec')
 
         if platform.system() == 'Windows':
-            install_script_path = repr(
-                str(Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
-                                                                                   'install_album_win64.bat')))
+            install_script_path = repr(str(pkgutil.get_data('album.package.resources', 'install_album_win64.bat')))
         elif platform.system() == 'Darwin':
-            install_script_path = repr(
-                str(Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
-                                                                                   'install_album_macos.sh')))
+            install_script_path = repr(str(pkgutil.get_data('album.package.resources', 'install_album_macos.sh')))
         elif platform.system() == 'Linux':
-            install_script_path = repr(
-                str(Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('src', 'resources',
-                                                                                   'install_album_linux64.sh')))
+            install_script_path = repr(str(pkgutil.get_data('album.package.resources', 'install_album_linux64.bat')))
 
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))

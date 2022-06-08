@@ -9,7 +9,7 @@ album = Album.Builder().base_cache_path("<base_path>").build()
 album.load_or_create_collection()
 if not album.is_installed(sol_dir):
 	album.install(sol_dir)
-commands = input('Please enter the parameters with which the executable solution should be called:')
+commands = input('Please enter the parameters with which the package solution should be called:')
 commands = re.split(r'\s', commands)
 params = ['']
 for p in commands:

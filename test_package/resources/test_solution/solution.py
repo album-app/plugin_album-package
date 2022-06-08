@@ -20,7 +20,7 @@ def run():
     import subprocess
     from meintest import a
     print(a)
-    print('Hallo ich bin eine als executable ausgeführte Solution!!!')
+    print('Hallo ich bin eine als package ausgeführte Solution!!!')
     print("Success!")
 
 def test():

@@ -4,7 +4,7 @@ import unittest
 from argparse import Namespace
 from pathlib import Path
 
-from album.executable import build_executable
+from album.package import build_executable
 from album.runner.album_logging import get_active_logger
 from test_package.test_common import TestCommon
 
@@ -37,9 +37,8 @@ class TestIntegrationBuildExecutable(TestCommon):
             exe_path = Path(self.tmp_dir.name).joinpath('solution', 'solution.exe')
         else:
             exe_path = Path(self.tmp_dir.name).joinpath('solution', 'solution')
-        check = os.path.isfile(exe_path) and os.access(exe_path, os.X_OK)
 
-        self.assertTrue(check)
+        self.assertTrue(os.path.isfile(exe_path) and os.access(exe_path, os.X_OK))
 
     def test_execute_gui(self):
         build_executable.run(
@@ -60,9 +59,8 @@ class TestIntegrationBuildExecutable(TestCommon):
             exe_path = Path(self.tmp_dir.name).joinpath('solution', 'solution.exe')
         else:
             exe_path = Path(self.tmp_dir.name).joinpath('solution', 'solution')
-        check = os.path.isfile(exe_path) and os.access(exe_path, os.X_OK)
 
-        self.assertTrue(check)
+        self.assertTrue(os.path.isfile(exe_path) and os.access(exe_path, os.X_OK))
 
     def test_output_path(self):
         build_executable.run(self.album_mock, Namespace(solution=
@@ -74,9 +72,7 @@ class TestIntegrationBuildExecutable(TestCommon):
             output_path=Path(self.tmp_dir.name).joinpath('test_output'),
             no_gui=True))
 
-        check = os.path.isdir(Path(self.tmp_dir.name).joinpath('test_output'))
-
-        self.assertTrue(check)
+        self.assertTrue(os.path.isdir(Path(self.tmp_dir.name).joinpath('test_output')))
 
     def test_no_solution(self):
         with self.assertLogs(get_active_logger(), level='ERROR') as cm:
@@ -100,17 +96,12 @@ class TestIntegrationBuildExecutable(TestCommon):
             'solution.py'),
             output_path=self.tmp_dir.name,
             no_gui=True))
-        check_1 = os.path.isfile(Path(self.tmp_dir.name).joinpath('run_solution.py'))
-        check_2 = os.path.isfile(Path(self.tmp_dir.name).joinpath('execute_solution.py'))
-        check_3 = os.path.isfile(Path(self.tmp_dir.name).joinpath('install_hook.py'))
-        check_4 = os.path.isfile(Path(self.tmp_dir.name).joinpath('build_executable.spec'))
-        check_5 = os.path.isdir(Path(self.tmp_dir.name).joinpath('build'))
 
-        self.assertFalse(check_1)
-        self.assertFalse(check_2)
-        self.assertFalse(check_3)
-        self.assertFalse(check_4)
-        self.assertFalse(check_5)
+        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('run_solution.py')))
+        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution.py')))
+        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('install_hook.py')))
+        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('build_executable.spec')))
+        self.assertFalse(os.path.isdir(Path(self.tmp_dir.name).joinpath('build')))
 
     def test_clean_up_gui(self):
         build_executable.run(self.album_mock, Namespace(solution=
@@ -122,15 +113,10 @@ class TestIntegrationBuildExecutable(TestCommon):
             output_path=self.tmp_dir.name,
             no_gui=False))
 
-        check_1 = os.path.isdir(Path(self.tmp_dir.name).joinpath('build'))
-        check_2 = os.path.isfile(Path(self.tmp_dir.name).joinpath('execute_solution_gui.py'))
-        check_3 = os.path.isfile(Path(self.tmp_dir.name).joinpath('install_hook.py'))
-        check_4 = os.path.isfile(Path(self.tmp_dir.name).joinpath('build_executable_gui.spec'))
-
-        self.assertFalse(check_1)
-        self.assertFalse(check_2)
-        self.assertFalse(check_3)
-        self.assertFalse(check_4)
+        self.assertFalse(os.path.isdir(Path(self.tmp_dir.name).joinpath('build')))
+        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution_gui.py')))
+        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('install_hook.py')))
+        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('build_executable_gui.spec')))
 
 if __name__ == '__main__':
     unittest.main()
