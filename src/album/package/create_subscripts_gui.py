@@ -3,9 +3,9 @@ import platform
 from pathlib import Path
 
 
-def run(output_path):
+def create(output_path):
     create_hook(output_path)
-    create_execute_solution(output_path)
+    create_call_solution(output_path)
 
 
 def create_hook(output_path):
@@ -35,8 +35,8 @@ def create_hook(output_path):
     file.close()
 
 
-def create_execute_solution(output_path):
-    executer_path = Path(output_path).joinpath('execute_solution_gui.py')
+def create_call_solution(output_path):
+    executer_path = Path(output_path).joinpath('call_solution_gui.py')
 
     file = open(executer_path, "w", encoding='utf-8')
     file.write('import os\n')

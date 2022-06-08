@@ -2,10 +2,10 @@ import platform
 from pathlib import Path
 
 
-def run(output_path, solution_coordinates):
+def create(output_path, solution_coordinates):
     create_hook(output_path)
     create_run_solution(output_path, solution_coordinates)
-    create_execute_solution(output_path)
+    create_call_solution(output_path)
 
 
 def create_hook(output_path):
@@ -49,7 +49,7 @@ def create_run_solution(output_path, solution_coordinates):
     file.write('album.load_or_create_collection()\n')
     file.write('if not album.is_installed(sol_dir):\n')
     file.write('\talbum.install(sol_dir)\n')
-    file.write('commands = input(\'Please enter the parameters with which the executable solution should be '
+    file.write('commands = input(\'Please enter the parameters with which the package solution should be '
                'called:\')\n')
     file.write('commands = re.split(r\'\\s\', commands)\n')
     file.write('params = [\'\']\n')
@@ -61,8 +61,8 @@ def create_run_solution(output_path, solution_coordinates):
     file.close()
 
 
-def create_execute_solution(output_path):
-    executer_path = Path(output_path).joinpath('execute_solution.py')
+def create_call_solution(output_path):
+    executer_path = Path(output_path).joinpath('call_solution.py')
 
     file = open(executer_path, "w", encoding='utf-8')
     file.write('import os\n')

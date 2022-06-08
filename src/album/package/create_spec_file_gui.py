@@ -1,37 +1,29 @@
 import os
 import platform
+import pkgutil
 from pathlib import Path
 
 
 # res_path is needed since when this function is called from the unit tests on a remote runner the paths where the file
 # live can be different
+import album
 
-def run(output_path, solution, res_path):
-    install_script_path = ""
-    if not res_path:
-        if platform.system() == 'Windows':
-            install_script_path = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('resources',
-                                                                                                 'install_album_win64.bat')
-        elif platform.system() == 'Linux':
-            install_script_path = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('resources',
-                                                                                                 'install_album_linux64.sh')
-        elif platform.system() == 'Darwin':
-            install_script_path = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('resources',
-                                                                                                 'install_album_macos.sh')
-    else:
-        if platform.system() == 'Windows':
-            install_script_path = Path(res_path).joinpath('install_album_win64.bat')
-        elif platform.system() == 'Linux':
-            install_script_path = Path(res_path).joinpath('install_album_linux64.sh')
-        elif platform.system() == 'Darwin':
-            install_script_path = Path(res_path).joinpath('install_album_macos.sh')
+
+def create(output_path, solution):
+
+    if platform.system() == 'Windows':
+        install_script_path = pkgutil.get_data('album.package.resources', 'install_album_win64.bat')
+    elif platform.system() == 'Linux':
+        install_script_path = pkgutil.get_data('album.package.resources', 'install_album_linux64.sh')
+    elif platform.system() == 'Darwin':
+        install_script_path = pkgutil.get_data('album.package.resources', 'install_album_macos.sh')
 
     spec_path = Path(output_path).joinpath('build_executable_gui.spec')
 
     file = open(spec_path, "w")
     file.write('# -*- mode: python ; coding: utf-8 -*-\n\n\n')
     file.write('block_cipher = None\n\n\n')
-    file.write('a = Analysis([\'execute_solution_gui.py\'],\n')
+    file.write('a = Analysis([\'call_solution_gui.py\'],\n')
     file.write('\t\t\t pathex=[],\n')
     file.write('\t\t\t binaries=[],\n')
     file.write('\t\t\t datas=[(')
