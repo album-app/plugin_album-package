@@ -22,18 +22,16 @@ class TestUnitBuildExecutable(TestCommon):
 
     def test_create_parser(self):
         parser = create_parser()
-        sys.argv = ["", "package", "1234", "--data_path", "bla", "--output_path", "An_example_path"]
+        sys.argv = ["", "package", "1234", "--output_path", "An_example_path"]
         args = parser.parse_known_args()
-        self.assertEqual("bla", args[0].data_path)
         self.assertEqual("1234", args[0].solution)
         self.assertEqual(False, args[0].no_gui)
         self.assertEqual("An_example_path", args[0].output_path)
         self.assertEqual(inspect.getsource(build_executable.run), inspect.getsource(args[0].func))
 
-        sys.argv = ["", "package", "1234", "--data_path", "bla", "--output_path",
+        sys.argv = ["", "package", "1234", "--output_path",
                     "An_example_path", "--no_gui"]
         args = parser.parse_known_args()
-        self.assertEqual("bla", args[0].data_path)
         self.assertEqual("1234", args[0].solution)
         self.assertEqual(True, args[0].no_gui)
         self.assertEqual("An_example_path", args[0].output_path)

@@ -29,7 +29,6 @@ class TestIntegrationBuildExecutable(TestCommon):
                     'solution.py'
                 ),
                 output_path=self.tmp_dir.name,
-                data_path="test_data",
                 no_gui=True
             )
         )
@@ -53,7 +52,6 @@ class TestIntegrationBuildExecutable(TestCommon):
                     'solution.py'
                 ),
                 output_path=self.tmp_dir.name,
-                data_path="test_data",
                 no_gui=False
             )
         )
@@ -74,7 +72,6 @@ class TestIntegrationBuildExecutable(TestCommon):
             'test_solution',
             'solution.py'),
             output_path=Path(self.tmp_dir.name).joinpath('test_output'),
-            data_path="test_data",
             no_gui=True))
 
         check = os.path.isdir(Path(self.tmp_dir.name).joinpath('test_output'))
@@ -90,7 +87,6 @@ class TestIntegrationBuildExecutable(TestCommon):
                 'test_solution',
                 'murks.py'),
                 output_path=Path(self.tmp_dir.name).joinpath('test_output'),
-                data_path="test_data",
                 no_gui=True))
 
         self.assertEqual('ERROR:root:Solution could not be found! Abort.', cm.output[0])
@@ -103,7 +99,6 @@ class TestIntegrationBuildExecutable(TestCommon):
             'test_solution',
             'solution.py'),
             output_path=self.tmp_dir.name,
-            data_path="test_data",
             no_gui=True))
         check_1 = os.path.isfile(Path(self.tmp_dir.name).joinpath('run_solution.py'))
         check_2 = os.path.isfile(Path(self.tmp_dir.name).joinpath('execute_solution.py'))
@@ -125,7 +120,6 @@ class TestIntegrationBuildExecutable(TestCommon):
             'test_solution',
             'solution.py'),
             output_path=self.tmp_dir.name,
-            data_path="test_data",
             no_gui=False))
 
         check_1 = os.path.isdir(Path(self.tmp_dir.name).joinpath('build'))
