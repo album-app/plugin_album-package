@@ -18,6 +18,8 @@ def create(output_path, solution):
         install_script_path = pkg_resources.resource_filename('album.package.resources','install_album_linux64.sh')
     elif platform.system() == 'Darwin':
         install_script_path = pkg_resources.resource_filename('album.package.resources','install_album_macos.sh')
+    else:
+        raise NotImplementedError
 
     spec_path = Path(output_path).joinpath('build_executable.spec')
 

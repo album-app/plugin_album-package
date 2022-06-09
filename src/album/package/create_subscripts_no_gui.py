@@ -15,6 +15,8 @@ def create_hook(output_path):
         install_script_name = 'install_album_linux64.sh'
     elif platform.system() == 'Darwin':
         install_script_name = 'install_album_macos.sh'
+    else:
+        raise NotImplementedError
 
     hook_path = Path(output_path).joinpath('install_hook.py')
 

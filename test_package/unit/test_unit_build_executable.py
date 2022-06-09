@@ -53,6 +53,8 @@ class TestUnitBuildExecutable(TestCommon):
             install_script_path = 'install_album_macos.sh'
         elif platform.system() == 'Linux':
             install_script_path = 'install_album_linux64.sh'
+        else:
+            raise NotImplementedError
 
         created_str = ""
         template_str = ""
@@ -142,6 +144,8 @@ class TestUnitBuildExecutable(TestCommon):
             install_script_path = repr(str(pkg_resources.resource_filename('album.package.resources','install_album_macos.sh')))
         elif platform.system() == 'Linux':
             install_script_path = repr(str(pkg_resources.resource_filename('album.package.resources','install_album_linux64.sh')))
+        else:
+            raise NotImplementedError
 
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))
@@ -182,6 +186,8 @@ class TestUnitBuildExecutable(TestCommon):
             install_script_path = repr(str(pkg_resources.resource_filename('album.package.resources','install_album_macos.sh')))
         elif platform.system() == 'Linux':
             install_script_path = repr(str(pkg_resources.resource_filename('album.package.resources','install_album_linux64.sh')))
+        else:
+            raise NotImplementedError
 
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))
