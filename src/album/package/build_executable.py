@@ -12,10 +12,9 @@ from album.runner.album_logging import get_active_logger
 def run(album_instance: Album, args):
     if os.path.isfile(args.solution):
         get_active_logger().info("Build an package which runs the solution.")
+        get_active_logger().info("solution: %s" % args.solution)
         get_active_logger().info("--output_path: %s" % args.output_path)
         get_active_logger().info("--no_gui: %s" % args.no_gui)
-        resolved_solution = album_instance.resolve(args.solution)
-        get_active_logger().info("Resolved solution: %s" % resolved_solution.coordinates())
 
         mode = args.no_gui
         if not mode:
