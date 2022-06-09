@@ -1,22 +1,20 @@
-import os
 import platform
-import pkgutil
 from pathlib import Path
-
+import pkg_resources
 
 # res_path is needed since when this function is called from the unit tests on a remote runner the paths where the file
 # live can be different
-import album
+
 
 
 def create(output_path, solution):
 
     if platform.system() == 'Windows':
-        install_script_path = pkgutil.get_data('album.package.resources', 'install_album_win64.bat')
+        install_script_path = pkg_resources.resource_filename('album.package.resources','install_album_win64.bat')
     elif platform.system() == 'Linux':
-        install_script_path = pkgutil.get_data('album.package.resources', 'install_album_linux64.sh')
+        install_script_path = pkg_resources.resource_filename('album.package.resources','install_album_linux64.sh')
     elif platform.system() == 'Darwin':
-        install_script_path = pkgutil.get_data('album.package.resources', 'install_album_macos.sh')
+        install_script_path = pkg_resources.resource_filename('album.package.resources','install_album_macos.sh')
 
     spec_path = Path(output_path).joinpath('build_executable_gui.spec')
 

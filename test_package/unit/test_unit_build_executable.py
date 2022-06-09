@@ -7,6 +7,8 @@ import sys
 import unittest.mock
 from pathlib import Path
 
+import pkg_resources
+
 from album.argument_parsing import create_parser
 from album.package import build_executable, create_subscripts_gui, create_subscripts_no_gui, create_spec_file_gui, \
     create_spec_file_no_gui
@@ -135,11 +137,11 @@ class TestUnitBuildExecutable(TestCommon):
         created_spec_gui = Path(self.tmp_dir.name).joinpath('build_executable_gui.spec')
 
         if platform.system() == 'Windows':
-            install_script_path = repr(str(pkgutil.get_data('album.package.resources', 'install_album_win64.bat')))
+            install_script_path = repr(str(pkg_resources.resource_filename('album.package.resources','install_album_win64.bat')))
         elif platform.system() == 'Darwin':
-            install_script_path = repr(str(pkgutil.get_data('album.package.resources', 'install_album_macos.sh')))
+            install_script_path = repr(str(pkg_resources.resource_filename('album.package.resources','install_album_macos.sh')))
         elif platform.system() == 'Linux':
-            install_script_path = repr(str(pkgutil.get_data('album.package.resources', 'install_album_linux64.bat')))
+            install_script_path = repr(str(pkg_resources.resource_filename('album.package.resources','install_album_linux64.sh')))
 
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))
@@ -175,11 +177,11 @@ class TestUnitBuildExecutable(TestCommon):
         created_spec_no_gui = Path(self.tmp_dir.name).joinpath('build_executable.spec')
 
         if platform.system() == 'Windows':
-            install_script_path = repr(str(pkgutil.get_data('album.package.resources', 'install_album_win64.bat')))
+            install_script_path = repr(str(pkg_resources.resource_filename('album.package.resources','install_album_win64.bat')))
         elif platform.system() == 'Darwin':
-            install_script_path = repr(str(pkgutil.get_data('album.package.resources', 'install_album_macos.sh')))
+            install_script_path = repr(str(pkg_resources.resource_filename('album.package.resources','install_album_macos.sh')))
         elif platform.system() == 'Linux':
-            install_script_path = repr(str(pkgutil.get_data('album.package.resources', 'install_album_linux64.bat')))
+            install_script_path = repr(str(pkg_resources.resource_filename('album.package.resources','install_album_linux64.sh')))
 
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))
