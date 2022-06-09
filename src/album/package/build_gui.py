@@ -14,11 +14,15 @@ def run(album_instance: Album, args):
     create_subscripts_gui.create(args.output_path)
     spec_path = create_spec_file_gui.create(args.output_path, args.solution)
     exe_path_param = '--distpath=%s' % (str(args.output_path))
-    PyInstaller.__main__.run([str(spec_path), exe_path_param])
-
-    # Deletion of PyInstaller leftovers
-    if Path(os.getcwd()).joinpath('build', 'build_executable_gui').exists():
-        shutil.rmtree(Path(os.getcwd()).joinpath('build'))
-    os.remove(Path(args.output_path).joinpath('build_executable_gui.spec'))
-    os.remove(Path(args.output_path).joinpath('call_solution_gui.py'))
-    os.remove(Path(args.output_path).joinpath('install_hook.py'))
+    try:
+        PyInstaller.__main__.run([str(spec_path), exe_path_param])
+    except Exception as e:
+        #here should something happen
+        pass
+    finally:
+        # Deletion of PyInstaller leftovers
+        if Path(os.getcwd()).joinpath('build', 'build_executable_gui').exists():
+            shutil.rmtree(Path(os.getcwd()).joinpath('build'))
+        os.remove(Path(args.output_path).joinpath('build_executable_gui.spec'))
+        os.remove(Path(args.output_path).joinpath('call_solution_gui.py'))
+        os.remove(Path(args.output_path).joinpath('install_hook.py'))
