@@ -1,37 +1,14 @@
-import platform
+import re
 from pathlib import Path
+from album import core
+
+import pkg_resources
 
 
 def create(output_path, solution_coordinates):
-    create_hook(output_path)
+    create_yml(output_path)
     create_run_solution(output_path, solution_coordinates)
     create_call_solution(output_path)
-
-
-def create_hook(output_path):
-    if platform.system() == 'Windows':
-        install_script_name = 'install_album_win64.bat'
-    elif platform.system() == 'Linux':
-        install_script_name = 'install_album_linux64.sh'
-    elif platform.system() == 'Darwin':
-        install_script_name = 'install_album_macos.sh'
-    else:
-        raise NotImplementedError
-
-    hook_path = Path(output_path).joinpath('install_hook.py')
-
-    file = open(hook_path, "w", encoding='utf-8')
-    file.write('import os\n')
-    file.write('from pathlib import Path\n')
-    file.write('import subprocess\n')
-    file.write('if not (os.path.isdir(Path.home().joinpath(\'.album\',\'env\'))):\n')
-    file.write('\tprint("Album missing, installing album.....")\n')
-    file.write('\tsubprocess.call([Path(os.path.realpath(__file__)).parent.joinpath(\'')
-    file.write(str(install_script_name))
-    file.write('\')])\n')
-    file.write('else:\n')
-    file.write('\tprint("Found Album. Proceeding to run the solution.")\n')
-    file.close()
 
 
 def create_run_solution(output_path, solution_coordinates):
@@ -46,7 +23,7 @@ def create_run_solution(output_path, solution_coordinates):
     file.write('sol_dir = ')
     file.write('Path(os.path.realpath(__file__)).parent.parent.joinpath(\'solution_files\')\n')
     file.write('album = Album.Builder().base_cache_path(')
-    file.write(repr(str(Path.home().joinpath('.album', 'env', 'album'))))
+    file.write(repr(str(Path.home().joinpath('.album', 'envs', 'album'))))
     file.write(').build()\n')
     file.write('album.load_or_create_collection()\n')
     file.write('if not album.is_installed(sol_dir):\n')
@@ -72,8 +49,8 @@ def create_call_solution(output_path):
     file.write('import subprocess\n')
     file.write('import shutil\n')
     file.write('conda_path = shutil.which(\"conda\")\n')
-    file.write('env_path = Path.home().joinpath(\'.album\', \'env\', \'album\')\n')
-    file.write('python_path = Path.home().joinpath(\'.album\', \'env\', \'album\', '
+    file.write('env_path = Path.home().joinpath(\'.album\', \'envs\', \'album\')\n')
+    file.write('python_path = Path.home().joinpath(\'.album\', \'envs\', \'album\', '
                '\'python\')\n')
     file.write('run_sol_path =')
     file.write('Path(os.path.realpath(__file__)).parent.joinpath(\'subscripts\', \'run_solution.py\')')
@@ -81,3 +58,12 @@ def create_call_solution(output_path):
     file.write('python_call = \'%s %s\' %(python_path, run_sol_path)\n')
     file.write('subprocess.call(python_call)\n')
     file.close()
+
+
+def create_yml(output_path):
+    yml_path = Path(output_path).joinpath('album.yml')
+    with open(pkg_resources.resource_filename('album.package.resources', 'album.yml'), 'r') as file:
+        template_str = file.read()
+    template_str = re.sub("<version>", core.__version__, template_str)
+    with open(yml_path, 'w') as file:
+        file.write(template_str)

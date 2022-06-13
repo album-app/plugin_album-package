@@ -25,4 +25,4 @@ def run(album_instance: Album, args):
             shutil.rmtree(Path(os.getcwd()).joinpath('build'))
         os.remove(Path(args.output_path).joinpath('build_executable_gui.spec'))
         os.remove(Path(args.output_path).joinpath('call_solution_gui.py'))
-        os.remove(Path(args.output_path).joinpath('install_hook.py'))
+        os.remove(Path(args.output_path).joinpath('album.yml'))

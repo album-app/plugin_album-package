@@ -6,7 +6,7 @@ from album.runner.album_logging import get_active_logger
 
 
 # -*- mode: python ; coding: utf-8 -*-
-#TODO: Das Powershell script in eine seperate Datei auslagern.
+# todo: add tests for yml file
 
 # starts the run fct corresponding to the selected gui mode
 def run(album_instance: Album, args):

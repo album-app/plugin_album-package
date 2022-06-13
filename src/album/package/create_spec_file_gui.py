@@ -1,23 +1,8 @@
-import platform
+import os.path
 from pathlib import Path
-import pkg_resources
-
-# res_path is needed since when this function is called from the unit tests on a remote runner the paths where the file
-# live can be different
-
 
 
 def create(output_path, solution):
-
-    if platform.system() == 'Windows':
-        install_script_path = pkg_resources.resource_filename('album.package.resources','install_album_win64.bat')
-    elif platform.system() == 'Linux':
-        install_script_path = pkg_resources.resource_filename('album.package.resources','install_album_linux64.sh')
-    elif platform.system() == 'Darwin':
-        install_script_path = pkg_resources.resource_filename('album.package.resources','install_album_macos.sh')
-    else:
-        raise NotImplementedError
-
     spec_path = Path(output_path).joinpath('build_executable_gui.spec')
 
     file = open(spec_path, "w")
@@ -27,16 +12,16 @@ def create(output_path, solution):
     file.write('\t\t\t pathex=[],\n')
     file.write('\t\t\t binaries=[],\n')
     file.write('\t\t\t datas=[(')
-    file.write(repr(str(install_script_path)))
+    file.write(repr(str(Path(output_path).joinpath('album.yml'))))
     file.write(', \'.\'),')
     file.write('(')
-    file.write(repr(str(Path(solution).parent.joinpath('*'))))
+    file.write(repr(str(Path(solution).parent.joinpath('*.py'))))
     file.write(', \'solution_files\')],\n')
     file.write('\t\t\t hiddenimports=[\'pkg_resources\'],\n')
     file.write('\t\t\t hookspath=[],\n')
     file.write('\t\t\t hooksconfig={},\n')
     file.write('\t\t\t runtime_hooks=[')
-    file.write(repr(str(Path(output_path).joinpath('install_hook.py'))))
+    file.write(repr(str(Path(os.path.realpath(__file__)).parent.joinpath('resources', 'install_all.py'))))
     file.write('],\n')
     file.write('\t\t\t excludes=[],\n')
     file.write('\t\t\t win_no_prefer_redirects=False,\n')
