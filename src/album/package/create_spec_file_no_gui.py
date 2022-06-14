@@ -12,7 +12,7 @@ def create(output_path, solution):
     hook_path = repr(str(Path(pkg_resources.resource_filename('album.package.resources', 'install_all.py'))))
 
     with open(pkg_resources.resource_filename('album.package.resources.templates.no_gui',
-                                              'build_executable_template'), 'r') as file:
+                                              'build_executable_template.spec'), 'r') as file:
         template_str = file.read()
 
     tmp = re.sub(r"\\", r"\\\\", yml_path)
