@@ -1,4 +1,5 @@
 import re
+import shutil
 from pathlib import Path
 from album import core
 
@@ -35,8 +36,5 @@ def create_run_solution(output_path, solution_coordinates):
 
 
 def create_call_solution(output_path):
-    with open(pkg_resources.resource_filename('album.package.resources.templates.no_gui', 'call_solution_template.py'),
-              'r') as file:
-        template_str = file.read()
-    with open(Path(output_path).joinpath("call_solution.py"), 'w') as file:
-        file.write(template_str)
+    shutil.copy(pkg_resources.resource_filename('album.package.resources.templates.no_gui', 'call_solution_template.py')
+                , Path(output_path).joinpath('call_solution.py'))

@@ -8,7 +8,7 @@ def create(output_path, solution):
     spec_path = Path(output_path).joinpath('build_executable.spec')
     yml_path = repr(str(Path(output_path).joinpath('album.yml')))
     run_sol_path = repr(str(Path(output_path).joinpath('run_solution.py')))
-    solution_path = repr(str(Path(solution).parent.joinpath('*')))
+    solution_path = repr(str(Path(solution).parent.joinpath('*.py')))
     hook_path = repr(str(Path(pkg_resources.resource_filename('album.package.resources', 'install_all.py'))))
 
     with open(pkg_resources.resource_filename('album.package.resources.templates.no_gui',
