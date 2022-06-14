@@ -17,8 +17,6 @@ class TestIntegrationBuildExecutable(TestCommon):
         super().tearDown()
 
     def test_execute_no_gui(self):
-        # TODO: Check if exe is executed the right way
-
         build_executable.run(
             self.album_mock,
             Namespace(
@@ -99,7 +97,6 @@ class TestIntegrationBuildExecutable(TestCommon):
 
         self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('run_solution_template.py')))
         self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution.py')))
-        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('install_hook.py')))
         self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('build_executable.spec')))
         self.assertFalse(os.path.isdir(Path(self.tmp_dir.name).joinpath('build')))
 
@@ -115,8 +112,8 @@ class TestIntegrationBuildExecutable(TestCommon):
 
         self.assertFalse(os.path.isdir(Path(self.tmp_dir.name).joinpath('build')))
         self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution_gui.py')))
-        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('install_hook.py')))
         self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('build_executable_gui.spec')))
+
 
 if __name__ == '__main__':
     unittest.main()

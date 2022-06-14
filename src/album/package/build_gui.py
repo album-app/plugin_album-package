@@ -4,12 +4,10 @@ from pathlib import Path
 
 import PyInstaller.__main__
 
-from album.api import Album
 from album.package import create_spec_file_gui, create_subscripts_gui
-from album.runner.album_logging import get_active_logger
 
 
-def run(album_instance: Album, args):
+def run(args):
     if not os.path.isdir(Path(args.output_path)):
         os.mkdir(Path(args.output_path))
     create_subscripts_gui.create(args.output_path)
@@ -18,7 +16,7 @@ def run(album_instance: Album, args):
     try:
         PyInstaller.__main__.run([str(spec_path), exe_path_param])
     except Exception as e:
-        get_active_logger().error("PyInstaller exited with an unexpected error!")
+        raise RuntimeError("PyInstaller exited with an unexpected error!") from e
     finally:
         # Deletion of PyInstaller leftovers
         if Path(os.getcwd()).joinpath('build', 'build_executable_gui').exists():

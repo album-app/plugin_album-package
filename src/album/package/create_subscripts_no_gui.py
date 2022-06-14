@@ -1,9 +1,10 @@
 import re
 import shutil
 from pathlib import Path
-from album import core
 
 import pkg_resources
+
+from album import core
 
 
 def create(output_path, solution_coordinates):
@@ -27,6 +28,7 @@ def create_run_solution(output_path, solution_coordinates):
         template_str = file.read()
 
     base_path = repr(str(Path.home().joinpath('.album', 'envs', 'album')))
+    # for infos on \\ look https://docs.python.org/3/howto/regex.html#regex-howto
     tmp = re.sub(r"\\", r"\\\\", base_path)
     template_str = re.sub("\"<base_path>\"", tmp, template_str)
     template_str = re.sub("<solution>", str(solution_coordinates), template_str)
