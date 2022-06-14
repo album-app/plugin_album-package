@@ -1,57 +1,28 @@
 import os.path
+import re
 from pathlib import Path
+
+import pkg_resources
 
 
 def create(output_path, solution):
     spec_path = Path(output_path).joinpath('build_executable_gui.spec')
+    yml_path = repr(str(Path(output_path).joinpath('album.yml')))
+    solution_path = repr(str(Path(solution).parent.joinpath('*')))
+    hook_path = repr(str(Path(pkg_resources.resource_filename('album.package.resources', 'install_all.py'))))
 
-    file = open(spec_path, "w")
-    file.write('# -*- mode: python ; coding: utf-8 -*-\n\n\n')
-    file.write('block_cipher = None\n\n\n')
-    file.write('a = Analysis([\'call_solution_gui.py\'],\n')
-    file.write('\t\t\t pathex=[],\n')
-    file.write('\t\t\t binaries=[],\n')
-    file.write('\t\t\t datas=[(')
-    file.write(repr(str(Path(output_path).joinpath('album.yml'))))
-    file.write(', \'.\'),')
-    file.write('(')
-    file.write(repr(str(Path(solution).parent.joinpath('*.py'))))
-    file.write(', \'solution_files\')],\n')
-    file.write('\t\t\t hiddenimports=[\'pkg_resources\'],\n')
-    file.write('\t\t\t hookspath=[],\n')
-    file.write('\t\t\t hooksconfig={},\n')
-    file.write('\t\t\t runtime_hooks=[')
-    file.write(repr(str(Path(os.path.realpath(__file__)).parent.joinpath('resources', 'install_all.py'))))
-    file.write('],\n')
-    file.write('\t\t\t excludes=[],\n')
-    file.write('\t\t\t win_no_prefer_redirects=False,\n')
-    file.write('\t\t\t win_private_assemblies=False,\n')
-    file.write('\t\t\t cipher=block_cipher,\n')
-    file.write('\t\t\t noarchive=False)\n')
-    file.write('pyz = PYZ(a.pure, a.zipped_data,\n')
-    file.write('\t\t\t cipher=block_cipher)\n\n')
-    file.write('exe = EXE(pyz,\n')
-    file.write('\t\t  a.scripts,\n')
-    file.write('\t\t  [],\n')
-    file.write('\t\t  exclude_binaries=True,\n')
-    file.write('\t\t  name=\'solution\',\n')
-    file.write('\t\t  debug=False,\n')
-    file.write('\t\t  bootloader_ignore_signals=False,\n')
-    file.write('\t\t  strip=False,\n')
-    file.write('\t\t  upx=True,\n')
-    file.write('\t\t  console=True,\n')
-    file.write('\t\t  disable_windowed_traceback=False,\n')
-    file.write('\t\t  target_arch=None,\n')
-    file.write('\t\t  codesign_identity=None,\n')
-    file.write('\t\t  entitlements_file=None )\n')
-    file.write('coll = COLLECT(exe,\n')
-    file.write('\t\t\t   a.binaries,\n')
-    file.write('\t\t\t   a.zipfiles,\n')
-    file.write('\t\t\t   a.datas,\n')
-    file.write('\t\t\t   strip=False,\n')
-    file.write('\t\t\t   upx=True,\n')
-    file.write('\t\t\t   upx_exclude=[],\n')
-    file.write('\t\t\t   name=\'solution\')\n')
-    file.close()
+    with open(pkg_resources.resource_filename('album.package.resources.templates.gui',
+                                              'build_executable_gui_template.spec'), 'r') as file:
+        template_str = file.read()
+
+    tmp = re.sub(r"\\", r"\\\\", yml_path)
+    template_str = re.sub("<yml_path>", tmp, template_str)
+    tmp = re.sub(r"\\", r"\\\\", solution_path)
+    template_str = re.sub("<solution_path>", tmp, template_str)
+    tmp = re.sub(r"\\", r"\\\\", hook_path)
+    template_str = re.sub("<hook_path>", tmp, template_str)
+
+    with open(spec_path, 'w') as file:
+        file.write(template_str)
 
     return spec_path

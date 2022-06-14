@@ -97,7 +97,7 @@ class TestIntegrationBuildExecutable(TestCommon):
             output_path=self.tmp_dir.name,
             no_gui=True))
 
-        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('run_solution.py')))
+        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('run_solution_template.py')))
         self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution.py')))
         self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('install_hook.py')))
         self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('build_executable.spec')))

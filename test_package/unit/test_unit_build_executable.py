@@ -1,6 +1,5 @@
 import inspect
 import os
-import pkgutil
 import platform
 import re
 import sys
@@ -40,61 +39,7 @@ class TestUnitBuildExecutable(TestCommon):
         self.assertEqual("An_example_path", args[0].output_path)
         self.assertEqual(inspect.getsource(build_executable.run), inspect.getsource(args[0].func))
 
-    def test_install_hook_gui(self):
-        template_hook_gui = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('test_package', 'resources',
-                                                                                           'templates',
-                                                                                           'gui', 'install_hook.py')
-        create_subscripts_gui.create_hook(self.tmp_dir.name)
-        created_hook_gui = Path(self.tmp_dir.name).joinpath('install_hook.py')
-
-        if platform.system() == 'Windows':
-            install_script_path = 'install_album_win64.bat'
-        elif platform.system() == 'Darwin':
-            install_script_path = 'install_album_macos.sh'
-        elif platform.system() == 'Linux':
-            install_script_path = 'install_album_linux64.sh'
-        else:
-            raise NotImplementedError
-
-        created_str = ""
-        template_str = ""
-        with open(created_hook_gui, 'r') as file:
-            created_str = file.read()
-        with open(template_hook_gui, 'r') as file:
-            template_str = file.read()
-
-        template_str = re.sub("<install_script_path>", install_script_path, template_str)
-
-        self.assertEqual(template_str, created_str)
-
-    def test_install_hook_no_gui(self):
-        template_hook_no_gui = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('test_package',
-                                                                                              'resources',
-                                                                                              'templates',
-                                                                                              'no_gui',
-                                                                                              'install_hook.py')
-        create_subscripts_no_gui.create_hook(self.tmp_dir.name)
-        created_hook_no_gui = Path(self.tmp_dir.name).joinpath('install_hook.py')
-#todo: elifs nicht ohne else im ganzen code anpassen
-        if platform.system() == 'Windows':
-            install_script_path = 'install_album_win64.bat'
-        elif platform.system() == 'Darwin':
-            install_script_path = 'install_album_macos.sh'
-        elif platform.system() == 'Linux':
-            install_script_path = 'install_album_linux64.sh'
-        else:
-            raise NotImplementedError
-
-        with open(created_hook_no_gui, 'r') as file:
-            created_str = file.read()
-        with open(template_hook_no_gui, 'r') as file:
-            template_str = file.read()
-
-        template_str = re.sub("<install_script_path>", install_script_path, template_str)
-
-        self.assertEqual(template_str, created_str)
-
-    def test_execute_solution_gui(self):
+    def test_call_solution_gui(self):
         template_py_gui = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('test_package', 'resources',
                                                                                          'templates',
                                                                                          'gui',
@@ -109,7 +54,7 @@ class TestUnitBuildExecutable(TestCommon):
 
         self.assertEqual(template_str, created_str)
 
-    def test_execute_solution_no_gui(self):
+    def test_call_solution_no_gui(self):
         template_py_no_gui = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('test_package', 'resources',
                                                                                             'templates',
                                                                                             'no_gui',
@@ -138,18 +83,13 @@ class TestUnitBuildExecutable(TestCommon):
                                                                                                 'solution.py'))
         created_spec_gui = Path(self.tmp_dir.name).joinpath('build_executable_gui.spec')
 
-        if platform.system() == 'Windows':
-            install_script_path = repr(str(pkg_resources.resource_filename('album.package.resources','install_album_win64.bat')))
-        elif platform.system() == 'Darwin':
-            install_script_path = repr(str(pkg_resources.resource_filename('album.package.resources','install_album_macos.sh')))
-        elif platform.system() == 'Linux':
-            install_script_path = repr(str(pkg_resources.resource_filename('album.package.resources','install_album_linux64.sh')))
-        else:
-            raise NotImplementedError
+
+        #install_script_path = repr(str(pkg_resources.resource_filename('album.package.resources','install_all.py')))
+        yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
 
         test_solution_path = repr(
-            str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))
-        hook_path = repr(str(Path(self.tmp_dir.name).joinpath('install_hook.py')))
+            str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*.py')))
+        hook_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'install_all.py')))
         created_str = ""
         template_str = ""
         with open(created_spec_gui, 'r') as file:
@@ -157,8 +97,8 @@ class TestUnitBuildExecutable(TestCommon):
         with open(template_spec_gui, 'r') as file:
             template_str = file.read()
 
-        tmp = re.sub(r"\\", r"\\\\", install_script_path)
-        template_str = re.sub("<install_script_path>", tmp, template_str)
+        tmp = re.sub(r"\\", r"\\\\", yml_path)
+        template_str = re.sub("<yml_path>", tmp, template_str)
         tmp = re.sub(r"\\", r"\\\\", test_solution_path)
         template_str = re.sub("<test_solution_path>", tmp, template_str)
         tmp = re.sub(r"\\", r"\\\\", hook_path)
@@ -216,7 +156,7 @@ class TestUnitBuildExecutable(TestCommon):
         template_py_no_gui = Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('test_package', 'resources',
                                                                                             'templates',
                                                                                             'no_gui',
-                                                                                            'run_solution.py')
+                                                                                            'run_solution_template.py')
         create_subscripts_no_gui.create_run_solution(self.tmp_dir.name, "album:import_unittest:0.1.0")
         created_py_no_gui = Path(self.tmp_dir.name).joinpath('run_solution.py')
         with open(created_py_no_gui, 'r') as file:
