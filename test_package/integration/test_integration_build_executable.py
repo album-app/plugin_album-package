@@ -36,7 +36,8 @@ class TestIntegrationBuildExecutable(TestCommon):
         else:
             exe_path = Path(self.tmp_dir.name).joinpath('solution', 'solution')
 
-        self.assertTrue(os.path.isfile(exe_path) and os.access(exe_path, os.X_OK))
+        self.assertTrue(os.path.isfile(exe_path) and os.access(exe_path, os.X_OK),
+                        "No executable created or executable not accessible.")
 
     def test_execute_gui(self):
         build_executable.run(
@@ -58,7 +59,8 @@ class TestIntegrationBuildExecutable(TestCommon):
         else:
             exe_path = Path(self.tmp_dir.name).joinpath('solution', 'solution')
 
-        self.assertTrue(os.path.isfile(exe_path) and os.access(exe_path, os.X_OK))
+        self.assertTrue(os.path.isfile(exe_path) and os.access(exe_path, os.X_OK),
+                        "No executable created or executable not accessible.")
 
     def test_output_path(self):
         build_executable.run(self.album_mock, Namespace(solution=
@@ -70,7 +72,8 @@ class TestIntegrationBuildExecutable(TestCommon):
             output_path=Path(self.tmp_dir.name).joinpath('test_output'),
             no_gui=True))
 
-        self.assertTrue(os.path.isdir(Path(self.tmp_dir.name).joinpath('test_output')))
+        self.assertTrue(os.path.isdir(Path(self.tmp_dir.name).joinpath('test_output')),
+                        "Output directory was not created.")
 
     def test_no_solution(self):
         with self.assertLogs(get_active_logger(), level='ERROR') as cm:
@@ -83,7 +86,8 @@ class TestIntegrationBuildExecutable(TestCommon):
                 output_path=Path(self.tmp_dir.name).joinpath('test_output'),
                 no_gui=True))
 
-        self.assertEqual('ERROR:root:Solution could not be found! Abort.', cm.output[0])
+        self.assertEqual('ERROR:root:Solution could not be found! Abort.', cm.output[0],
+                         "Missing solution was not caught.")
 
     def test_clean_up_no_gui(self):
         build_executable.run(self.album_mock, Namespace(solution=
@@ -95,10 +99,14 @@ class TestIntegrationBuildExecutable(TestCommon):
             output_path=self.tmp_dir.name,
             no_gui=True))
 
-        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('run_solution_template.py')))
-        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution.py')))
-        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('build_executable.spec')))
-        self.assertFalse(os.path.isdir(Path(self.tmp_dir.name).joinpath('build')))
+        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('run_solution.py')),
+                         "run_solution.py was not deleted.")
+        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution.py')),
+                         "call_solution.py was not deleted.")
+        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('build_executable.spec')),
+                         "build_executable.spec was not deleted.")
+        self.assertFalse(os.path.isdir(Path(self.tmp_dir.name).joinpath('build')),
+                         "PyInstallers build directory was not deleted.")
 
     def test_clean_up_gui(self):
         build_executable.run(self.album_mock, Namespace(solution=
@@ -110,9 +118,12 @@ class TestIntegrationBuildExecutable(TestCommon):
             output_path=self.tmp_dir.name,
             no_gui=False))
 
-        self.assertFalse(os.path.isdir(Path(self.tmp_dir.name).joinpath('build')))
-        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution_gui.py')))
-        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('build_executable_gui.spec')))
+        self.assertFalse(os.path.isdir(Path(self.tmp_dir.name).joinpath('build')),
+                         "PyInstallers build directory was not deleted.")
+        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution_gui.py')),
+                         "call_solution_gui.py was not deleted.")
+        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('build_executable_gui.spec')),
+                         "build_executable_gui.spec was not deleted.")
 
 
 if __name__ == '__main__':

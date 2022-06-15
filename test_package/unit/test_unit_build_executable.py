@@ -40,11 +40,13 @@ class TestUnitBuildExecutable(TestCommon):
 
     def test_call_solution_gui(self):
         create_subscripts_gui.create_call_solution(self.tmp_dir.name)
-        self.assertTrue(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution_gui.py')))
+        self.assertTrue(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution_gui.py')),
+                        "There was no call_solution_gui.py subscript created!")
 
     def test_call_solution_no_gui(self):
         create_subscripts_no_gui.create_call_solution(self.tmp_dir.name)
-        self.assertTrue(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution.py')))
+        self.assertTrue(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution.py')),
+                        "There was no call_solution.py subscript created!")
 
     def test_spec_file_gui(self):
         yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
@@ -72,10 +74,12 @@ class TestUnitBuildExecutable(TestCommon):
                     hook_line = line
                     counter += 1
 
-        self.assertTrue(os.path.isfile(created_spec_gui))
-        self.assertEqual(datas_string, data_line)
-        self.assertEqual(hook_string, hook_line)
-        self.assertEqual(counter, 2)
+        self.assertTrue(os.path.isfile(created_spec_gui), "There was no spec file created!")
+        self.assertEqual(datas_string, data_line,
+                         "There was an error creating the string for additional data in the spec file.")
+        self.assertEqual(hook_string, hook_line,
+                         "There was an error creating the string for the install script in the spec file.")
+        self.assertEqual(counter, 2, "There were to many lines replaced! Error in the spec file creation")
 
     def test_spec_file_no_gui(self):
         yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
@@ -105,10 +109,12 @@ class TestUnitBuildExecutable(TestCommon):
                     hook_line = line
                     counter += 1
 
-        self.assertTrue(os.path.isfile(created_spec_no_gui))
-        self.assertEqual(datas_string, data_line)
-        self.assertEqual(hook_string, hook_line)
-        self.assertEqual(counter, 2)
+        self.assertTrue(os.path.isfile(created_spec_no_gui), "There was no spec file created!")
+        self.assertEqual(datas_string, data_line,
+                         "There was an error creating the string for additional data in the spec file.")
+        self.assertEqual(hook_string, hook_line,
+                         "There was an error creating the string for the install script in the spec file.")
+        self.assertEqual(counter, 2, "There were to many lines replaced! Error in the spec file creation")
 
     def test_run_solution(self):
         base_path = "album = Album.Builder().base_cache_path(%s).build()\n" % repr(
@@ -127,10 +133,10 @@ class TestUnitBuildExecutable(TestCommon):
                     coords_line = line
                     counter += 1
 
-        self.assertTrue(os.path.isfile(created_py_no_gui))
-        self.assertEqual(base_path, base_line)
-        self.assertEqual(solution_coords, coords_line)
-        self.assertEqual(counter, 2)
+        self.assertTrue(os.path.isfile(created_py_no_gui), "There was no run_solution.py subscript created!")
+        self.assertEqual(base_path, base_line, "An error occured in the creation of the album base directory string.")
+        self.assertEqual(solution_coords, coords_line, "An error occured in the resolving of the solution coordinates.")
+        self.assertEqual(counter, 2, "There were to many lines replaced! Error in the run_solution.py creation")
 
     def test_yml(self):
         ver_str = "      - album==%s\n" % core.__version__
@@ -144,9 +150,9 @@ class TestUnitBuildExecutable(TestCommon):
                     ver_line = line
                     counter += 1
 
-        self.assertTrue(os.path.isfile(yml_path))
-        self.assertEqual(ver_str, ver_line)
-        self.assertEqual(counter, 1)
+        self.assertTrue(os.path.isfile(yml_path), "There was no album.yml file created!")
+        self.assertEqual(ver_str, ver_line, "An error occured when inserting the current album version!")
+        self.assertEqual(counter, 1, "There were to many lines replaced! Error in the album.yml creation")
 
 
 if __name__ == '__main__':
