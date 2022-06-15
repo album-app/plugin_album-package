@@ -55,8 +55,6 @@ def _install_conda_macos(conda_path):
 
 
 def _install_missing_gui(conda_path, album_env_path, album_gui_url):
-
-
     print(
         "Found album but album gui is missing. Installing album gui into following album environment: %s" % album_env_path)
     try:
