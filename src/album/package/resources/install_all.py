@@ -28,7 +28,7 @@ def _install_conda_linux(conda_path):
     wget.download(conda_url_linux, str(conda_installer))
     install_process = subprocess.run(["bash", conda_installer, "-b", "-u", "-p", conda_path, ">", "/dev/null"],
                                      capture_output=True)
-    conda_exe = Path(conda_path).joinpath("condabin", "conda.sh")
+    conda_exe = Path(conda_path).joinpath("condabin", "conda")
 
     if install_process.returncode != 0:
         print("An error occured when installing Conda: %s", install_process.stderr)
@@ -44,7 +44,7 @@ def _install_conda_macos(conda_path):
     wget.download(conda_url_macos, str(conda_installer))
     install_process = subprocess.run(["bash", conda_installer, "-b", "-u", "-p", conda_path, ">", "/dev/null"],
                                      capture_output=True)
-    conda_exe = Path(conda_path).joinpath("condabin", "conda.sh")
+    conda_exe = Path(conda_path).joinpath("condabin", "conda")
 
     if install_process.returncode != 0:
         print("An error occured when installing Conda: %s", install_process.stderr)
@@ -67,7 +67,7 @@ def _install_missing_gui(conda_path, album_env_path, album_gui_url):
                     Path(conda_path).joinpath("condabin", "conda.bat"), album_env_path, album_gui_url))
             else:
                 subprocess.call('%s run -p %s pip install %s ' % (
-                    Path(conda_path).joinpath("condabin", "conda.sh"), album_env_path, album_gui_url))
+                    Path(conda_path).joinpath("condabin", "conda"), album_env_path, album_gui_url))
         except FileNotFoundError:
             print('Could not find a conda installation.')
             tmp = input('Please enter the path to your conda executable or enter nothing to install a new conda:')
@@ -190,7 +190,7 @@ def main():
         _install_missing_gui(_conda_path, album_env_path, album_gui_url)
 
     elif (not os.path.isfile(Path(_conda_path).joinpath("condabin", "conda.bat"))) and (not os.path.isfile(
-            Path(_conda_path).joinpath("condabin", "conda.sh"))):
+            Path(_conda_path).joinpath("condabin", "conda"))):
         _install_missing_conda(_conda_path)
 
 
