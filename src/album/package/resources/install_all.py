@@ -134,7 +134,7 @@ def _install_missing_conda(conda_path):
             raise NotImplementedError
 
 
-def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_url):
+def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_url, yml_path):
     print("Could not find album. Checking for conda installation....")
     os.mkdir(album_base_path)
 
@@ -166,7 +166,7 @@ def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_u
         print("-------------------------")
 
     print("Installing album...")
-    yml_path = Path(os.path.realpath(__file__)).parent.joinpath('album.yml')
+    
     if conda_found:
         subprocess.call('conda env create -p %s -f %s' % (album_env_path, yml_path))
         subprocess.call('conda run -p %s pip install %s ' % (album_env_path, album_gui_url))
@@ -180,9 +180,10 @@ def main():
     _conda_path = Path(album_base_path).joinpath("Miniconda")
     album_env_path = Path(album_base_path).joinpath('envs', 'album')
     album_gui_url = "https://gitlab.com/album-app/plugins/album-gui/-/archive/main/album-gui-main.zip"
+    yml_path = Path(os.path.realpath(__file__)).parent.joinpath('album.yml')
 
     if not (os.path.isdir(album_base_path)):
-        _install_album_full(album_base_path, _conda_path, album_env_path, album_gui_url)
+        _install_album_full(album_base_path, _conda_path, album_env_path, album_gui_url,yml_path)
 
     elif (os.path.isdir(album_env_path)) and not (
             os.path.isdir(Path(album_env_path).joinpath('Lib', 'site-packages', 'album', 'gui'))):
