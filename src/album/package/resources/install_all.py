@@ -182,8 +182,8 @@ def main():
     album_gui_url = "https://gitlab.com/album-app/plugins/album-gui/-/archive/main/album-gui-main.zip"
     yml_path = Path(os.path.realpath(__file__)).parent.joinpath('album.yml')
 
-    if not (os.path.isdir(album_base_path)):
-        _install_album_full(album_base_path, _conda_path, album_env_path, album_gui_url,yml_path)
+    if (not os.path.isdir(album_base_path)) or (not os.path.isdir(Path(album_base_path).joinpath('lnk'))):
+        _install_album_full(album_base_path, _conda_path, album_env_path, album_gui_url, yml_path)
 
     elif (os.path.isdir(album_env_path)) and not (
             os.path.isdir(Path(album_env_path).joinpath('Lib', 'site-packages', 'album', 'gui'))):
