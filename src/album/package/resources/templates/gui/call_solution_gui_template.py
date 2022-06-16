@@ -12,5 +12,5 @@ except Exception as e:
 		subprocess.call([Path.home().joinpath('.album','Miniconda','condabin','conda.bat'), "run", "-p", Path.home().joinpath('.album', 'envs', 'album'), "album", "install", Path(os.path.realpath(__file__)).parent.joinpath('solution_files')])
 		subprocess.call([Path.home().joinpath('.album','Miniconda','condabin','conda.bat'), "run", "-p", Path.home().joinpath('.album', 'envs', 'album'), "album", "gui", "--solution", Path(os.path.realpath(__file__)).parent.joinpath('solution_files', 'solution.py')])
 	else:
-		subprocess.call([Path.home().joinpath('.album','Miniconda','condabin','conda.sh'), "run", "-p", Path.home().joinpath('.album', 'envs', 'album'), "album", "install", Path(os.path.realpath(__file__)).parent.joinpath('solution_files')])
-		subprocess.call([Path.home().joinpath('.album','Miniconda','condabin','conda.sh'), "run", "-p", Path.home().joinpath('.album', 'envs', 'album'), "album", "gui", "--solution", Path(os.path.realpath(__file__)).parent.joinpath('solution_files', 'solution.py')])
+		subprocess.call([Path.home().joinpath('.album','Miniconda','condabin','conda'), "run", "-p", Path.home().joinpath('.album', 'envs', 'album'), "album", "install", Path(os.path.realpath(__file__)).parent.joinpath('solution_files')])
+		subprocess.call([Path.home().joinpath('.album','Miniconda','condabin','conda'), "run", "-p", Path.home().joinpath('.album', 'envs', 'album'), "album", "gui", "--solution", Path(os.path.realpath(__file__)).parent.joinpath('solution_files', 'solution.py')])
