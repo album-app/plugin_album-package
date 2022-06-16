@@ -166,7 +166,7 @@ def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_u
         print("-------------------------")
 
     print("Installing album...")
-    
+
     if conda_found:
         subprocess.call('conda env create -p %s -f %s' % (album_env_path, yml_path))
         subprocess.call('conda run -p %s pip install %s ' % (album_env_path, album_gui_url))

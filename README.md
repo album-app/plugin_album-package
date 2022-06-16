@@ -20,7 +20,7 @@ conda activate album
 pip install HERE LINK
 ```
 4. If you are using a linux system, make sure the source and the target system got the binutils package installed.
-For ubuntu for example it can be installed with the following command:
+For example on ubuntu it can be installed with the following command:
 ```
 apt-get update && apt-get install binutils
 ```
