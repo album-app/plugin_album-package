@@ -6,7 +6,6 @@ from album.runner.album_logging import get_active_logger
 
 
 # -*- mode: python ; coding: utf-8 -*-
-#TODO: Das Powershell script in eine seperate Datei auslagern.
 
 # starts the run fct corresponding to the selected gui mode
 def run(album_instance: Album, args):
@@ -18,7 +17,7 @@ def run(album_instance: Album, args):
 
         mode = args.no_gui
         if not mode:
-            build_gui.run(album_instance, args)
+            build_gui.run(args)
         else:
             build_no_gui.run(album_instance, args)
     else:

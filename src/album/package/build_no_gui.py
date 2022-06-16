@@ -6,7 +6,6 @@ import PyInstaller.__main__
 
 from album.api import Album
 from album.package import create_spec_file_no_gui, create_subscripts_no_gui
-from album.runner.album_logging import get_active_logger
 
 
 def run(album_instance: Album, args):
@@ -23,12 +22,12 @@ def run(album_instance: Album, args):
     try:
         PyInstaller.__main__.run([str(spec_path), exe_path_param])
     except Exception as e:
-        get_active_logger().error("PyInstaller exited with an unexpected error!")
+        raise RuntimeError("PyInstaller exited with an unexpected error!") from e
     finally:
         # Deletion of PyInstaller leftovers
         if Path(os.getcwd()).joinpath('build', 'build_executable').exists():
             shutil.rmtree(Path(os.getcwd()).joinpath('build'))
         os.remove(Path(args.output_path).joinpath('build_executable.spec'))
         os.remove(Path(args.output_path).joinpath('call_solution.py'))
-        os.remove(Path(args.output_path).joinpath('install_hook.py'))
         os.remove(Path(args.output_path).joinpath('run_solution.py'))
+        os.remove(Path(args.output_path).joinpath('album.yml'))
