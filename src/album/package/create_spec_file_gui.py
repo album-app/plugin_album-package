@@ -8,8 +8,11 @@ import pkg_resources
 def create(output_path, solution):
     spec_path = Path(output_path).joinpath('build_executable_gui.spec')
     yml_path = repr(str(Path(output_path).joinpath('album.yml')))
-    solution_path = repr(str(Path(solution).parent.joinpath('*.py')))
     hook_path = repr(str(Path(pkg_resources.resource_filename('album.package.resources', 'install_all.py'))))
+    if os.path.isdir(Path(solution)):
+        solution_path = repr(str(Path(solution).joinpath('*')))
+    if os.path.isfile(Path(solution)):
+        solution_path = repr(str(Path(solution)))
 
     with open(pkg_resources.resource_filename('album.package.resources.templates.gui',
                                               'build_executable_gui_template.spec'), 'r') as file:

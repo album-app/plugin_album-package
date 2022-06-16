@@ -47,10 +47,10 @@ class TestUnitBuildExecutable(TestCommon):
         self.assertTrue(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution.py')),
                         "There was no call_solution.py subscript created!")
 
-    def test_spec_file_gui(self):
+    def test_spec_file_gui_single(self):
         yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
         test_solution_path = repr(
-            str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*.py')))
+            str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', 'solution.py')))
         hook_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'install_all.py')))
 
         datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files')],\n" % (yml_path, test_solution_path)
@@ -80,10 +80,10 @@ class TestUnitBuildExecutable(TestCommon):
                          "There was an error creating the string for the install script in the spec file.")
         self.assertEqual(counter, 2, "There were to many lines replaced! Error in the spec file creation")
 
-    def test_spec_file_no_gui(self):
+    def test_spec_file_no_gui_single(self):
         yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
         test_solution_path = repr(
-            str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*.py')))
+            str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', 'solution.py')))
         run_sol_path = repr(str(Path(self.tmp_dir.name).joinpath('run_solution.py')))
         hook_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'install_all.py')))
 
@@ -108,6 +108,73 @@ class TestUnitBuildExecutable(TestCommon):
                     hook_line = line
                     counter += 1
 
+        self.assertTrue(os.path.isfile(created_spec_no_gui), "There was no spec file created!")
+        self.assertEqual(datas_string, data_line,
+                         "There was an error creating the string for additional data in the spec file.")
+        self.assertEqual(hook_string, hook_line,
+                         "There was an error creating the string for the install script in the spec file.")
+        self.assertEqual(counter, 2, "There were to many lines replaced! Error in the spec file creation")
+
+    def test_spec_file_gui_dir(self):
+        yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
+        test_solution_path = repr(
+            str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))
+        hook_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'install_all.py')))
+
+        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files')],\n" % (yml_path, test_solution_path)
+        hook_string = "\t\t\t runtime_hooks=[%s],\n" % hook_path
+
+        create_spec_file_gui.create(self.tmp_dir.name,
+                                    Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('test_package',
+                                                                                                   'resources',
+                                                                                                   'test_solution'))
+        created_spec_gui = Path(self.tmp_dir.name).joinpath('build_executable_gui.spec')
+
+        counter = 0
+        with open(created_spec_gui, 'r') as file:
+            for line in file:
+                if line.startswith("\t\t\t datas="):
+                    data_line = line
+                    counter += 1
+                if line.startswith("\t\t\t runtime_hooks="):
+                    hook_line = line
+                    counter += 1
+        self.maxDiff = None
+        self.assertTrue(os.path.isfile(created_spec_gui), "There was no spec file created!")
+        self.assertEqual(datas_string, data_line,
+                         "There was an error creating the string for additional data in the spec file.")
+        self.assertEqual(hook_string, hook_line,
+                         "There was an error creating the string for the install script in the spec file.")
+        self.assertEqual(counter, 2, "There were to many lines replaced! Error in the spec file creation")
+
+    def test_spec_file_no_gui_dir(self):
+        yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
+        test_solution_path = repr(
+            str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))
+        run_sol_path = repr(str(Path(self.tmp_dir.name).joinpath('run_solution.py')))
+        hook_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'install_all.py')))
+
+        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'subscripts'),(%s, 'solution_files')],\n" % (
+            yml_path, run_sol_path, test_solution_path)
+        hook_string = "\t\t\t runtime_hooks=[%s],\n" % hook_path
+
+        create_spec_file_no_gui.create(self.tmp_dir.name,
+                                       Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('test_package',
+                                                                                                      'resources',
+                                                                                                      'test_solution'))
+        created_spec_no_gui = Path(self.tmp_dir.name).joinpath('build_executable.spec')
+
+        counter = 0
+        with open(created_spec_no_gui, 'r') as file:
+            for line in file:
+                if line.startswith("\t\t\t datas="):
+                    data_line = line
+                    counter += 1
+                if line.startswith("\t\t\t runtime_hooks="):
+                    hook_line = line
+                    counter += 1
+
+        self.maxDiff = None
         self.assertTrue(os.path.isfile(created_spec_no_gui), "There was no spec file created!")
         self.assertEqual(datas_string, data_line,
                          "There was an error creating the string for additional data in the spec file.")
