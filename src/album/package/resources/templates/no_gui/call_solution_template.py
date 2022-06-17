@@ -1,12 +1,66 @@
 import os
+import platform
+import re
 from pathlib import Path
 import subprocess
 import shutil
 
-conda_path = shutil.which("conda")
-env_path = Path.home().joinpath('.album', 'envs', 'album')
-python_path = Path.home().joinpath('.album', 'envs', 'album', 'python')
-run_sol_path = Path(os.path.realpath(__file__)).parent.joinpath('subscripts', 'run_solution.py')
-python_call = '%s %s' % (python_path, run_sol_path)
-subprocess.call(python_call)
-input('Press any key to exit.')
+commands = input('Please enter the parameters with which the package solution should be called:')
+commands = re.split(r'\s', commands)
+params = ''
+for p in commands:
+    params += ' %s' %p
+
+try:
+    conda_check = subprocess.check_output('conda info')
+    cmd = subprocess.run(["conda", "run", "-n", "album", "album", "index"])
+    if cmd.returncode == 0:
+        subprocess.call(["conda", "run", "-n", 'album', "album", "install",
+                         Path(os.path.realpath(__file__)).parent.joinpath('solution_files')])
+        subprocess.call(["conda", "run", "-n", 'album', "album", "run",
+                         Path(os.path.realpath(__file__)).parent.joinpath('solution_files', 'solution.py'), params])
+    else:
+        subprocess.call(["conda", "run", "-p", Path.home().joinpath('.album', 'envs', 'album'), "album", "install",
+                         Path(os.path.realpath(__file__)).parent.joinpath('solution_files')])
+        subprocess.call(
+            ["conda", "run", "-p", Path.home().joinpath('.album', 'envs', 'album'), "album", "run",
+             Path(os.path.realpath(__file__)).parent.joinpath('solution_files', 'solution.py'), params])
+except Exception as e:
+    if platform.system() == 'Windows':
+        cmd = subprocess.run(
+            [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'), "run", "-n", "album", "album",
+             "index"])
+        if cmd.returncode == 0:
+            subprocess.call(
+                [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'), "run", "-n", 'album', "album",
+                 "install", Path(os.path.realpath(__file__)).parent.joinpath('solution_files')])
+            subprocess.call(
+                [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'), "run", "-n", 'album', "album",
+                 "run", Path(os.path.realpath(__file__)).parent.joinpath('solution_files', 'solution.py'), params])
+        else:
+            subprocess.call([Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'), "run", "-p",
+                             Path.home().joinpath('.album', 'envs', 'album'), "album", "install",
+                             Path(os.path.realpath(__file__)).parent.joinpath('solution_files')])
+            subprocess.call([Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'), "run", "-p",
+                             Path.home().joinpath('.album', 'envs', 'album'), "album", "run",
+                             Path(os.path.realpath(__file__)).parent.joinpath('solution_files', 'solution.py'), params])
+    else:
+        cmd = subprocess.run(
+            [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "-n", "album", "album",
+             "index"])
+        if cmd.returncode == 0:
+            subprocess.call(
+                [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "-n", 'album', "album",
+                 "install", Path(os.path.realpath(__file__)).parent.joinpath('solution_files')])
+            subprocess.call(
+                [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "-n", 'album', "album", "run",
+                 Path(os.path.realpath(__file__)).parent.joinpath('solution_files', 'solution.py'), params])
+        else:
+            subprocess.call([Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "-p",
+                             Path.home().joinpath('.album', 'envs', 'album'), "album", "install",
+                             Path(os.path.realpath(__file__)).parent.joinpath('solution_files')])
+            subprocess.call([Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "-p",
+                             Path.home().joinpath('.album', 'envs', 'album'), "album", "run",
+                             Path(os.path.realpath(__file__)).parent.joinpath('solution_files', 'solution.py'), params])
+
+

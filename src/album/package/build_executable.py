@@ -20,6 +20,6 @@ def run(album_instance: Album, args):
         if not mode:
             build_gui.run(args)
         else:
-            build_no_gui.run(album_instance, args)
+            build_no_gui.run(args)
     else:
         get_active_logger().error("Solution could not be found! Abort.")

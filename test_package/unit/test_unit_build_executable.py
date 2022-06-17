@@ -182,27 +182,7 @@ class TestUnitBuildExecutable(TestCommon):
                          "There was an error creating the string for the install script in the spec file.")
         self.assertEqual(counter, 2, "There were to many lines replaced! Error in the spec file creation")
 
-    def test_run_solution(self):
-        base_path = "album = Album.Builder().base_cache_path(%s).build()\n" % repr(
-            str(Path.home().joinpath('.album', 'envs', 'album')))
-        solution_coords = "album.run(%s, params)\n" % "\'album:import_unittest:0.1.0\'"
 
-        create_subscripts_no_gui.create_run_solution(self.tmp_dir.name, "album:import_unittest:0.1.0")
-        created_py_no_gui = Path(self.tmp_dir.name).joinpath('run_solution.py')
-        counter = 0
-        with open(created_py_no_gui, 'r') as file:
-            for line in file:
-                if line.startswith("album = "):
-                    base_line = line
-                    counter += 1
-                if line.startswith("album.run("):
-                    coords_line = line
-                    counter += 1
-
-        self.assertTrue(os.path.isfile(created_py_no_gui), "There was no run_solution.py subscript created!")
-        self.assertEqual(base_path, base_line, "An error occured in the creation of the album base directory string.")
-        self.assertEqual(solution_coords, coords_line, "An error occured in the resolving of the solution coordinates.")
-        self.assertEqual(counter, 2, "There were to many lines replaced! Error in the run_solution.py creation")
 
     def test_yml(self):
         ver_str = "      - album==%s\n" % core.__version__
