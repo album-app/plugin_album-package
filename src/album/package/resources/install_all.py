@@ -136,7 +136,9 @@ def _install_missing_conda(conda_path):
 
 def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_url, yml_path):
     print("Could not find album. Checking for conda installation....")
-    os.mkdir(album_base_path)
+    if (not os.path.isdir(album_base_path)):
+
+        os.mkdir(album_base_path)
 
     try:
         tmp = subprocess.check_output('conda info')
