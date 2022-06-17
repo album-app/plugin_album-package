@@ -1,5 +1,6 @@
 import os
 import platform
+import subprocess
 import unittest
 from argparse import Namespace
 from pathlib import Path
@@ -36,8 +37,18 @@ class TestIntegrationBuildExecutable(TestCommon):
         else:
             exe_path = Path(self.tmp_dir.name).joinpath('solution', 'solution')
 
-        self.assertTrue(os.path.isfile(exe_path) and os.access(exe_path, os.X_OK),
-                        "No executable created or executable not accessible.")
+        try:
+            tmp = subprocess.run([exe_path], capture_output=True)
+        finally:
+            print(
+                tmp.stdout
+            )
+            print(
+                tmp.stderr
+            )
+            self.assertTrue(os.path.isfile(exe_path) and os.access(exe_path, os.X_OK),
+                            "No executable created or executable not accessible.")
+            self.assertTrue(0, tmp.returncode, "Executable could not be executed correctly.")
 
     def test_execute_gui(self):
         build_executable.run(
