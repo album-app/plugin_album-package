@@ -42,10 +42,14 @@ class TestIntegrationBuildExecutable(TestCommon):
 
         try:
             # tmp_input = ''
-            # tmp = subprocess.run([str(exe_path)], input=tmp_input.encode(), capture_output=True)
+            #tmp = subprocess.run(['conda', 'run', '-n', 'base', str(exe_path)])
+            #tmp = subprocess.run([str(exe_path)])
+            #exe_path = r"C:\Users\lriecke\Desktop\MDC\plugin_test_new_over_9000_tempaltes_gui_dude_test_yo_bro_sgeht\solution\solution.exe"
             cmd = [str(exe_path)]
             p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-            p.communicate(b"--run_command amk \r")
+            #p.communicate(b"--run_command amk \r")
+            p.wait()
+            #print(p.stdout)
         finally:
             self.assertTrue(os.path.isfile(exe_path) and os.access(exe_path, os.X_OK),
                             "No executable created or executable not accessible.")

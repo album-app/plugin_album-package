@@ -54,64 +54,6 @@ def _install_conda_macos(conda_path):
     return conda_exe
 
 
-# def _install_missing_gui(conda_path, album_env_path, album_gui_url):
-#    print(
-#        "Found album but album gui is missing. Installing album gui into following album environment: %s" % album_env_path)
-#    try:
-#        subprocess.call('conda run -p %s pip install %s ' % (album_env_path, album_gui_url))
-#    except Exception:
-#        print("conda command is not available. Trying to use conda installed via this script.")
-#        try:
-#            if platform.system() == 'Windows':
-#                subprocess.call('%s run -p %s pip install %s ' % (
-#                    Path(conda_path).joinpath("condabin", "conda.bat"), album_env_path, album_gui_url))
-#            else:
-#                subprocess.call('%s run -p %s pip install %s ' % (
-#                    Path(conda_path).joinpath("condabin", "conda"), album_env_path, album_gui_url))
-#        except FileNotFoundError:
-#            print('Could not find a conda installation.')
-#            tmp = input('Please enter the path to your conda executable or enter nothing to install a new conda:')
-#            if tmp != '':
-#                try:
-#                    subprocess.call('%s run -p %s pip install %s ' % (Path(tmp), album_env_path, album_gui_url))
-#                except Exception:
-#                    print('The path you pointed to is not a valid conda executable. Going to install a new conda.')
-#                    if not os.path.isdir(conda_path):
-#                        os.mkdir(conda_path)
-#
-#                    if platform.system() == 'Windows':
-#                        conda_exe = _install_conda_windows(conda_path)
-#
-#                    elif platform.system() == 'Linux':
-#                        conda_exe = _install_conda_linux(conda_path)
-#
-#                    elif platform.system() == 'Darwin':
-#                        conda_exe = _install_conda_macos(conda_path)
-#
-#                    else:
-#                        print("Your OS is currently not supported")
-#                        raise NotImplementedError
-#                    print("Installing album gui...")
-#                    subprocess.call('%s run -p %s pip install %s ' % (conda_exe, album_env_path, album_gui_url))
-#            else:
-#                print('Installing conda and album gui.')
-#                if not os.path.isdir(conda_path):
-#                    os.mkdir(conda_path)
-#
-#                if platform.system() == 'Windows':
-#                    conda_exe = _install_conda_windows(conda_path)
-#
-#                elif platform.system() == 'Linux':
-#                    conda_exe = _install_conda_linux(conda_path)
-#
-#                elif platform.system() == 'Darwin':
-#                    conda_exe = _install_conda_macos(conda_path)
-#                else:
-#                    print("Your OS is currently not supported")
-#                    raise NotImplementedError
-#                subprocess.call('%s run -p %s pip install %s ' % (conda_exe, album_env_path, album_gui_url))
-
-
 def _install_missing_gui(album_base_path, conda_path, album_env_path, album_gui_url):
     print("Found album, but not album gui. Installing album gui...")
     # check for conda
@@ -201,50 +143,6 @@ def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_u
         print(a.stderr)
 
 
-
-
-#def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_url, yml_path):
-#    print("Could not find album. Checking for conda installation....")
-#    if (not os.path.isdir(album_base_path)):
-#        os.mkdir(album_base_path)
-#
-#    try:
-#        tmp = subprocess.check_output('conda info')
-#        print("Conda Command available.")
-#        conda_found = True
-#
-#    except Exception as e:
-#        print("Conda command not available. Installing Miniconda into " + str(conda_path))
-#        conda_found = False
-#        # if it is directory check if there is an working conda exe inside
-#        if not os.path.isdir(conda_path):
-#            os.mkdir(conda_path)
-#
-#            if platform.system() == 'Windows':
-#                conda_exe = _install_conda_windows(conda_path)
-#
-#            elif platform.system() == 'Linux':
-#                conda_exe = _install_conda_linux(conda_path)
-#
-#            elif platform.system() == 'Darwin':
-#                conda_exe = _install_conda_macos(conda_path)
-#
-#            else:
-#                print("Your OS is currently not supported")
-#                raise NotImplementedError
-#
-#        print("-------------------------")
-#
-#    print("Installing album...")
-#
-#    if conda_found:
-#        subprocess.call('conda env create -p %s -f %s' % (album_env_path, yml_path))
-#        subprocess.call('conda run -p %s pip install %s ' % (album_env_path, album_gui_url))
-#    else:
-#        subprocess.call('%s env create -p %s -f %s' % (conda_exe, album_env_path, yml_path))
-#        subprocess.call('%s run -p %s pip install %s ' % (conda_exe, album_env_path, album_gui_url))
-
-
 def check_for_preinstalled_album():
     try:
         cmd = subprocess.run(["conda", "run", "-n", "album", "album", "index"])
@@ -252,10 +150,6 @@ def check_for_preinstalled_album():
         return True
     except Exception:
         return False
-    #if cmd.returncode == 0:
-    #    return True
-    #else:
-    #    return False
 
 
 def check_for_script_installed_album(album_env_path):
@@ -265,12 +159,6 @@ def check_for_script_installed_album(album_env_path):
         return True
     except Exception:
         return False
-    #cmd = subprocess.run(["conda", "run", "-p", album_env_path, "album", "index"])
-    #print("script album")
-    #if cmd.returncode == 0:
-    #    return True
-    #else:
-    #    return False
 
 
 def check_for_preinstalled_gui():
@@ -281,12 +169,6 @@ def check_for_preinstalled_gui():
         return True
     except Exception:
         return False
-    #print("Checking for preinstalled album gui installation...")
-    #cmd = subprocess.run(["conda", "run", "-n", "album", "album", "gui", "-h"])
-    #if cmd.returncode == 0:
-    #    return True
-    #else:
-    #    return False
 
 
 def check_for_script_installed_gui(album_env_path):
@@ -297,12 +179,6 @@ def check_for_script_installed_gui(album_env_path):
         return True
     except Exception:
         return False
-    #print("Checking for script installed album gui installation...")
-    #cmd = subprocess.run(["conda", "run", "-p", album_env_path, "album", "gui", "-h"])
-    #if cmd.returncode == 0:
-    #    return True
-    #else:
-    #    return False
 
 
 def check_for_preinstalled_conda():
@@ -312,12 +188,6 @@ def check_for_preinstalled_conda():
         return True
     except Exception:
         return False
-    #print("Checking for preinstalled conda installation...")
-    #cmd = subprocess.run(["conda", "info"])
-    #if cmd.returncode == 0:
-    #    return True
-    #else:
-    #    return False
 
 
 def check_for_script_installed_conda(conda_path):
@@ -359,19 +229,6 @@ def main():
 
     print("END INSTALL SCRIPT!!")
 
-    # there is no album at all
-    # if (not os.path.isdir(album_base_path)) or (not os.path.isdir(Path(album_base_path).joinpath('lnk'))):
-    #    _install_album_full(album_base_path, _conda_path, album_env_path, album_gui_url, yml_path)
-
-
-#
-# elif (os.path.isdir(album_env_path)) and not (
-#        os.path.isdir(Path(album_env_path).joinpath('Lib', 'site-packages', 'album', 'gui'))):
-#    _install_missing_gui(_conda_path, album_env_path, album_gui_url)
-#
-# elif (not os.path.isfile(Path(_conda_path).joinpath("condabin", "conda.bat"))) and (not os.path.isfile(
-#        Path(_conda_path).joinpath("condabin", "conda"))):
-#    _install_missing_conda(_conda_path)
 
 
 if __name__ == '__main__':
