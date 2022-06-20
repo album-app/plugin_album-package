@@ -246,50 +246,78 @@ def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_u
 
 
 def check_for_preinstalled_album():
-    cmd = subprocess.run(["conda", "run", "-n", "album", "album", "index"])
-    print("pre album")
-    if cmd.returncode == 0:
+    try:
+        cmd = subprocess.run(["conda", "run", "-n", "album", "album", "index"])
+        print("pre album")
         return True
-    else:
+    except Exception:
         return False
+    #if cmd.returncode == 0:
+    #    return True
+    #else:
+    #    return False
 
 
 def check_for_script_installed_album(album_env_path):
-    cmd = subprocess.run(["conda", "run", "-p", album_env_path, "album", "index"])
-    print("script album")
-    if cmd.returncode == 0:
+    try:
+        cmd = subprocess.run(["conda", "run", "-p", album_env_path, "album", "index"])
+        print("script album")
         return True
-    else:
+    except Exception:
         return False
+    #cmd = subprocess.run(["conda", "run", "-p", album_env_path, "album", "index"])
+    #print("script album")
+    #if cmd.returncode == 0:
+    #    return True
+    #else:
+    #    return False
 
 
 def check_for_preinstalled_gui():
     # check if album gui is installed in the preinstalled album
-    print("Checking for preinstalled album gui installation...")
-    cmd = subprocess.run(["conda", "run", "-n", "album", "album", "gui", "-h"])
-    if cmd.returncode == 0:
+    try:
+        print("Checking for preinstalled album gui installation...")
+        cmd = subprocess.run(["conda", "run", "-n", "album", "album", "gui", "-h"])
         return True
-    else:
+    except Exception:
         return False
+    #print("Checking for preinstalled album gui installation...")
+    #cmd = subprocess.run(["conda", "run", "-n", "album", "album", "gui", "-h"])
+    #if cmd.returncode == 0:
+    #    return True
+    #else:
+    #    return False
 
 
 def check_for_script_installed_gui(album_env_path):
     # check if album gui is installed in the album installed via this script
-    print("Checking for script installed album gui installation...")
-    cmd = subprocess.run(["conda", "run", "-p", album_env_path, "album", "gui", "-h"])
-    if cmd.returncode == 0:
+    try:
+        print("Checking for script installed album gui installation...")
+        cmd = subprocess.run(["conda", "run", "-p", album_env_path, "album", "gui", "-h"])
         return True
-    else:
+    except Exception:
         return False
+    #print("Checking for script installed album gui installation...")
+    #cmd = subprocess.run(["conda", "run", "-p", album_env_path, "album", "gui", "-h"])
+    #if cmd.returncode == 0:
+    #    return True
+    #else:
+    #    return False
 
 
 def check_for_preinstalled_conda():
-    print("Checking for preinstalled conda installation...")
-    cmd = subprocess.run(["conda", "info"])
-    if cmd.returncode == 0:
+    try:
+        print("Checking for preinstalled conda installation...")
+        cmd = subprocess.run(["conda", "info"])
         return True
-    else:
+    except Exception:
         return False
+    #print("Checking for preinstalled conda installation...")
+    #cmd = subprocess.run(["conda", "info"])
+    #if cmd.returncode == 0:
+    #    return True
+    #else:
+    #    return False
 
 
 def check_for_script_installed_conda(conda_path):
