@@ -5,11 +5,11 @@ from pathlib import Path
 import subprocess
 import shutil
 
-commands = input('Please enter the parameters with which the package solution should be called:')
-commands = re.split(r'\s', commands)
+#commands = input('Please enter the parameters with which the package solution should be called:')
+#commands = re.split(r'\s', commands)
 params = ''
-for p in commands:
-    params += ' %s' %p
+#for p in commands:
+#    params += ' %s' %p
 
 try:
     conda_check = subprocess.check_output('conda info')
