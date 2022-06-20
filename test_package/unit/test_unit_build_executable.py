@@ -84,11 +84,10 @@ class TestUnitBuildExecutable(TestCommon):
         yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', 'solution.py')))
-        run_sol_path = repr(str(Path(self.tmp_dir.name).joinpath('run_solution.py')))
         hook_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'install_all.py')))
 
-        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'subscripts'),(%s, 'solution_files')],\n" % (
-            yml_path, run_sol_path, test_solution_path)
+        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files')],\n" % (
+            yml_path, test_solution_path)
         hook_string = "\t\t\t runtime_hooks=[%s],\n" % hook_path
 
         create_spec_file_no_gui.create(self.tmp_dir.name,
@@ -151,11 +150,10 @@ class TestUnitBuildExecutable(TestCommon):
         yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))
-        run_sol_path = repr(str(Path(self.tmp_dir.name).joinpath('run_solution.py')))
         hook_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'install_all.py')))
 
-        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'subscripts'),(%s, 'solution_files')],\n" % (
-            yml_path, run_sol_path, test_solution_path)
+        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files')],\n" % (
+            yml_path, test_solution_path)
         hook_string = "\t\t\t runtime_hooks=[%s],\n" % hook_path
 
         create_spec_file_no_gui.create(self.tmp_dir.name,
