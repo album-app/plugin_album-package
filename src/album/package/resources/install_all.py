@@ -3,7 +3,6 @@ import platform
 import subprocess
 from pathlib import Path
 import wget
-from termcolor import colored
 
 
 def _install_conda_windows(conda_path):
@@ -316,7 +315,7 @@ def main():
         yml_path = album_base_path
         wget(yml_url, Path(yml_path).joinpath('album.yml'))
 
-    print(colored("Checking for album installation...", 'green'))
+    print("Checking for album installation...")
     if (not check_for_preinstalled_album()) and (not check_for_script_installed_album(album_env_path)):
 
         _install_album_full(album_base_path, _conda_path, album_env_path, album_gui_url, yml_path)
