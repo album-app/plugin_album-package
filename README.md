@@ -35,7 +35,11 @@ To create an executable which launches the solution in a commandline run followi
 album package /path/to/your/solution.py /your/output/path --no_gui
 ```
 ### Input parameter:
-- solution: The album solution.py file which should be packed into an executable
+- solution: The album solution.py file which should be packed into an executable. <br>
+  If you provide the path to a directory containing a solution.py all files in the directory will be
+  packaged into the solution executable. If you provide the direct path to a solution.py only the solution will
+  packaged. If your solution contains local imports, make sure all imported files lie in the same directory as the solution
+  and you provide the path containing the solution.py.
 - output_path: The path where the executable should be saved
 - no_gui: If this parameter is set than an executable is created which launches the solution in a commandline
 if not the executable will launch the solution.py with a graphical user interface.
