@@ -309,11 +309,12 @@ def main():
     album_gui_url = "https://gitlab.com/album-app/plugins/album-gui/-/archive/main/album-gui-main.zip"
     yml_url = "https://gitlab.com/album-app/album/-/raw/main/album.yml"
     yml_path = Path(os.path.realpath(__file__)).parent.joinpath('album.yml')
-
+    print(yml_path)
     #check if yml file is present
     if not os.path.isfile(yml_path):
-        yml_path = album_base_path
-        wget(yml_url, Path(yml_path).joinpath('album.yml'))
+        print("Downloading album yml file")
+        yml_path = Path(album_base_path).joinpath('album.yml')
+        wget(yml_url, Path(yml_path))
 
     print("Checking for album installation...")
     if (not check_for_preinstalled_album()) and (not check_for_script_installed_album(album_env_path)):
