@@ -38,7 +38,8 @@ class TestIntegrationBuildExecutable(TestCommon):
             exe_path = Path(self.tmp_dir.name).joinpath('solution', 'solution')
 
         try:
-            tmp = subprocess.run([str(exe_path)], capture_output=True)
+            tmp_input = ''
+            tmp = subprocess.run([str(exe_path)], input=tmp_input.encode(), capture_output=True)
         finally:
             print(
                 tmp.stdout
