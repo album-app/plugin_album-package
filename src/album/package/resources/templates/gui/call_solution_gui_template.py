@@ -84,45 +84,65 @@ def call_prefixed_album_gui_conda_exe():
 
 
 def main():
+    # exeption if conda is missing
     try:
-        # try conda with path var and named album env
+        # check if there is an env present with the name album and a conda installation with path env var
         cmd = subprocess.run(["conda", "run", "-n", "album", "album", "-h"], capture_output=True)
-        call_named_album_install_conda_path()
-        call_named_album_gui_conda_path()
+        # returncode != 0 if something is not right with album
+        if cmd.returncode == 0:
+            print("1%s" % cmd.returncode)
+            call_named_album_install_conda_path()
+
+            call_named_album_gui_conda_path()
+
+        else:
+            print("2%s" % cmd.returncode)
+            call_prefixed_album_install_conda_path()
+
+            call_prefixed_album_gui_conda_path()
 
     except Exception as e:
-
         try:
-            # try conda with path var and prefixed album env
-            cmd = subprocess.run(["conda", "run", "-p", Path.home().joinpath('.album', 'envs', 'album'), "album", "-h"], capture_output=True)
-            call_prefixed_album_install_conda_path()
-            call_prefixed_album_gui_conda_path()
-        except Exception:
+            if platform.system() == 'Windows':
+                # check if there is an env present with the name album and a conda installation in the album base dir
+                cmd = subprocess.run(
+                    [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'), "run", "-n", "album",
+                     "album",
+                     "-h"], capture_output=True)
 
-            try:
-                # try path to conda exe and named album env
-                if platform.system() == 'Windows':
-                    cmd = subprocess.run(
-                        [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'), "run", "-n", 'album',
-                         "album",
-                         "-h"],
-                        capture_output=True)
+                if cmd.returncode == 0:
+                    print("3 %s" % cmd.returncode)
+                    call_named_album_install_conda_exe()
+
+                    call_named_album_gui_conda_exe()
                 else:
-                    cmd = subprocess.run(
-                        [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "-n", 'album',
-                         "album",
-                         "-h"], capture_output=True)
-                call_named_album_install_conda_exe()
-                call_named_album_gui_conda_exe()
-            except Exception:
-                # path to conda exe and prefixed album env
-                try:
+                    print("4%s" % cmd.returncode)
                     call_prefixed_album_install_conda_exe()
-                    call_prefixed_album_gui_conda_exe()
-                except Exception:
-                    print(
-                        "An unexpected Error occured when runnig the solution. Please check your conda and album installations.")
 
+                    call_prefixed_album_gui_conda_exe()
+
+            else:
+                # check if there is an env present with the name album and a conda installation in the album base dir
+                cmd = subprocess.run(
+                    [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "-n", "album",
+                     "album",
+                     "-h"], capture_output=True)
+
+                if cmd.returncode == 0:
+                    print("3 %s" % cmd.returncode)
+                    call_named_album_install_conda_exe()
+
+                    call_named_album_gui_conda_exe()
+                else:
+                    print("4%s" % cmd.returncode)
+                    call_prefixed_album_install_conda_exe()
+
+                    call_prefixed_album_gui_conda_exe()
+
+        except Exception:
+            print(
+                "An unexpected Error occured when runnig the solution. Please check your conda and album installations.")
+    
 
 if __name__ == "__main__":
     main()
