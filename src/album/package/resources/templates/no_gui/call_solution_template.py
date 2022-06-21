@@ -65,7 +65,8 @@ def call_prefixed_album_install_conda_exe():
     else:
         cmd = subprocess.run([Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "-p",
                               Path.home().joinpath('.album', 'envs', 'album'), "album", "install",
-                              Path(os.path.realpath(__file__)).parent.joinpath('solution_files')], capture_output=True)
+                              Path(os.path.realpath(__file__)).parent.joinpath('solution_files')])
+        print(cmd.returncode)
         return cmd.returncode
 
 
