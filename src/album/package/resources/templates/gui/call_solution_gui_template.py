@@ -86,7 +86,7 @@ def call_prefixed_album_gui_conda_exe():
 def main():
     try:
         # try conda with path var and named album env
-        cmd = subprocess.run(["conda", "run", "-n", "album", "album", "-h"])
+        cmd = subprocess.run(["conda", "run", "-n", "album", "album", "-h"], capture_output=True)
         call_named_album_install_conda_path()
         call_named_album_gui_conda_path()
 
@@ -94,7 +94,7 @@ def main():
 
         try:
             # try conda with path var and prefixed album env
-            cmd = subprocess.run(["conda", "run", "-p", Path.home().joinpath('.album', 'envs', 'album'), "album", "-h"])
+            cmd = subprocess.run(["conda", "run", "-p", Path.home().joinpath('.album', 'envs', 'album'), "album", "-h"], capture_output=True)
             call_prefixed_album_install_conda_path()
             call_prefixed_album_gui_conda_path()
         except Exception:
