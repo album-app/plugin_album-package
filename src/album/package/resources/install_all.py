@@ -67,7 +67,7 @@ def _install_missing_gui(album_base_path, conda_path, album_env_path, album_gui_
     else:
         conda_exe = _install_missing_conda(conda_path)
 
-    if check_for_preinstalled_album():
+    if check_for_preinstalled_album(conda_path):
         subprocess.run([conda_exe, "run", "-n", "album", "pip", "install", album_gui_url])
     else:
         subprocess.run([conda_exe, "run", "-p", album_env_path, "pip", "install", album_gui_url])
