@@ -99,11 +99,13 @@ def main():
         # check if there is an env present with the name album and a conda installation with path env var
         cmd = subprocess.run(["conda", "run", "-n", "album", "album", "-h"], capture_output=True)
         if cmd.returncode == 0:
+            print("1")
             call_named_album_install_conda_path()
 
             call_named_album_run_conda_path(params)
 
         else:
+            print("2")
             call_prefixed_album_install_conda_path()
 
             call_prefixed_album_run_conda_path(params)
@@ -117,18 +119,21 @@ def main():
                     [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'), "run", "-n", "album",
                      "album",
                      "-h"], capture_output=True)
+                print("3")
                 call_named_album_install_conda_exe()
 
                 call_named_album_run_conda_exe(params)
 
 
             except Exception:
+                print("4")
                 call_prefixed_album_install_conda_exe()
 
                 call_prefixed_album_run_conda_exe(params)
 
         else:
             try:
+                print("5")
                 cmd = subprocess.run(
                     [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "-n", "album", "album",
                      "-h"])
@@ -138,6 +143,7 @@ def main():
                 call_named_album_run_conda_exe(params)
             except Exception:
                 try:
+                    print("6")
                     call_prefixed_album_install_conda_exe()
 
                     call_prefixed_album_run_conda_exe(params)
