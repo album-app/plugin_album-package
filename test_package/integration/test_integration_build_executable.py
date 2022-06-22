@@ -27,8 +27,7 @@ class TestIntegrationBuildExecutable(TestCommon):
                 solution=Path(os.path.realpath(__file__)).parent.parent.parent.joinpath(
                     'test_package',
                     'resources',
-                    'test_solution',
-                    'solution.py'
+                    'test_solution'
                 ),
                 output_path=self.tmp_dir.name,
                 no_gui=True
