@@ -6,6 +6,7 @@ import pkg_resources
 
 
 def create(output_path, solution):
+    # create the spec file for pyinstaller for the gui mode
     spec_path = Path(output_path).joinpath('build_executable_gui.spec')
     yml_path = repr(str(Path(output_path).joinpath('album.yml')))
     hook_path = repr(str(Path(pkg_resources.resource_filename('album.package.resources', 'install_all.py'))))

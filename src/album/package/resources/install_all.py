@@ -6,6 +6,7 @@ import wget
 
 
 def _install_conda_windows(conda_path):
+    # install miniconda for windows
     conda_url_win = "https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe"
     conda_installer = Path(conda_path).joinpath("Miniconda_install.exe")
     wget.download(conda_url_win, str(conda_installer))
@@ -23,6 +24,7 @@ def _install_conda_windows(conda_path):
 
 
 def _install_conda_linux(conda_path):
+    # install miniconda for linux
     conda_url_linux = "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
     conda_installer = Path(conda_path).joinpath("Miniconda_install.sh")
     wget.download(conda_url_linux, str(conda_installer))
@@ -39,6 +41,7 @@ def _install_conda_linux(conda_path):
 
 
 def _install_conda_macos(conda_path):
+    # install miniconda for macos
     conda_url_macos = "https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh"
     conda_installer = Path(conda_path).joinpath("Miniconda_install.sh")
     wget.download(conda_url_macos, str(conda_installer))
@@ -55,6 +58,7 @@ def _install_conda_macos(conda_path):
 
 
 def _install_missing_gui(album_base_path, conda_path, album_env_path, album_gui_url):
+    #install album gui and if needed conda
     print("Found album, but not album gui. Installing album gui...")
     # check for conda
     if check_for_preinstalled_conda():
@@ -74,6 +78,7 @@ def _install_missing_gui(album_base_path, conda_path, album_env_path, album_gui_
 
 
 def _install_missing_conda(conda_path):
+    # install miniconda
     print(
         "Found album but could not find a working conda installation. Installing conda into: %s" % conda_path)
     if not os.path.isdir(conda_path):
@@ -94,6 +99,7 @@ def _install_missing_conda(conda_path):
 
 
 def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_url, yml_path):
+    #install album and album gui and if needed miniconda
     print("Could not find album. Checking for conda installation....")
     if not os.path.isdir(album_base_path):
         os.mkdir(album_base_path)

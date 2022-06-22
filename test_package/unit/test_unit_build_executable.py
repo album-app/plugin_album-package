@@ -22,6 +22,7 @@ class TestUnitBuildExecutable(TestCommon):
         super().tearDown()
 
     def test_create_parser(self):
+        # test the argument pasring
         parser = create_parser()
         sys.argv = ["", "package", "1234", "An_example_path"]
         args = parser.parse_known_args()
@@ -38,16 +39,19 @@ class TestUnitBuildExecutable(TestCommon):
         self.assertEqual(inspect.getsource(build_executable.run), inspect.getsource(args[0].func))
 
     def test_call_solution_gui(self):
+        # test if the call_solution_gui_template was successfully copied
         create_subscripts_gui.create_call_solution(self.tmp_dir.name)
         self.assertTrue(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution_gui.py')),
                         "There was no call_solution_gui.py subscript created!")
 
     def test_call_solution_no_gui(self):
+        # test if the call_solution_template was successfully copied
         create_subscripts_no_gui.create_call_solution(self.tmp_dir.name)
         self.assertTrue(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution.py')),
                         "There was no call_solution.py subscript created!")
 
     def test_spec_file_gui_single(self):
+        # test if the specfile was generated correctly for the single solution gui mode
         yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', 'solution.py')))
@@ -81,6 +85,7 @@ class TestUnitBuildExecutable(TestCommon):
         self.assertEqual(counter, 2, "There were to many lines replaced! Error in the spec file creation")
 
     def test_spec_file_no_gui_single(self):
+        # test if the specfile was generated correctly for the single solution no gui mode
         yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', 'solution.py')))
@@ -115,6 +120,7 @@ class TestUnitBuildExecutable(TestCommon):
         self.assertEqual(counter, 2, "There were to many lines replaced! Error in the spec file creation")
 
     def test_spec_file_gui_dir(self):
+        # test if the specfile was generated correctly for the solution directory gui mode
         yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))
@@ -147,6 +153,7 @@ class TestUnitBuildExecutable(TestCommon):
         self.assertEqual(counter, 2, "There were to many lines replaced! Error in the spec file creation")
 
     def test_spec_file_no_gui_dir(self):
+        # test if the specfile was generated correctly for the solution directory no gui mode
         yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))
@@ -183,6 +190,7 @@ class TestUnitBuildExecutable(TestCommon):
 
 
     def test_yml(self):
+        # test if the yml file was correctly created
         ver_str = "      - album==%s\n" % core.__version__
 
         create_subscripts_no_gui.create_yml(self.tmp_dir.name)

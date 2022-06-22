@@ -21,6 +21,7 @@ class TestIntegrationBuildExecutable(TestCommon):
         super().tearDown()
 
     def test_execute_no_gui(self):
+        # build an executable and try running it
         build_executable.run(
             self.album_mock,
             Namespace(
@@ -50,6 +51,7 @@ class TestIntegrationBuildExecutable(TestCommon):
             self.assertEqual(0, p.returncode, "Executable could not be executed correctly.")
 
     def test_execute_gui(self):
+        # build an executable and see if it was successfully build
         build_executable.run(
             self.album_mock,
             Namespace(
@@ -68,6 +70,7 @@ class TestIntegrationBuildExecutable(TestCommon):
                         "No executable created or executable not accessible.")
 
     def test_output_path(self):
+        # test if an output path that didn't exist prior to the test was created
         build_executable.run(self.album_mock, Namespace(
             solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
             output_path=Path(self.tmp_dir.name).joinpath('test_output'),
@@ -77,6 +80,7 @@ class TestIntegrationBuildExecutable(TestCommon):
                         "Output directory was not created.")
 
     def test_no_solution(self):
+        # test if the plugin aborts if the solution is missing
         with self.assertLogs(get_active_logger(), level='ERROR') as cm:
             build_executable.run(self.album_mock, Namespace(solution=
             Path(os.path.realpath(__file__)).parent.parent.parent.joinpath(
@@ -91,7 +95,7 @@ class TestIntegrationBuildExecutable(TestCommon):
                          "Missing solution was not caught.")
 
     def test_clean_up_no_gui(self):
-
+        # test if the cleanup was done
         build_executable.run(self.album_mock, Namespace(
             solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
             output_path=self.tmp_dir.name,
@@ -107,6 +111,7 @@ class TestIntegrationBuildExecutable(TestCommon):
                          "PyInstallers build directory was not deleted.")
 
     def test_clean_up_gui(self):
+        # test if the cleanup was done
         build_executable.run(self.album_mock, Namespace(
             solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
             output_path=self.tmp_dir.name,
