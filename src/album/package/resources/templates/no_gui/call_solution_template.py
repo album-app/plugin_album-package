@@ -2,6 +2,7 @@ import os
 import platform
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -150,9 +151,9 @@ def main():
 
                     # 0 == everything went fine; 1 == solution was already installed
                     if install_return != 0 and install_return != 1:
-                        raise Exception("There was an error installing the solution!")
+                        sys.exit("There was an error installing the solution!")
                     if call_return != 0:
-                        raise Exception("There was an error running the solution!")
+                        sys.exit("There was an error running the solution!")
 
                 else:
                     cmd = subprocess.run(
@@ -167,9 +168,9 @@ def main():
 
                         # 0 == everything went fine; 1 == solution was already installed
                         if install_return != 0 and install_return != 1:
-                            raise Exception("There was an error installing the solution!")
+                            sys.exit("There was an error installing the solution!")
                         if call_return != 0:
-                            raise Exception("There was an error running the solution!")
+                            sys.exit("There was an error running the solution!")
 
                     else:
                         print(
@@ -190,9 +191,9 @@ def main():
 
                     # 0 == everything went fine; 1 == solution was already installed
                     if install_return != 0 and install_return != 1:
-                        raise Exception("There was an error installing the solution!")
+                        sys.exit("There was an error installing the solution!")
                     if call_return != 0:
-                        raise Exception("There was an error running the solution!")
+                        sys.exit("There was an error running the solution!")
 
                 else:
                     cmd = subprocess.run(
@@ -207,9 +208,9 @@ def main():
 
                         # 0 == everything went fine; 1 == solution was already installed
                         if install_return != 0 and install_return != 1:
-                            raise Exception("There was an error installing the solution!")
+                            sys.exit("There was an error installing the solution!")
                         if call_return != 0:
-                            raise Exception("There was an error running the solution!")
+                            sys.exit("There was an error running the solution!")
 
                     else:
                         print(
