@@ -112,9 +112,9 @@ def main():
             call_return = call_named_album_run_conda_path(params)
             # 0 == everything went fine; 1 == solution was already installed
             if install_return != 0 and install_return != 1:
-                raise Exception("There was an error installing the solution!")
+                sys.exit("There was an error installing the solution!")
             if call_return != 0:
-                raise Exception("There was an error running the solution!")
+                sys.exit("There was an error running the solution!")
 
         else:
             cmd = subprocess.run(["conda", "run", "-p", Path.home().joinpath('.album', 'envs', 'album'), "album", "-h"])
@@ -126,9 +126,9 @@ def main():
                 call_return = call_prefixed_album_run_conda_path(params)
                 # 0 == everything went fine; 1 == solution was already installed
                 if install_return != 0 and install_return != 1:
-                    raise Exception("There was an error installing the solution!")
+                    sys.exit("There was an error installing the solution!")
                 if call_return != 0:
-                    raise Exception("There was an error running the solution!")
+                    sys.exit("There was an error running the solution!")
 
             else:
                 print(
