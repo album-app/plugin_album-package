@@ -7,24 +7,30 @@ from pathlib import Path
 
 
 def call_named_album_install_conda_path():
+    # use a conda which can be called via conda command and an environment called album to install the solution
     cmd = subprocess.run(["conda", "run", "-n", "album", "album", "install",
                           Path(os.path.realpath(__file__)).parent.joinpath('solution_files')], capture_output=True)
     return cmd.returncode
 
 
 def call_named_album_run_conda_path(params):
+    # use a conda which can be called via conda command and an environment called album to run the solution
     cmd = subprocess.run(["conda", "run", "-n", "album", "album", "run",
                           Path(os.path.realpath(__file__)).parent.joinpath('solution_files', 'solution.py'), params])
     return cmd.returncode
 
 
 def call_prefixed_album_install_conda_path():
+    # use a conda which can be called via conda command and an album environment which got created with prefix and no
+    # name to install the solution
     cmd = subprocess.run(["conda", "run", "-p", Path.home().joinpath('.album', 'envs', 'album'), "album", "install",
                           Path(os.path.realpath(__file__)).parent.joinpath('solution_files')], capture_output=True)
     return cmd.returncode
 
 
 def call_prefixed_album_run_conda_path(params):
+    # use a conda which can be called via conda command and an album environment which got created with prefix and no
+    # name to run the solution
     cmd = subprocess.run(
         ["conda", "run", "-p", Path.home().joinpath('.album', 'envs', 'album'), "album", "run",
          Path(os.path.realpath(__file__)).parent.joinpath('solution_files', 'solution.py'), params])
@@ -32,6 +38,7 @@ def call_prefixed_album_run_conda_path(params):
 
 
 def call_named_album_install_conda_exe():
+    # use a conda which installed via the install script and an environment called album to install the solution
     if platform.system() == 'Windows':
         cmd = subprocess.run(
             [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'), "run", "-n", "album", "album",
@@ -45,6 +52,7 @@ def call_named_album_install_conda_exe():
 
 
 def call_named_album_run_conda_exe(params):
+    # use a conda which installed via the install script and an environment called album to run the solution
     if platform.system() == 'Windows':
         cmd = subprocess.run(
             [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'), "run", "-n", "album", "album",
@@ -58,6 +66,8 @@ def call_named_album_run_conda_exe(params):
 
 
 def call_prefixed_album_install_conda_exe():
+    # use a conda which installed via the install script and an album environment which got created with prefix and no
+    #     # name to install the solution
     if platform.system() == 'Windows':
         cmd = subprocess.run([Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'), "run", "-p",
                               Path.home().joinpath('.album', 'envs', 'album'), "album", "install",
@@ -72,6 +82,8 @@ def call_prefixed_album_install_conda_exe():
 
 
 def call_prefixed_album_run_conda_exe(params):
+    # use a conda which was installed via the install script and an album environment which got created with prefix and no
+    # name to run the solution
     if platform.system() == 'Windows':
         cmd = subprocess.run([Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'), "run", "-p",
                               Path.home().joinpath('.album', 'envs', 'album'), "album", "run",
@@ -87,6 +99,7 @@ def call_prefixed_album_run_conda_exe(params):
 
 
 def get_params():
+    # get input parameter for the solution
     commands = input('Please enter the parameters with which the package solution should be called:')
     if isinstance(commands, bytes):
         commands = commands.decode()
@@ -111,14 +124,15 @@ def main():
 
             call_return = call_named_album_run_conda_path(params)
             # 0 == everything went fine; 1 == solution was already installed
+            #FIXME: returncode 1 is not unique for already installed solution, it stands for all sorts of errors, like solution not found
             if install_return != 0 and install_return != 1:
                 sys.exit("There was an error installing the solution!")
             if call_return != 0:
                 sys.exit("There was an error running the solution!")
 
         else:
+            #check if there is an album env with prefix and a conda installation with path env var
             cmd = subprocess.run(["conda", "run", "-p", Path.home().joinpath('.album', 'envs', 'album'), "album", "-h"])
-
             print("2! %s" % cmd.returncode)
             if cmd.returncode == 0:
                 install_return = call_prefixed_album_install_conda_path()
@@ -156,6 +170,8 @@ def main():
                         sys.exit("There was an error running the solution!")
 
                 else:
+                    # check if there is an album env present with the install script prefix and
+                    # a conda installation in the album base dir
                     cmd = subprocess.run(
                         [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'), "run", "-p",
                          Path.home().joinpath('.album', 'envs', 'album'), "album", "-h"],
@@ -196,6 +212,8 @@ def main():
                         sys.exit("There was an error running the solution!")
 
                 else:
+                    # check if there is an album env present with the install script prefix and
+                    # a conda installation in the album base dir
                     cmd = subprocess.run(
                         [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "-p",
                          Path.home().joinpath('.album', 'envs', 'album'), "album", "-h"],
