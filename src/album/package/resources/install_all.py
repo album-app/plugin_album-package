@@ -15,7 +15,7 @@ def _install_conda_windows(conda_path):
     conda_exe = Path(conda_path).joinpath("condabin", "conda.bat")
 
     if install_process.returncode != 0:
-        print("An error occured when installing Conda: %s", install_process.stderr)
+        print("An error occured when installing Conda: %s" % install_process.stderr)
     else:
         print("Successfully installed Miniconda.")
 
@@ -31,7 +31,7 @@ def _install_conda_linux(conda_path):
     conda_exe = Path(conda_path).joinpath("condabin", "conda")
 
     if install_process.returncode != 0:
-        print("An error occured when installing Conda: %s", install_process.stderr)
+        print("An error occured when installing Conda: %s" % install_process.stderr)
     else:
         print("Successfully installed Miniconda.")
 
@@ -47,7 +47,7 @@ def _install_conda_macos(conda_path):
     conda_exe = Path(conda_path).joinpath("condabin", "conda")
 
     if install_process.returncode != 0:
-        print("An error occured when installing Conda: %s", install_process.stderr)
+        print("An error occured when installing Conda: %s" % install_process.stderr)
     else:
         print("Successfully installed Miniconda.")
 
@@ -128,6 +128,7 @@ def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_u
     print("-------------------------")
 
     print("Installing album...")
+    print(conda_exe)
     a = subprocess.run([conda_exe, 'env', 'create', '-p', album_env_path, '-f', yml_path], capture_output=True)
     print(a.stdout)
     print(a.stderr)
