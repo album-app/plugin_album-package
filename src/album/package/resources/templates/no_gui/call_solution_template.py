@@ -117,7 +117,7 @@ def main():
             else:
                 print(
                     "Could not find album to run the solution. Please check your album installation.")
-
+    #TODO: try exception subprocess.CalledProcessError and run(check=True) as replacement for Exception
     except Exception as e:
         try:
             if platform.system() == 'Windows':
