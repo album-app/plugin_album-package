@@ -91,9 +91,16 @@ def main():
         # returncode != 0 if something is not right with album
         if cmd.returncode == 0:
             print("1%s" % cmd.returncode)
-            call_named_album_install_conda_path()
+            install_return = call_named_album_install_conda_path()
 
-            call_named_album_gui_conda_path()
+            call_return = call_named_album_gui_conda_path()
+
+            # 0 == everything went fine; 1 == solution was already installed
+            if install_return != 0 and install_return != 1:
+                raise Exception("There was an error installing the solution!")
+            if call_return != 0:
+                raise Exception("There was an error running the solution!")
+
 
         else:
             cmd = subprocess.run(
@@ -101,9 +108,16 @@ def main():
                 capture_output=True)
             print("2%s" % cmd.returncode)
             if cmd.returncode == 0:
-                call_prefixed_album_install_conda_path()
+                install_return = call_prefixed_album_install_conda_path()
 
-                call_prefixed_album_gui_conda_path()
+                call_return = call_prefixed_album_gui_conda_path()
+
+                # 0 == everything went fine; 1 == solution was already installed
+                if install_return != 0 and install_return != 1:
+                    raise Exception("There was an error installing the solution!")
+                if call_return != 0:
+                    raise Exception("There was an error running the solution!")
+
             else:
                 print(
                     "Could not find album to run the solution. Please check your album installation.")
@@ -119,9 +133,16 @@ def main():
 
                 if cmd.returncode == 0:
                     print("3 %s" % cmd.returncode)
-                    call_named_album_install_conda_exe()
+                    install_return = call_named_album_install_conda_exe()
 
-                    call_named_album_gui_conda_exe()
+                    call_return = call_named_album_gui_conda_exe()
+
+                    # 0 == everything went fine; 1 == solution was already installed
+                    if install_return != 0 and install_return != 1:
+                        raise Exception("There was an error installing the solution!")
+                    if call_return != 0:
+                        raise Exception("There was an error running the solution!")
+
                 else:
                     cmd = subprocess.run(
                         [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'), "run", "-p",
@@ -129,9 +150,16 @@ def main():
                         capture_output=True)
                     print("4%s" % cmd.returncode)
                     if cmd.returncode == 0:
-                        call_prefixed_album_install_conda_exe()
+                        install_return = call_prefixed_album_install_conda_exe()
 
-                        call_prefixed_album_gui_conda_exe()
+                        call_return = call_prefixed_album_gui_conda_exe()
+
+                        # 0 == everything went fine; 1 == solution was already installed
+                        if install_return != 0 and install_return != 1:
+                            raise Exception("There was an error installing the solution!")
+                        if call_return != 0:
+                            raise Exception("There was an error running the solution!")
+
                     else:
                         print(
                             "Could not find album to run the solution. Please check your album installation.")
@@ -145,9 +173,16 @@ def main():
 
                 if cmd.returncode == 0:
                     print("3 %s" % cmd.returncode)
-                    call_named_album_install_conda_exe()
+                    install_return = call_named_album_install_conda_exe()
 
-                    call_named_album_gui_conda_exe()
+                    call_return = call_named_album_gui_conda_exe()
+
+                    # 0 == everything went fine; 1 == solution was already installed
+                    if install_return != 0 and install_return != 1:
+                        raise Exception("There was an error installing the solution!")
+                    if call_return != 0:
+                        raise Exception("There was an error running the solution!")
+
                 else:
                     cmd = subprocess.run(
                         [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "-p",
@@ -155,9 +190,16 @@ def main():
                         capture_output=True)
                     print("4%s" % cmd.returncode)
                     if cmd.returncode == 0:
-                        call_prefixed_album_install_conda_exe()
+                        install_return = call_prefixed_album_install_conda_exe()
 
-                        call_prefixed_album_gui_conda_exe()
+                        call_return = call_prefixed_album_gui_conda_exe()
+
+                        # 0 == everything went fine; 1 == solution was already installed
+                        if install_return != 0 and install_return != 1:
+                            raise Exception("There was an error installing the solution!")
+                        if call_return != 0:
+                            raise Exception("There was an error running the solution!")
+
                     else:
                         print(
                             "Could not find album to run the solution. Please check your album installation.")
