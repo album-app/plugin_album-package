@@ -87,6 +87,9 @@ def call_prefixed_album_run_conda_exe(params):
 
 def get_params():
     commands = input('Please enter the parameters with which the package solution should be called:')
+    if isinstance(commands, bytes):
+        commands = commands.decode()
+
     commands = re.split(r'\s', commands)
     params = ''
     for p in commands:
@@ -108,8 +111,9 @@ def main():
             call_named_album_run_conda_path(params)
 
         else:
-            cmd = subprocess.run(["conda", "run", "-p", Path.home().joinpath('.album', 'envs', 'album'), "album", "-h"], capture_output=True)
-            print("2%s" % cmd.returncode)
+            cmd = subprocess.run(["conda", "run", "-p", Path.home().joinpath('.album', 'envs', 'album'), "album", "-h"])
+
+            print("2! %s" % cmd.returncode)
             if cmd.returncode == 0:
                 call_prefixed_album_install_conda_path()
 

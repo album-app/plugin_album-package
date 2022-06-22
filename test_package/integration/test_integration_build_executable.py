@@ -41,16 +41,10 @@ class TestIntegrationBuildExecutable(TestCommon):
             exe_path = Path(self.tmp_dir.name).joinpath('solution', 'solution')
 
         try:
-            # tmp_input = ''
-            # tmp = subprocess.run(['conda', 'run', '-n', 'base', str(exe_path)])
-            # tmp = subprocess.run([str(exe_path)])
-            # exe_path = r"C:\Users\lriecke\Desktop\MDC\plugin_test_new_over_9000_tempaltes_gui_dude_test_yo_bro_sgeht\solution\solution.exe"
             cmd = [str(exe_path)]
             p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-            # input is a string since there was an stream opened in the child process
-            p.communicate(input="--run_command amk")
-            # p.wait()
-            # print(p.stdout)
+            p.communicate(input=b"--run_command amk")
+
         finally:
             self.assertTrue(os.path.isfile(exe_path) and os.access(exe_path, os.X_OK),
                             "No executable created or executable not accessible.")
