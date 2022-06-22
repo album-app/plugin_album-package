@@ -129,6 +129,8 @@ def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_u
 
     print("Installing album...")
     print(conda_exe)
+    print(os.path.isfile(conda_exe))
+    subprocess.run([conda_exe, "info"])
     a = subprocess.run([conda_exe, 'env', 'create', '-p', album_env_path, '-f', yml_path], capture_output=True)
     print(a.stdout)
     print(a.stderr)
