@@ -260,12 +260,12 @@ def check_for_script_installed_conda(conda_path):
 
 
 def main():
-    album_base_path = Path.home().joinpath('.album')
-    _conda_path = Path(album_base_path).joinpath("Miniconda")
-    album_env_path = Path(album_base_path).joinpath('envs', 'album')
+    album_base_path = str(Path.home().joinpath('.album'))
+    _conda_path = str(Path(album_base_path).joinpath("Miniconda"))
+    album_env_path = str(Path(album_base_path).joinpath('envs', 'album'))
     album_gui_url = "https://gitlab.com/album-app/plugins/album-gui/-/archive/main/album-gui-main.zip"
     yml_url = "https://gitlab.com/album-app/album/-/raw/main/album.yml"
-    yml_path = Path(os.path.realpath(__file__)).parent.joinpath('album.yml')
+    yml_path = str(Path(os.path.realpath(__file__)).parent.joinpath('album.yml'))
     print(yml_path)
     #check if yml file is present
     if not os.path.isfile(yml_path):
