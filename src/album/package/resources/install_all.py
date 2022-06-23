@@ -136,16 +136,16 @@ def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_u
     print("Installing album...")
     print(conda_exe)
     print(os.path.isfile(conda_exe))
-    c = subprocess.run([conda_exe, "info"], capture_output=True)
+    c = subprocess.run([str(conda_exe), "info"], capture_output=True)
     print(c.stdout)
     print(c.stderr)
-    a = subprocess.run([conda_exe, 'env', 'create', '-p', album_env_path, '-f', yml_path], capture_output=True)
+    a = subprocess.run([str(conda_exe), 'env', 'create', '-p', album_env_path, '-f', yml_path], capture_output=True)
     print(a.stdout)
     print(a.stderr)
     if a.returncode == 0:
         print("Successfully installed album.")
         print("Installing album gui...")
-        g = subprocess.run([conda_exe, 'run', '-p', album_env_path, 'pip', 'install', album_gui_url])
+        g = subprocess.run([str(conda_exe), 'run', '-p', album_env_path, 'pip', 'install', album_gui_url])
         if g.returncode == 0:
             print("Successfully installed album gui.")
         else:
