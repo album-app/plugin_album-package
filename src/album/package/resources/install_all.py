@@ -286,8 +286,6 @@ def main():
 
         _install_missing_conda(_conda_path)
 
-    if platform.system() == "Darwin":
-        os.remove(Path(album_base_path).joinpath('catalogs', 'catalog_collection.db'))
 
     print("END INSTALL SCRIPT!!")
 
