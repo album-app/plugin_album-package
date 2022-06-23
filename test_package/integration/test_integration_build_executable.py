@@ -66,9 +66,9 @@ class TestIntegrationBuildExecutable(TestCommon):
         )
 
         if platform.system() == 'Windows':
-            exe_path = Path(self.tmp_dir.name).joinpath('solution', 'solution.exe')
+            exe_path = Path(self.tmp_dir.name).joinpath('solution.exe')
         else:
-            exe_path = Path(self.tmp_dir.name).joinpath('solution', 'solution')
+            exe_path = Path(self.tmp_dir.name).joinpath('solution')
 
         self.assertTrue(os.path.isfile(exe_path) and os.access(exe_path, os.X_OK),
                         "No executable created or executable not accessible.")
