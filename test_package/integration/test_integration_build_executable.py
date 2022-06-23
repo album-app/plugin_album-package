@@ -40,15 +40,16 @@ class TestIntegrationBuildExecutable(TestCommon):
         else:
             exe_path = Path(self.tmp_dir.name).joinpath('solution', 'solution')
 
-        try:
-            cmd = [str(exe_path)]
-            p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-            p.communicate(input=b"--run_command amk")
+        #try:
+        cmd = [str(exe_path)]
+        p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+        p.communicate(input=b"--run_command amk")
 
-        finally:
-            self.assertTrue(os.path.isfile(exe_path) and os.access(exe_path, os.X_OK),
-                            "No executable created or executable not accessible.")
-            self.assertEqual(0, p.returncode, "Executable could not be executed correctly.")
+
+        #finally:
+        self.assertTrue(os.path.isfile(exe_path) and os.access(exe_path, os.X_OK),
+                        "No executable created or executable not accessible.")
+        self.assertEqual(0, p.returncode, "Executable could not be executed correctly.")
 
     def test_execute_gui(self):
         # build an executable and see if it was successfully build
