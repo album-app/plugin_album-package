@@ -31,7 +31,7 @@ def _install_conda_linux(conda_path):
     install_process = subprocess.run(["bash", conda_installer, "-b", "-u", "-p", conda_path, ">", "/dev/null"],
                                      capture_output=True)
     conda_exe = Path(conda_path).joinpath("condabin", "conda")
-
+ # TODO: HIER NOCHMAL NACH CONDA INFO CHECKEN!!!
     if install_process.returncode != 0:
         print("An error occured when installing Conda: %s" % install_process.stderr)
     else:
