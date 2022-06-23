@@ -22,6 +22,7 @@ class TestUnitBuildExecutable(TestCommon):
         super().tearDown()
 
     def test_create_parser(self):
+        # test the argument pasring
         parser = create_parser()
         sys.argv = ["", "package", "1234", "An_example_path"]
         args = parser.parse_known_args()
@@ -38,16 +39,19 @@ class TestUnitBuildExecutable(TestCommon):
         self.assertEqual(inspect.getsource(build_executable.run), inspect.getsource(args[0].func))
 
     def test_call_solution_gui(self):
+        # test if the call_solution_gui_template was successfully copied
         create_subscripts_gui.create_call_solution(self.tmp_dir.name)
         self.assertTrue(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution_gui.py')),
                         "There was no call_solution_gui.py subscript created!")
 
     def test_call_solution_no_gui(self):
+        # test if the call_solution_template was successfully copied
         create_subscripts_no_gui.create_call_solution(self.tmp_dir.name)
         self.assertTrue(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution.py')),
                         "There was no call_solution.py subscript created!")
 
     def test_spec_file_gui_single(self):
+        # test if the specfile was generated correctly for the single solution gui mode
         yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', 'solution.py')))
@@ -81,14 +85,14 @@ class TestUnitBuildExecutable(TestCommon):
         self.assertEqual(counter, 2, "There were to many lines replaced! Error in the spec file creation")
 
     def test_spec_file_no_gui_single(self):
+        # test if the specfile was generated correctly for the single solution no gui mode
         yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', 'solution.py')))
-        run_sol_path = repr(str(Path(self.tmp_dir.name).joinpath('run_solution.py')))
         hook_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'install_all.py')))
 
-        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'subscripts'),(%s, 'solution_files')],\n" % (
-            yml_path, run_sol_path, test_solution_path)
+        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files')],\n" % (
+            yml_path, test_solution_path)
         hook_string = "\t\t\t runtime_hooks=[%s],\n" % hook_path
 
         create_spec_file_no_gui.create(self.tmp_dir.name,
@@ -116,6 +120,7 @@ class TestUnitBuildExecutable(TestCommon):
         self.assertEqual(counter, 2, "There were to many lines replaced! Error in the spec file creation")
 
     def test_spec_file_gui_dir(self):
+        # test if the specfile was generated correctly for the solution directory gui mode
         yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))
@@ -148,14 +153,14 @@ class TestUnitBuildExecutable(TestCommon):
         self.assertEqual(counter, 2, "There were to many lines replaced! Error in the spec file creation")
 
     def test_spec_file_no_gui_dir(self):
+        # test if the specfile was generated correctly for the solution directory no gui mode
         yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))
-        run_sol_path = repr(str(Path(self.tmp_dir.name).joinpath('run_solution.py')))
         hook_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'install_all.py')))
 
-        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'subscripts'),(%s, 'solution_files')],\n" % (
-            yml_path, run_sol_path, test_solution_path)
+        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files')],\n" % (
+            yml_path, test_solution_path)
         hook_string = "\t\t\t runtime_hooks=[%s],\n" % hook_path
 
         create_spec_file_no_gui.create(self.tmp_dir.name,
@@ -182,29 +187,10 @@ class TestUnitBuildExecutable(TestCommon):
                          "There was an error creating the string for the install script in the spec file.")
         self.assertEqual(counter, 2, "There were to many lines replaced! Error in the spec file creation")
 
-    def test_run_solution(self):
-        base_path = "album = Album.Builder().base_cache_path(%s).build()\n" % repr(
-            str(Path.home().joinpath('.album', 'envs', 'album')))
-        solution_coords = "album.run(%s, params)\n" % "\'album:import_unittest:0.1.0\'"
 
-        create_subscripts_no_gui.create_run_solution(self.tmp_dir.name, "album:import_unittest:0.1.0")
-        created_py_no_gui = Path(self.tmp_dir.name).joinpath('run_solution.py')
-        counter = 0
-        with open(created_py_no_gui, 'r') as file:
-            for line in file:
-                if line.startswith("album = "):
-                    base_line = line
-                    counter += 1
-                if line.startswith("album.run("):
-                    coords_line = line
-                    counter += 1
-
-        self.assertTrue(os.path.isfile(created_py_no_gui), "There was no run_solution.py subscript created!")
-        self.assertEqual(base_path, base_line, "An error occured in the creation of the album base directory string.")
-        self.assertEqual(solution_coords, coords_line, "An error occured in the resolving of the solution coordinates.")
-        self.assertEqual(counter, 2, "There were to many lines replaced! Error in the run_solution.py creation")
 
     def test_yml(self):
+        # test if the yml file was correctly created
         ver_str = "      - album==%s\n" % core.__version__
 
         create_subscripts_no_gui.create_yml(self.tmp_dir.name)

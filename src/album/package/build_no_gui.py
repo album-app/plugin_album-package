@@ -8,15 +8,12 @@ from album.api import Album
 from album.package import create_spec_file_no_gui, create_subscripts_no_gui
 
 
-def run(album_instance: Album, args):
+def run(args):
     # calls an create_specfile und create_subscripts
-    resolved_solution = album_instance.resolve(args.solution)
-    solution_coordinates = resolved_solution.coordinates()
-
     if not os.path.isdir(Path(args.output_path)):
         os.mkdir(Path(args.output_path))
 
-    create_subscripts_no_gui.create(args.output_path, solution_coordinates)
+    create_subscripts_no_gui.create(args.output_path)
     spec_path = create_spec_file_no_gui.create(args.output_path, args.solution)
     exe_path_param = '--distpath=%s' % (str(args.output_path))
     try:
@@ -29,5 +26,4 @@ def run(album_instance: Album, args):
             shutil.rmtree(Path(os.getcwd()).joinpath('build'))
         os.remove(Path(args.output_path).joinpath('build_executable.spec'))
         os.remove(Path(args.output_path).joinpath('call_solution.py'))
-        os.remove(Path(args.output_path).joinpath('run_solution.py'))
         os.remove(Path(args.output_path).joinpath('album.yml'))
