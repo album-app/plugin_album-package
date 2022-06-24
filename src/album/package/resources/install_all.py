@@ -24,7 +24,6 @@ def _install_conda_windows(conda_path):
         return conda_exe
 
 
-
 def _install_conda_linux(conda_path):
     # install miniconda for linux
     conda_url_linux = "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
@@ -60,7 +59,7 @@ def _install_conda_macos(conda_path):
         return conda_exe
 
 
-def _install_missing_gui(album_base_path, conda_path, album_env_path, album_gui_url):
+def _install_missing_gui(album_base_path, conda_path, album_env_path, album_gui_url, yml_path):
     # install album gui and if needed conda
     print("Found album, but not album gui. Installing album gui...")
     # check for conda
@@ -76,8 +75,10 @@ def _install_missing_gui(album_base_path, conda_path, album_env_path, album_gui_
 
     if check_for_preinstalled_album(conda_path):
         subprocess.run([conda_exe, "run", "-n", "album", "pip", "install", album_gui_url])
-    else:
+    elif check_for_script_installed_album(album_env_path, conda_path):
         subprocess.run([conda_exe, "run", "-p", album_env_path, "pip", "install", album_gui_url])
+    else:
+        _install_album_full(album_base_path, conda_path, album_env_path, album_gui_url, yml_path)
 
 
 def _install_missing_conda(conda_path):
@@ -291,7 +292,7 @@ def main():
     print("Checking for album gui installation...")
     if (not check_for_preinstalled_gui(_conda_path)) and (
             not check_for_script_installed_gui(album_env_path, _conda_path)):
-        _install_missing_gui(album_base_path, _conda_path, album_env_path, album_gui_url)
+        _install_missing_gui(album_base_path, _conda_path, album_env_path, album_gui_url, yml_path)
 
 
 if __name__ == '__main__':
