@@ -15,12 +15,14 @@ def _install_conda_windows(conda_path):
     install_process = subprocess.run(["powershell", "-Command", cmd], capture_output=True)
     conda_exe = str(Path(conda_path).joinpath("condabin", "conda.bat"))
 
-    if install_process.returncode != 0:
-        print("An error occured when installing Conda: %s" % install_process.stderr)
-    else:
+    try:
+        cmd = subprocess.run([conda_exe, "info"], capture_output=True)
         print("Successfully installed Miniconda.")
+        return conda_exe
+    except Exception:
+        print("An error occured when installing Conda: %s" % install_process.stderr)
+        return conda_exe
 
-    return conda_exe
 
 
 def _install_conda_linux(conda_path):
@@ -31,13 +33,13 @@ def _install_conda_linux(conda_path):
     install_process = subprocess.run(["bash", conda_installer, "-b", "-u", "-p", conda_path, ">", "/dev/null"],
                                      capture_output=True)
     conda_exe = str(Path(conda_path).joinpath("condabin", "conda"))
-    # TODO: HIER NOCHMAL NACH CONDA INFO CHECKEN!!!
-    if install_process.returncode != 0:
-        print("An error occured when installing Conda: %s" % install_process.stderr)
-    else:
+    try:
+        cmd = subprocess.run([conda_exe, "info"], capture_output=True)
         print("Successfully installed Miniconda.")
-
-    return conda_exe
+        return conda_exe
+    except Exception:
+        print("An error occured when installing Conda: %s" % install_process.stderr)
+        return conda_exe
 
 
 def _install_conda_macos(conda_path):
@@ -49,12 +51,13 @@ def _install_conda_macos(conda_path):
                                      capture_output=True)
     conda_exe = str(Path(conda_path).joinpath("condabin", "conda"))
 
-    if install_process.returncode != 0:
-        print("An error occured when installing Conda: %s" % install_process.stderr)
-    else:
+    try:
+        cmd = subprocess.run([conda_exe, "info"], capture_output=True)
         print("Successfully installed Miniconda.")
-
-    return conda_exe
+        return conda_exe
+    except Exception:
+        print("An error occured when installing Conda: %s" % install_process.stderr)
+        return conda_exe
 
 
 def _install_missing_gui(album_base_path, conda_path, album_env_path, album_gui_url):
