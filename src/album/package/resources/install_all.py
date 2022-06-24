@@ -162,7 +162,7 @@ def check_for_preinstalled_album(conda_path):
                 if cmd.returncode == 0:
                     return True
             else:
-                cmd = subprocess.run([Path(conda_path).joinpath('condabin', 'conda'), "run", "-n", "album", "album", "-h"], capture_output=True)
+                cmd = subprocess.run([str(Path(conda_path).joinpath('condabin', 'conda')), "run", "-n", "album", "album", "-h"], capture_output=True)
                 if cmd.returncode == 0:
                     return True
         except Exception:
@@ -177,12 +177,12 @@ def check_for_script_installed_album(album_env_path,conda_path):
         try:
             if platform.system() == 'Windows':
                 cmd = subprocess.run(
-                    [Path(conda_path).joinpath('condabin', 'conda.exe'), "run", "-p", album_env_path, "album", "-h"], capture_output=True)
+                    [str(Path(conda_path).joinpath('condabin', 'conda.exe')), "run", "-p", album_env_path, "album", "-h"], capture_output=True)
                 if cmd.returncode == 0:
                     return True
             else:
                 cmd = subprocess.run(
-                    [Path(conda_path).joinpath('condabin', 'conda'), "run", "-p", album_env_path, "album", "-h"], capture_output=True)
+                    [str(Path(conda_path).joinpath('condabin', 'conda')), "run", "-p", album_env_path, "album", "-h"], capture_output=True)
                 if cmd.returncode == 0:
                     return True
         except Exception:
@@ -199,7 +199,7 @@ def check_for_preinstalled_gui(conda_path):
         try:
             if platform.system() == 'Windows':
                 cmd = subprocess.run(
-                    [Path(conda_path).joinpath('condabin', 'conda.exe'), "run", "-n", "album", "album", "gui", "-h"], capture_output=True)
+                    [str(Path(conda_path).joinpath('condabin', 'conda.exe')), "run", "-n", "album", "album", "gui", "-h"], capture_output=True)
                 if cmd.returncode == 0:
                     return True
             else:
@@ -220,12 +220,12 @@ def check_for_script_installed_gui(album_env_path,conda_path):
         try:
             if platform.system() == 'Windows':
                 cmd = subprocess.run(
-                    [Path(conda_path).joinpath('condabin', 'conda.exe'), "run", "-p", album_env_path, "album", "gui", "-h"], capture_output=True)
+                    [str(Path(conda_path).joinpath('condabin', 'conda.exe')), "run", "-p", album_env_path, "album", "gui", "-h"], capture_output=True)
                 if cmd.returncode == 0:
                     return True
             else:
                 cmd = subprocess.run(
-                    [Path(conda_path).joinpath('condabin', 'conda'), "run", "-p", album_env_path, "album", "gui", "-h"], capture_output=True)
+                    [str(Path(conda_path).joinpath('condabin', 'conda')), "run", "-p", album_env_path, "album", "gui", "-h"], capture_output=True)
                 if cmd.returncode == 0:
                     return True
         except Exception:
