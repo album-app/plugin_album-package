@@ -80,7 +80,7 @@ def _install_missing_gui(album_base_path, conda_path, album_env_path, album_gui_
 def _install_missing_conda(conda_path):
     # install miniconda
     print(
-        "Found album but could not find a working conda installation. Installing conda into: %s" % conda_path)
+        "Could not find a working conda installation. Installing conda into: %s" % conda_path)
     if not os.path.isdir(conda_path):
         os.mkdir(conda_path)
 
@@ -274,6 +274,8 @@ def main():
         wget(yml_url, Path(yml_path))
 
     print("Checking for album installation...")
+    if (not check_for_preinstalled_conda()) and (not check_for_script_installed_conda(_conda_path)):
+        _install_missing_conda(_conda_path)
     if (not check_for_preinstalled_album(_conda_path)) and (not check_for_script_installed_album(album_env_path, _conda_path)):
 
         _install_album_full(album_base_path, _conda_path, album_env_path, album_gui_url, yml_path)
@@ -282,9 +284,6 @@ def main():
 
         _install_missing_gui(album_base_path, _conda_path, album_env_path, album_gui_url)
 
-    elif (not check_for_preinstalled_conda()) and (not check_for_script_installed_conda(_conda_path)):
-
-        _install_missing_conda(_conda_path)
 
 
     print("END INSTALL SCRIPT!!")
