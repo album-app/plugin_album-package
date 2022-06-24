@@ -43,7 +43,7 @@ class TestIntegrationBuildExecutable(TestCommon):
         try:
             cmd = [str(exe_path)]
             p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-            p1 = p.communicate(input=b"--run_command amk")
+            p1 = p.communicate(input=b"--run_command hello")
             print(p1)
 
 
