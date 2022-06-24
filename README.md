@@ -1,1 +1,45 @@
-# Template plugin for extending Album commandline features
+# Album plugin for packaging solutions into executables
+
+This plugin is used to create executables from solutions, so a solution can be run with a simple
+double click. The executables can be distributed to a different system running the same operating system.
+ To create executables for different operating systems, run the this plugin on 
+the a system running the target operating system.
+If the the target system runs Windows or MacOS it doesn't need to have anything preinstalled, the executable will install every 
+needed component (Miniconda, album, album-gui) into the ~/.album directory if they are not already
+installed on the system. Linux users need to have the binutils package installed.
+
+
+## Installation:
+1. [Install Album](https://docs.album.solutions/en/latest/installation-instructions.html#)
+2. Activate the album environment:
+```
+conda activate album
+```
+3. Install the album package plugin:
+```
+pip install HERE LINK
+```
+4. If you are using a linux system, make sure the source and the target system got the binutils package installed.
+For example on ubuntu it can be installed with the following command:
+```
+apt-get update && apt-get install binutils
+```
+
+## Usage:
+To create an executable which launches the solution with a graphical user interface run following command:
+```
+album package /path/to/your/solution.py /your/output/path
+```
+To create an executable which launches the solution in a commandline run following command:
+```
+album package /path/to/your/solution.py /your/output/path --no_gui
+```
+### Input parameter:
+- solution: The album solution.py file which should be packed into an executable. <br>
+  If you provide the path to a directory containing a solution.py all files in the directory will be
+  packaged into the solution executable. If you provide the direct path to a solution.py only the solution will
+  packaged. If your solution contains local imports, make sure all imported files lie in the same directory as the solution
+  and you provide the path containing the solution.py.
+- output_path: The path where the executable should be saved
+- no_gui: If this parameter is set than an executable is created which launches the solution in a commandline
+if not the executable will launch the solution.py with a graphical user interface.

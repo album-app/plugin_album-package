@@ -1,1 +1,0 @@
-print('Ich tue so als wäre ich eine solution')
