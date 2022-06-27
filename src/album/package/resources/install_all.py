@@ -13,7 +13,8 @@ def _install_conda_windows(conda_path):
     cmd = "Start-Process %s -argumentlist \"/InstallationType=JustMe /S /D=%s\" -wait" % (
         conda_installer, conda_path)
     install_process = subprocess.run(["powershell", "-Command", cmd], capture_output=True)
-    conda_exe = str(Path(conda_path).joinpath("condabin", "conda.bat"))
+    conda_exe = Path(conda_path).joinpath("condabin", "conda.bat")
+    conda_exe = str(conda_exe)
 
     try:
         cmd = subprocess.run([conda_exe, "info"], capture_output=True)
@@ -105,11 +106,6 @@ def _install_missing_conda(conda_path):
 def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_url, yml_path):
     # install album and album gui and if needed miniconda
     print("Could not find album. Checking for conda installation....")
-    print(album_base_path)
-    print(conda_path)
-    print(album_env_path)
-    print(album_gui_url)
-    print(yml_path)
 
     if not os.path.isdir(album_base_path):
         os.mkdir(album_base_path)
@@ -145,12 +141,6 @@ def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_u
     print("-------------------------")
 
     print("Installing album...")
-    print(conda_exe)
-    print(os.path.isfile(conda_exe))
-    print(album_env_path)
-    print(os.path.isdir(album_env_path))
-    print(yml_path)
-    print(os.path.isfile(yml_path))
 
     a = subprocess.run([conda_exe, 'env', 'create', '-p', album_env_path, '-f', yml_path], capture_output=True)
 
@@ -279,6 +269,7 @@ def main():
     album_base_path = Path.home().joinpath('.album')
     _conda_path = Path(album_base_path).joinpath("Miniconda")
     album_env_path = Path(album_base_path).joinpath('envs', 'album')
+    album_env_path = str(album_env_path)
     album_gui_url = "https://gitlab.com/album-app/plugins/album-gui/-/archive/main/album-gui-main.zip"
     yml_url = "https://gitlab.com/album-app/album/-/raw/main/album.yml"
     yml_path = Path(os.path.realpath(__file__)).parent.joinpath('album.yml')
