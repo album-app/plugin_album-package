@@ -116,7 +116,7 @@ def main():
     # exeption if conda is missing
     try:
         # check if there is an env present with the name album and a conda installation with path env var
-        cmd = subprocess.run(["conda", "run", "-n", "album", "album", "-h"], capture_output=True)
+        cmd = subprocess.run(["conda", "run", "-n", "album", "album", "-h"], capture_output=True, check=True)
         # returncode != 0 if something is not right with album
         if cmd.returncode == 0:
             print("1%s" % cmd.returncode)
@@ -132,7 +132,7 @@ def main():
 
         else:
             #check if there is an album env with prefix and a conda installation with path env var
-            cmd = subprocess.run(["conda", "run", "-p", str(Path.home().joinpath('.album', 'envs', 'album')), "album", "-h"])
+            cmd = subprocess.run(["conda", "run", "-p", str(Path.home().joinpath('.album', 'envs', 'album')), "album", "-h"], capture_output=True, check=True)
             print("2! %s" % cmd.returncode)
             if cmd.returncode == 0:
                 install_return = call_prefixed_album_install_conda_path()
@@ -156,9 +156,9 @@ def main():
                     [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-n", "album",
                      "album",
                      "-h"], capture_output=True)
-
+                print("3 %s" % cmd.returncode)
                 if cmd.returncode == 0:
-                    print("3 %s" % cmd.returncode)
+
                     install_return = call_named_album_install_conda_exe()
 
                     call_return = call_named_album_run_conda_exe(params)
@@ -197,7 +197,7 @@ def main():
                 cmd = subprocess.run(
                     [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "-n", "album",
                      "album",
-                     "-h"], capture_output=True)
+                     "-h"], capture_output=True, check=True)
 
                 if cmd.returncode == 0:
                     print("3 %s" % cmd.returncode)
@@ -217,8 +217,9 @@ def main():
                     cmd = subprocess.run(
                         [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "-p",
                          Path.home().joinpath('.album', 'envs', 'album'), "album", "-h"],
-                        capture_output=True)
+                        capture_output=True, check=True)
                     print("4%s" % cmd.returncode)
+                    print(cmd.stderr.decode())
                     if cmd.returncode == 0:
                         install_return = call_prefixed_album_install_conda_exe()
 
@@ -234,9 +235,9 @@ def main():
                         print(
                             "Could not find album to run the solution. Please check your album installation.")
 
-        except Exception:
+        except Exception as e:
             print(
-                "An unexpected Error occured when runnig the solution. Please check your conda installation.")
+                "An unexpected Error occured when runnig the solution. Please check your conda installation: %s" % e.stderr)
 
 
 if __name__ == "__main__":
