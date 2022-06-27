@@ -273,6 +273,7 @@ def main():
     album_gui_url = "https://gitlab.com/album-app/plugins/album-gui/-/archive/main/album-gui-main.zip"
     yml_url = "https://gitlab.com/album-app/album/-/raw/main/album.yml"
     yml_path = Path(os.path.realpath(__file__)).parent.joinpath('album.yml')
+    yml_path = str(yml_path)
 
     if not os.path.isdir(album_base_path):
         os.mkdir(album_base_path)
