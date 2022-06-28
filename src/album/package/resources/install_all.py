@@ -204,9 +204,13 @@ def check_for_script_installed_album(album_env_path, conda_path):
 
 def check_for_preinstalled_gui(conda_path):
     # check if album gui is installed in the preinstalled album
+    # FIXME: if there is a conda but no album this will return true i think
     try:
         cmd = subprocess.run(["conda", "run", "-n", "album", "album", "gui", "-h"], capture_output=True)
-        return True
+        if cmd.returncode == 0:
+            return True
+        else:
+            return False
     except Exception:
         try:
             if platform.system() == 'Windows':
@@ -229,7 +233,11 @@ def check_for_script_installed_gui(album_env_path, conda_path):
     # check if album gui is installed in the album installed via this script
     try:
         cmd = subprocess.run(["conda", "run", "-p", album_env_path, "album", "gui", "-h"], capture_output=True)
-        return True
+        # FIXME: if there is a conda but no album this will return true i think
+        if cmd.returncode == 0:
+            return True
+        else:
+            return False
     except Exception:
         try:
             if platform.system() == 'Windows':
