@@ -119,7 +119,7 @@ def main():
     print("COMMAND!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! %s" %cmd)
     try:
         # check if there is an env present with the name album and a conda installation with path env var
-        cmd = subprocess.run(["conda", "run", "-n", "album", "album", "-h"], capture_output=True, check=True)
+        cmd = subprocess.run(["conda", "run", "-n", "album", "album", "-h"], capture_output=True)
         # returncode != 0 if something is not right with album
         if cmd.returncode == 0:
             print("1%s" % cmd.returncode)
@@ -135,7 +135,7 @@ def main():
 
         else:
             #check if there is an album env with prefix and a conda installation with path env var
-            cmd = subprocess.run(["conda", "run", "-p", str(Path.home().joinpath('.album', 'envs', 'album')), "album", "-h"], capture_output=True, check=True)
+            cmd = subprocess.run(["conda", "run", "-p", str(Path.home().joinpath('.album', 'envs', 'album')), "album", "-h"], capture_output=True)
             print("2! %s" % cmd.returncode)
             if cmd.returncode == 0:
                 install_return = call_prefixed_album_install_conda_path()
@@ -201,7 +201,7 @@ def main():
                 cmd = subprocess.run(
                     [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "-n", "album",
                      "album",
-                     "-h"], capture_output=True, check=True)
+                     "-h"], capture_output=True)
 
                 if cmd.returncode == 0:
                     print("3 %s" % cmd.returncode)
@@ -221,7 +221,7 @@ def main():
                     cmd = subprocess.run(
                         [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "-p",
                          Path.home().joinpath('.album', 'envs', 'album'), "album", "-h"],
-                        capture_output=True, check=True)
+                        capture_output=True)
                     print("4%s" % cmd.returncode)
                     print(cmd.stderr.decode())
                     if cmd.returncode == 0:
