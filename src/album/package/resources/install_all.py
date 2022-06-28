@@ -141,14 +141,14 @@ def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_u
 
     print("-------------------------")
 
-    c = subprocess.run(["conda", "env", "list"], capture_output=True)
+    c = subprocess.run([conda_exe, "env", "list"], capture_output=True)
     print(c)
 
     print("Installing album into %s..." % album_env_path)
 
     a = subprocess.run([conda_exe, 'env', 'create', '-p', album_env_path, '-f', yml_path], capture_output=True)
 
-    c2 = subprocess.run(["conda", "env", "list"], capture_output=True)
+    c2 = subprocess.run([conda_exe, "env", "list"], capture_output=True)
     print(c2)
 
     if a.returncode == 0:
