@@ -114,6 +114,9 @@ def get_params():
 def main():
     params = get_params()
     # exeption if conda is missing
+
+    cmd = subprocess.run(["conda", "run", "-n", "album", "album", "-h"], capture_output=True, check=True)
+    print("COMMAND!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! %s" %cmd)
     try:
         # check if there is an env present with the name album and a conda installation with path env var
         cmd = subprocess.run(["conda", "run", "-n", "album", "album", "-h"], capture_output=True, check=True)
