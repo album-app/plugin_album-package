@@ -237,7 +237,7 @@ def main():
 
         except Exception as e:
             print(
-                "An unexpected Error occured when runnig the solution. Please check your conda installation: %s" % e.stderr)
+                "An unexpected Error occured when runnig the solution. Please check your conda installation: %s" % e)
 
 
 if __name__ == "__main__":
