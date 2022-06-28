@@ -55,6 +55,7 @@
   tags:
     - docker
   before_script:
+    - apt-get update && apt-get install -y libgl1-mesa-glx
     - python -V  # Print out python version for debugging
     - pwd
     - which python
