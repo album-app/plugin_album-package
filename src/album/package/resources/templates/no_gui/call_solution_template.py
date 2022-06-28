@@ -149,7 +149,7 @@ def main():
                     "Could not find album to run the solution. Please check your album installation.")
     # TODO: try exception subprocess.CalledProcessError and run(check=True) as replacement for Exception
     except Exception as e:
-        print("EXECEPTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!! %s" % e)
+        print("EXECEPTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!! %s" % e.__traceback__)
         try:
             if platform.system() == 'Windows':
                 # check if there is an env present with the name album and a conda installation in the album base dir
