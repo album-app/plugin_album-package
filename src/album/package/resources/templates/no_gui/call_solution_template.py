@@ -124,7 +124,7 @@ def main():
             install_return = call_named_album_install_conda_path()
 
             call_return = call_named_album_run_conda_path(params)
-            # 0 == everything went fine; 1 == solution was already installed
+            # 0 == everything went fine; 1 == solution was already installed and other errors
             #FIXME: returncode 1 is not unique for already installed solution, it stands for all sorts of errors, like solution not found
             if install_return != 0 and install_return != 1:
                 sys.exit("There was an error installing the solution!")
@@ -146,7 +146,7 @@ def main():
                     sys.exit("There was an error running the solution!")
 
             else:
-                print(
+                sys.exit(
                     "Could not find album to run the solution. Please check your album installation.")
     # TODO: try exception subprocess.CalledProcessError and run(check=True) as replacement for Exception
     except Exception as e:
@@ -234,11 +234,11 @@ def main():
                             sys.exit("There was an error running the solution!")
 
                     else:
-                        print(
+                        sys.exit(
                             "Could not find album to run the solution. Please check your album installation.")
 
         except Exception as e:
-            print(
+            sys.exit(
                 "An unexpected Error occured when runnig the solution. Please check your conda installation: %s" % e)
 
 
