@@ -1,6 +1,7 @@
 import os.path
 import platform
 import subprocess
+import sys
 from pathlib import Path
 import wget
 
@@ -64,6 +65,7 @@ def _install_missing_gui(album_base_path, conda_path, album_env_path, album_gui_
     # install album gui and if needed conda
     print("Found album, but not album gui. Installing album gui...")
     # check for conda
+    #TODO AUSLAGERN!
     if check_for_preinstalled_conda():
         conda_exe = "conda"
     elif check_for_script_installed_conda(conda_path):
@@ -317,9 +319,11 @@ def check_for_script_installed_conda(conda_path):
 
 
 def main():
+    enc = sys.getfilesystemencoding()
     album_base_path = Path.home().joinpath('.album')
     _conda_path = Path(album_base_path).joinpath("Miniconda")
     album_env_path = Path(album_base_path).joinpath('envs', 'album')
+    #.format(str(album_env_path).encode(enc))
     album_env_path = album_env_path.as_posix()
     #album_env_path = str(album_env_path)
     album_gui_url = "https://gitlab.com/album-app/plugins/album-gui/-/archive/main/album-gui-main.zip"
@@ -337,9 +341,12 @@ def main():
         yml_path = Path(album_base_path).joinpath('album.yml')
         wget.download(yml_url, Path(yml_path))
 
+    #yml_path = "{}".format(str(yml_path).encode(enc))
+
     print("Checking for conda installation...")
     if (not check_for_preinstalled_conda()) and (not check_for_script_installed_conda(_conda_path)):
         _install_missing_conda(_conda_path)
+        print(os.getenv("PATH"))
 
     print("Checking for album installation...")
     if (not check_for_preinstalled_album(_conda_path)) and (
