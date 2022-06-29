@@ -8,15 +8,15 @@ from pathlib import Path
 def call_named_album_install_conda_path():
     # use a conda which can be called via conda command and an environment called album to install the solution
     cmd = subprocess.run(["conda", "run", "-n", 'album', "album", "install",
-                          Path(os.path.realpath(__file__)).parent.joinpath('solution_files')], capture_output=True)
+                          str(Path(os.path.realpath(__file__)).parent.joinpath('solution_files'))], capture_output=True)
     return cmd.returncode
 
 
 def call_prefixed_album_install_conda_path():
     # use a conda which can be called via conda command and an album environment which got created with prefix and no
     # name to install the solution
-    cmd = subprocess.run(["conda", "run", "-p", Path.home().joinpath('.album', 'envs', 'album'), "album", "install",
-                          Path(os.path.realpath(__file__)).parent.joinpath('solution_files')], capture_output=True)
+    cmd = subprocess.run(["conda", "run", "-p", str(Path.home().joinpath('.album', 'envs', 'album')), "album", "install",
+                          str(Path(os.path.realpath(__file__)).parent.joinpath('solution_files'))], capture_output=True)
     return cmd.returncode
 
 
@@ -24,8 +24,8 @@ def call_named_album_install_conda_exe():
     # use a conda which installed via the install script and an environment called album to install the solution
     if platform.system() == 'Windows':
         cmd = subprocess.run(
-            [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'), "run", "-n", 'album', "album",
-             "install", Path(os.path.realpath(__file__)).parent.joinpath('solution_files')], capture_output=True)
+            [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-n", 'album', "album",
+             "install", str(Path(os.path.realpath(__file__)).parent.joinpath('solution_files'))], capture_output=True)
         return cmd.returncode
     else:
         cmd = subprocess.run(
@@ -38,9 +38,9 @@ def call_prefixed_album_install_conda_exe():
     # use a conda which was installed via the install script and an album environment which got created with prefix and no
     # name to install the solution
     if platform.system() == 'Windows':
-        cmd = subprocess.run([Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'), "run", "-p",
-                              Path.home().joinpath('.album', 'envs', 'album'), "album", "install",
-                              Path(os.path.realpath(__file__)).parent.joinpath('solution_files')], capture_output=True)
+        cmd = subprocess.run([str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-p",
+                              str(Path.home().joinpath('.album', 'envs', 'album')), "album", "install",
+                              str(Path(os.path.realpath(__file__)).parent.joinpath('solution_files'))], capture_output=True)
         return cmd.returncode
     else:
         cmd = subprocess.run([Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "-p",
@@ -53,7 +53,7 @@ def call_named_album_gui_conda_path():
     # use a conda which can be called via conda command and a named album environment
     # to run the solution in the gui
     cmd = subprocess.run(["conda", "run", "-n", 'album', "album", "gui", "--solution",
-                          Path(os.path.realpath(__file__)).parent.joinpath('solution_files', 'solution.py')])
+                          str(Path(os.path.realpath(__file__)).parent.joinpath('solution_files', 'solution.py'))])
     return cmd.returncode
 
 
@@ -61,8 +61,8 @@ def call_prefixed_album_gui_conda_path():
     # use a conda which can be called via conda command and an album environment which got created with prefix and no
     # name to run the solution in the gui
     cmd = subprocess.run(
-        ["conda", "run", "-p", Path.home().joinpath('.album', 'envs', 'album'), "album", "gui", "--solution",
-         Path(os.path.realpath(__file__)).parent.joinpath('solution_files', 'solution.py')])
+        ["conda", "run", "-p", str(Path.home().joinpath('.album', 'envs', 'album')), "album", "gui", "--solution",
+         str(Path(os.path.realpath(__file__)).parent.joinpath('solution_files', 'solution.py'))])
     return cmd.returncode
 
 
@@ -71,8 +71,8 @@ def call_named_album_gui_conda_exe():
     # to run the solution in the gui
     if platform.system() == 'Windows':
         cmd = subprocess.run(
-            [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'), "run", "-n", 'album', "album", "gui",
-             "--solution", Path(os.path.realpath(__file__)).parent.joinpath('solution_files', 'solution.py')])
+            [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-n", 'album', "album", "gui",
+             "--solution", str(Path(os.path.realpath(__file__)).parent.joinpath('solution_files', 'solution.py'))])
         return cmd.returncode
     else:
         cmd = subprocess.run(
@@ -85,9 +85,9 @@ def call_prefixed_album_gui_conda_exe():
     # use a conda which was installed via the install script and an album environment which got created
     # with prefix and no name to run the solution in the gui
     if platform.system() == 'Windows':
-        cmd = subprocess.run([Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'), "run", "-p",
-                              Path.home().joinpath('.album', 'envs', 'album'), "album", "gui", "--solution",
-                              Path(os.path.realpath(__file__)).parent.joinpath('solution_files', 'solution.py')])
+        cmd = subprocess.run([str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-p",
+                              str(Path.home().joinpath('.album', 'envs', 'album')), "album", "gui", "--solution",
+                              str(Path(os.path.realpath(__file__)).parent.joinpath('solution_files', 'solution.py'))])
 
         return cmd.returncode
     else:
@@ -121,7 +121,7 @@ def main():
         else:
             # check if there is an album env with prefix and a conda installation with path env var
             cmd = subprocess.run(
-                ["conda", "run", "-p", Path.home().joinpath('.album', 'envs', 'album'), "album", "gui", "-h"],
+                ["conda", "run", "-p", str(Path.home().joinpath('.album', 'envs', 'album')), "album", "gui", "-h"],
                 capture_output=True)
             print("2%s" % cmd.returncode)
             if cmd.returncode == 0:
@@ -136,7 +136,7 @@ def main():
                     sys.exit("There was an error running the solution!")
 
             else:
-                print(
+                sys.exit(
                     "Could not find album to run the solution. Please check your album installation.")
 
     except Exception as e:
@@ -145,7 +145,7 @@ def main():
                 # check if there is an env present with the name album containing album gui and a conda installation
                 # in the album base dir
                 cmd = subprocess.run(
-                    [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'), "run", "-n", "album",
+                    [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-n", "album",
                      "album",
                      "-h"], capture_output=True)
 
@@ -165,8 +165,8 @@ def main():
                     # check if there is an album env present with the install script prefix and
                     # a conda installation in the album base dir
                     cmd = subprocess.run(
-                        [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'), "run", "-p",
-                         Path.home().joinpath('.album', 'envs', 'album'), "album", "gui", "-h"],
+                        [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-p",
+                         str(Path.home().joinpath('.album', 'envs', 'album')), "album", "gui", "-h"],
                         capture_output=True)
                     print("4%s" % cmd.returncode)
                     if cmd.returncode == 0:
@@ -181,7 +181,7 @@ def main():
                             sys.exit("There was an error running the solution!")
 
                     else:
-                        print(
+                        sys.exit(
                             "Could not find album to run the solution. Please check your album installation.")
 
             else:
@@ -224,11 +224,11 @@ def main():
                             sys.exit("There was an error running the solution!")
 
                     else:
-                        print(
+                        sys.exit(
                             "Could not find album to run the solution. Please check your album installation.")
 
         except Exception:
-            print(
+            sys.exit(
                 "An unexpected Error occured when runnig the solution. Please check your conda installation.")
 
 

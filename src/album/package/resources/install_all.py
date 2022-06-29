@@ -1,6 +1,7 @@
 import os.path
 import platform
 import subprocess
+import sys
 from pathlib import Path
 import wget
 
@@ -13,7 +14,8 @@ def _install_conda_windows(conda_path):
     cmd = "Start-Process %s -argumentlist \"/InstallationType=JustMe /S /D=%s\" -wait" % (
         conda_installer, conda_path)
     install_process = subprocess.run(["powershell", "-Command", cmd], capture_output=True)
-    conda_exe = str(Path(conda_path).joinpath("condabin", "conda.bat"))
+    conda_exe = Path(conda_path).joinpath("condabin", "conda.bat")
+    conda_exe = str(conda_exe)
 
     try:
         cmd = subprocess.run([conda_exe, "info"], capture_output=True)
@@ -63,16 +65,18 @@ def _install_missing_gui(album_base_path, conda_path, album_env_path, album_gui_
     # install album gui and if needed conda
     print("Found album, but not album gui. Installing album gui...")
     # check for conda
+    # TODO AUSLAGERN!
     if check_for_preinstalled_conda():
         conda_exe = "conda"
     elif check_for_script_installed_conda(conda_path):
         if platform.system() == 'Windows':
-            conda_exe = str(Path(album_base_path).joinpath('Miniconda', 'condabin', 'conda.exe'))
+            conda_exe = str(Path(album_base_path).joinpath('Miniconda', 'condabin', 'conda.bat'))
         else:
             conda_exe = str(Path(album_base_path).joinpath('Miniconda', 'condabin', 'conda'))
     else:
         conda_exe = _install_missing_conda(conda_path)
 
+    # FIXME: HERE THE SUCCESS OF THE INSTALL NEEDS TO BE CHECKED!!!
     if check_for_preinstalled_album(conda_path):
         subprocess.run([conda_exe, "run", "-n", "album", "pip", "install", album_gui_url])
     elif check_for_script_installed_album(album_env_path, conda_path):
@@ -105,6 +109,7 @@ def _install_missing_conda(conda_path):
 def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_url, yml_path):
     # install album and album gui and if needed miniconda
     print("Could not find album. Checking for conda installation....")
+
     if not os.path.isdir(album_base_path):
         os.mkdir(album_base_path)
     # this conda check is technically not needed anymore, since the conda check in the main happens first
@@ -115,7 +120,7 @@ def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_u
     elif check_for_script_installed_conda(conda_path):
         if platform.system() == 'Windows':
             print("Conda Command available.")
-            conda_exe = str(Path(album_base_path).joinpath('Miniconda', 'condabin', 'conda.exe'))
+            conda_exe = str(Path(album_base_path).joinpath('Miniconda', 'condabin', 'conda.bat'))
         else:
             print("Conda Command available.")
             conda_exe = str(Path(album_base_path).joinpath('Miniconda', 'condabin', 'conda'))
@@ -138,7 +143,7 @@ def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_u
 
     print("-------------------------")
 
-    print("Installing album...")
+    print("Installing album into %s..." % album_env_path)
 
     a = subprocess.run([conda_exe, 'env', 'create', '-p', album_env_path, '-f', yml_path], capture_output=True)
 
@@ -157,98 +162,153 @@ def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_u
 
 
 def check_for_preinstalled_album(conda_path):
+    #print("PRE ALBUM:!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     try:
         cmd = subprocess.run(["conda", "run", "-n", "album", "album", "-h"], capture_output=True)
-        return True
+        #print("stdout1 : %s" % cmd)
+        if cmd.returncode == 0:
+            return True
+        else:
+            return False
     except Exception:
         try:
             if platform.system() == 'Windows':
                 cmd = subprocess.run(
-                    [str(Path(conda_path).joinpath('condabin', 'conda.exe')), "run", "-n", "album", "album", "-h"],
+                    [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "run", "-n", "album", "album", "-h"],
                     capture_output=True)
+                #print("cmd2: %s" % cmd)
                 if cmd.returncode == 0:
                     return True
+                else:
+                    return False
             else:
                 cmd = subprocess.run(
                     [str(Path(conda_path).joinpath('condabin', 'conda')), "run", "-n", "album", "album", "-h"],
                     capture_output=True)
                 if cmd.returncode == 0:
                     return True
+                else:
+                    return False
         except Exception:
             return False
 
 
 def check_for_script_installed_album(album_env_path, conda_path):
+    #print("SCRIPT ALBUM:!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    #python = get_script_album_env_python(album_env_path)
+    #album_main = get_script_album_main(album_env_path)
+
     try:
         cmd = subprocess.run(["conda", "run", "-p", album_env_path, "album", "-h"], capture_output=True)
-        return True
+        #print("cmd1 : %s" % cmd)
+        if cmd.returncode == 0:
+            return True
+        else:
+            return False
     except Exception:
         try:
             if platform.system() == 'Windows':
                 cmd = subprocess.run(
-                    [str(Path(conda_path).joinpath('condabin', 'conda.exe')), "run", "-p", album_env_path, "album",
+                    [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "run", "-p", album_env_path, "album",
                      "-h"], capture_output=True)
+                #cmd = subprocess.run(
+                #    [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "run", python, album_main,
+                #     "-h"], capture_output=True)
+
+                #print("cmd2: %s" % cmd)
                 if cmd.returncode == 0:
                     return True
+                else:
+                    return False
             else:
                 cmd = subprocess.run(
                     [str(Path(conda_path).joinpath('condabin', 'conda')), "run", "-p", album_env_path, "album", "-h"],
                     capture_output=True)
                 if cmd.returncode == 0:
                     return True
+                else:
+                    return False
         except Exception:
             return False
 
 
 def check_for_preinstalled_gui(conda_path):
     # check if album gui is installed in the preinstalled album
+    #print("PRE GUI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     try:
         cmd = subprocess.run(["conda", "run", "-n", "album", "album", "gui", "-h"], capture_output=True)
-        return True
+        #print("cmd1 : %s" % cmd)
+        if cmd.returncode == 0:
+            return True
+        else:
+            return False
     except Exception:
         try:
             if platform.system() == 'Windows':
                 cmd = subprocess.run(
                     [str(Path(conda_path).joinpath('condabin', 'conda.exe')), "run", "-n", "album", "album", "gui",
                      "-h"], capture_output=True)
+                #print("cmd2: %s" % cmd)
                 if cmd.returncode == 0:
                     return True
+                else:
+                    return False
             else:
                 cmd = subprocess.run(
                     [Path(conda_path).joinpath('condabin', 'conda'), "run", "-n", "album", "album", "gui", "-h"],
                     capture_output=True)
                 if cmd.returncode == 0:
                     return True
+                # else:
+                #    return False
         except Exception:
             return False
 
 
 def check_for_script_installed_gui(album_env_path, conda_path):
     # check if album gui is installed in the album installed via this script
+    #print("SCRIPT GUI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    #python = get_script_album_env_python(album_env_path)
+    #album_main = get_script_album_main(album_env_path)
     try:
         cmd = subprocess.run(["conda", "run", "-p", album_env_path, "album", "gui", "-h"], capture_output=True)
-        return True
+        #print("cmd1 : %s" % cmd)
+        if cmd.returncode == 0:
+            return True
+        else:
+            return False
     except Exception:
         try:
             if platform.system() == 'Windows':
                 cmd = subprocess.run(
-                    [str(Path(conda_path).joinpath('condabin', 'conda.exe')), "run", "-p", album_env_path, "album",
+                    [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "run", "-p", album_env_path, "album",
                      "gui", "-h"], capture_output=True)
+                #cmd = subprocess.run(
+                #    [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "run", python, album_main,
+                #     "gui", "-h"], capture_output=True)
+
+                #print("cmd2: %s" % cmd)
                 if cmd.returncode == 0:
                     return True
+                else:
+                   return False
             else:
                 cmd = subprocess.run(
                     [str(Path(conda_path).joinpath('condabin', 'conda')), "run", "-p", album_env_path, "album", "gui",
                      "-h"], capture_output=True)
                 if cmd.returncode == 0:
                     return True
+                else:
+                    return False
         except Exception:
             return False
 
 
 def check_for_preinstalled_conda():
+    #print("PRE CONDA CHECK:!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     try:
         cmd = subprocess.run(["conda", "info"], capture_output=True)
+        #print("cmd: %s" % cmd)
         return True
     except Exception:
         return False
@@ -256,20 +316,27 @@ def check_for_preinstalled_conda():
 
 def check_for_script_installed_conda(conda_path):
     if platform.system() == 'Windows':
-        conda_exe = str(Path(conda_path).joinpath('condabin', 'conda.exe'))
+        conda_exe = str(Path(conda_path).joinpath('condabin', 'conda.bat'))
     else:
         conda_exe = str(Path(conda_path).joinpath('condabin', 'conda'))
+
+    #print("Script CONDA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!: %s" % os.path.isfile(Path(conda_exe)))
 
     return os.path.isfile(Path(conda_exe))
 
 
 def main():
-    album_base_path = str(Path.home().joinpath('.album'))
-    _conda_path = str(Path(album_base_path).joinpath("Miniconda"))
-    album_env_path = str(Path(album_base_path).joinpath('envs', 'album'))
+    enc = sys.getfilesystemencoding()
+    album_base_path = Path.home().joinpath('.album')
+    _conda_path = Path(album_base_path).joinpath("Miniconda")
+    album_env_path = Path(album_base_path).joinpath('envs', 'album')
+    #album_env_path = album_env_path.as_posix()
+    album_env_path = str(album_env_path)
     album_gui_url = "https://gitlab.com/album-app/plugins/album-gui/-/archive/main/album-gui-main.zip"
     yml_url = "https://gitlab.com/album-app/album/-/raw/main/album.yml"
-    yml_path = str(Path(os.path.realpath(__file__)).parent.joinpath('album.yml'))
+    yml_path = Path(os.path.realpath(__file__)).parent.joinpath('album.yml')
+    #yml_path = yml_path.as_posix()
+    yml_path = str(yml_path)
 
     if not os.path.isdir(album_base_path):
         os.mkdir(album_base_path)
@@ -280,9 +347,12 @@ def main():
         yml_path = Path(album_base_path).joinpath('album.yml')
         wget.download(yml_url, Path(yml_path))
 
+    # yml_path = "{}".format(str(yml_path).encode(enc))
+
     print("Checking for conda installation...")
     if (not check_for_preinstalled_conda()) and (not check_for_script_installed_conda(_conda_path)):
         _install_missing_conda(_conda_path)
+        print(os.getenv("PATH"))
 
     print("Checking for album installation...")
     if (not check_for_preinstalled_album(_conda_path)) and (
