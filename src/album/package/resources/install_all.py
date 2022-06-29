@@ -61,17 +61,6 @@ def _install_conda_macos(conda_path):
         return conda_exe
 
 
-def get_script_album_env_python(album_env_path):
-    if platform.system() == "Windows":
-        return (Path(album_env_path).joinpath('python.exe')).as_posix()
-    else:
-        return Path(album_env_path).joinpath('python')
-
-
-def get_script_album_main(album_env_path):
-    return (Path(album_env_path).joinpath('Lib', 'site-packages', 'album', '__main__.py')).as_posix()
-
-
 def _install_missing_gui(album_base_path, conda_path, album_env_path, album_gui_url, yml_path):
     # install album gui and if needed conda
     print("Found album, but not album gui. Installing album gui...")
