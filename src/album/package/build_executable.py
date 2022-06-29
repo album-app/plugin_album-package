@@ -10,7 +10,10 @@ from album.runner.album_logging import get_active_logger
 
 # starts the run fct corresponding to the selected gui mode
 def run(album_instance: Album, args):
-    args.solution = album_instance.resolve(args.solution).path()
+
+    if not (Path.exists(Path(args.solution))):
+        args.solution = album_instance.resolve(args.solution).path()
+
     if os.path.isfile(Path(args.solution)) or os.path.isfile(Path(args.solution).joinpath('solution.py')):
         get_active_logger().info("Build an executable which runs the solution.")
         get_active_logger().info(
