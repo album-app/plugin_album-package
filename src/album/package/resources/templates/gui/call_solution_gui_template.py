@@ -136,7 +136,7 @@ def main():
                     sys.exit("There was an error running the solution!")
 
             else:
-                print(
+                sys.exit(
                     "Could not find album to run the solution. Please check your album installation.")
 
     except Exception as e:
@@ -181,7 +181,7 @@ def main():
                             sys.exit("There was an error running the solution!")
 
                     else:
-                        print(
+                        sys.exit(
                             "Could not find album to run the solution. Please check your album installation.")
 
             else:
@@ -224,11 +224,11 @@ def main():
                             sys.exit("There was an error running the solution!")
 
                     else:
-                        print(
+                        sys.exit(
                             "Could not find album to run the solution. Please check your album installation.")
 
         except Exception:
-            print(
+            sys.exit(
                 "An unexpected Error occured when runnig the solution. Please check your conda installation.")
 
 
