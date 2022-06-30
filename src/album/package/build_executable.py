@@ -10,12 +10,8 @@ from album.runner.album_logging import get_active_logger
 
 # starts the run fct corresponding to the selected gui mode
 def run(album_instance: Album, args):
-
-    print(args.solution)
-    if not (Path.exists(Path(args.solution))):
+    try:
         args.solution = album_instance.resolve(args.solution).path()
-    print(args.solution)
-    if os.path.isfile(Path(args.solution)) or os.path.isfile(Path(args.solution).joinpath('solution.py')):
         get_active_logger().info("Build an executable which runs the solution.")
         get_active_logger().info(
             "solution: %s at %s" % (album_instance.resolve(args.solution).coordinates(), args.solution))
@@ -27,5 +23,7 @@ def run(album_instance: Album, args):
             build_gui.run(args)
         else:
             build_no_gui.run(args)
-    else:
-        get_active_logger().error("Solution could not be found! Abort.")
+    except AttributeError:
+        get_active_logger().error("album command failed: Cannot find solution %s! " \
+                    "Try <doi>:<prefix>/<suffix> or <prefix>/<suffix> or <group>:<name>:<version> or " \
+                    "<catalog>:<group>:<name>:<version> or point to a valid file! Aborting..." %args.solution)
