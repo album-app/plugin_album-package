@@ -26,4 +26,4 @@ def run(album_instance: Album, args):
     except AttributeError as e:
         get_active_logger().error("album command failed: Cannot find solution %s! " \
                     "Try <doi>:<prefix>/<suffix> or <prefix>/<suffix> or <group>:<name>:<version> or " \
-                    "<catalog>:<group>:<name>:<version> or point to a valid file! Aborting... %s" %(args.solution,e))
+                    "<catalog>:<group>:<name>:<version> or point to a valid file! Aborting..." %(args.solution))
