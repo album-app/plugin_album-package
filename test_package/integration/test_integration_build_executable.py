@@ -40,7 +40,6 @@ class TestIntegrationBuildExecutable(TestCommon):
         else:
             exe_path = Path(self.tmp_dir.name).joinpath('solution')
 
-
         cmd = [str(exe_path)]
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         p1 = p.communicate(input=b"--run_command hello")
@@ -81,6 +80,8 @@ class TestIntegrationBuildExecutable(TestCommon):
 
     def test_no_solution(self):
         # test if the plugin aborts if the solution is missing
+        self.album_mock.resolve.return_value = "BOOLSHIT"
+        self.album_mock
         with self.assertLogs(get_active_logger(), level='ERROR') as cm:
             build_executable.run(self.album_mock, Namespace(solution=
             Path(os.path.realpath(__file__)).parent.parent.parent.joinpath(
@@ -91,7 +92,13 @@ class TestIntegrationBuildExecutable(TestCommon):
                 output_path=Path(self.tmp_dir.name).joinpath('test_output'),
                 no_gui=True))
 
-        self.assertEqual('ERROR:root:Solution could not be found! Abort.', cm.output[0],
+        error_str = "ERROR:root:album command failed: Cannot find solution %s! " \
+                    "Try <doi>:<prefix>/<suffix> or <prefix>/<suffix> or <group>:<name>:<version> or " \
+                    "<catalog>:<group>:<name>:<version> or point to a valid file! Aborting..." % Path(
+            os.path.realpath(__file__)).parent.parent.parent.joinpath('test_package', 'resources', 'test_solution',
+                                                                      'murks.py')
+
+        self.assertEqual(error_str, cm.output[0],
                          "Missing solution was not caught.")
 
     def test_clean_up_no_gui(self):
