@@ -44,7 +44,6 @@ class TestIntegrationBuildExecutable(TestCommon):
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         p1 = p.communicate(input=b"--run_command hello")
         print(p1)
-        print("RETURNCODE!!!! %s" % p.returncode)
         self.assertTrue(os.path.isfile(exe_path) and os.access(exe_path, os.X_OK),
                         "No executable created or executable not accessible.")
         self.assertEqual(0, p.returncode, "Executable could not be executed correctly.")

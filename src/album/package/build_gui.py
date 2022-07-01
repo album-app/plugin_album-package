@@ -7,10 +7,10 @@ import PyInstaller.__main__
 from album.package import create_spec_file_gui, create_subscripts_gui
 
 
-def run(args):
+def run(args,coordinates):
     if not os.path.isdir(Path(args.output_path)):
         os.mkdir(Path(args.output_path))
-    create_subscripts_gui.create(args.output_path)
+    create_subscripts_gui.create(args.output_path, coordinates)
     spec_path = create_spec_file_gui.create(args.output_path, args.solution)
     exe_path_param = '--distpath=%s' % (str(args.output_path))
     try:
