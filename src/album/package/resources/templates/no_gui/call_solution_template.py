@@ -9,11 +9,11 @@ from pathlib import Path
 
 def get_solution_list_json(json_str):
     json_str = json.loads(json_str.decode())
-    #list
+    # list
     catalog_list = json_str['catalogs']
-    #list of catalogs_list of solution_dicts
+    # list of catalogs_list of solution_dicts
     catalog_list_of_solution_lists = []
-    #list of dict containing dicts as values
+    # list of dict containing dicts as values
     solution_dicts_list = []
 
     if isinstance(catalog_list, list):
@@ -26,8 +26,7 @@ def get_solution_list_json(json_str):
     return solution_dicts_list
 
 
-def check_solutions_dict(solution_dicts):
-    coordinates = '<coordinates>'
+def check_solutions_dict(solution_dicts, coordinates):
     group = coordinates.split(':')[0]
     name = coordinates.split(':')[1]
     version = coordinates.split(':')[2]
@@ -49,45 +48,66 @@ def check_solutions_dict(solution_dicts):
     return False
 
 
-def installed_check(conda, album):
+def get_params(coordinates):
+    # get input parameter for the solution
+    group = coordinates.split(':')[0]
+    name = coordinates.split(':')[1]
+    version = coordinates.split(':')[2]
+
+    cmd = subprocess.run(["conda", "run", "-n", "album", "album", "index", "--json"],
+                         capture_output=True)
+    solution_dict = get_solution_list_json(cmd.stdout)
+
+    commands = input('Please enter the parameters with which the package solution should be called:')
+    if isinstance(commands, bytes):
+        commands = commands.decode()
+
+    commands = re.split(r'\s', commands)
+    params = ''
+    for p in commands:
+        params += ' %s' % p
+    return params
+
+
+def installed_check(conda, album, coordinates):
     # conda = true if condas env path var is set
     # album = true if there is an environment named album
     if conda and album:
         cmd = subprocess.run(["conda", "run", "-n", "album", "album", "index", "--json"],
                              capture_output=True)
-        return check_solutions_dict(get_solution_list_json(cmd.stdout))
+        return check_solutions_dict(get_solution_list_json(cmd.stdout), coordinates)
 
     elif conda and not album:
         cmd = subprocess.run(
             ["conda", "run", "-p", str(Path.home().joinpath('.album', 'envs', 'album')), "album", "index", "--json"],
             capture_output=True)
-        return check_solutions_dict(get_solution_list_json(cmd.stdout))
+        return check_solutions_dict(get_solution_list_json(cmd.stdout), coordinates)
 
     elif (not conda) and album:
         if platform.system() == 'Windows':
             cmd = subprocess.run(
                 [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-n", "album",
                  "album", "index", "--json"], capture_output=True)
-            return check_solutions_dict(get_solution_list_json(cmd.stdout))
+            return check_solutions_dict(get_solution_list_json(cmd.stdout), coordinates)
 
         else:
             cmd = subprocess.run(
                 [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda')), "run", "-n", "album",
                  "album", "index", "--json"], capture_output=True)
-            return check_solutions_dict(get_solution_list_json(cmd.stdout))
+            return check_solutions_dict(get_solution_list_json(cmd.stdout), coordinates)
 
     elif (not conda) and (not album):
         if platform.system() == 'Windows':
             cmd = subprocess.run(
                 [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-p",
                  str(Path.home().joinpath('.album', 'envs', 'album')), "album", "index", "--json"], capture_output=True)
-            return check_solutions_dict(get_solution_list_json(cmd.stdout))
+            return check_solutions_dict(get_solution_list_json(cmd.stdout), coordinates)
 
         else:
             cmd = subprocess.run(
                 [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda')), "run", "-p",
                  str(Path.home().joinpath('.album', 'envs', 'album')), "album", "index", "--json"], capture_output=True)
-            return check_solutions_dict(get_solution_list_json(cmd.stdout))
+            return check_solutions_dict(get_solution_list_json(cmd.stdout), coordinates)
     else:
         sys.exit("Couldn't check if the solution is already installed. Please check your conda and album installation.")
 
@@ -187,21 +207,9 @@ def call_prefixed_album_run_conda_exe(params):
         return cmd.returncode
 
 
-def get_params():
-    # get input parameter for the solution
-    commands = input('Please enter the parameters with which the package solution should be called:')
-    if isinstance(commands, bytes):
-        commands = commands.decode()
-
-    commands = re.split(r'\s', commands)
-    params = ''
-    for p in commands:
-        params += ' %s' % p
-    return params
-
-
 def main():
-    params = get_params()
+    coordinates = '<coordinates>'
+    params = get_params(coordinates)
     # exeption if conda is missing
     try:
         # check if there is an env present with the name album and a conda installation with path env var
@@ -210,7 +218,7 @@ def main():
         print("1%s" % cmd.returncode)
         if cmd.returncode == 0:
             install_return = 0
-            if not installed_check(conda=True, album=True):
+            if not installed_check(conda=True, album=True, coordinates=coordinates):
                 print('Solution is not installed. Installing...')
                 install_return = call_named_album_install_conda_path()
             if install_return != 0:
@@ -228,7 +236,7 @@ def main():
             print("2! %s" % cmd.returncode)
             if cmd.returncode == 0:
                 install_return = 0
-                if not installed_check(conda=True, album=False):
+                if not installed_check(conda=True, album=False, coordinates=coordinates):
                     print('Solution is not installed. Installing...')
                     install_return = call_prefixed_album_install_conda_path()
                 if install_return != 0:
@@ -253,7 +261,7 @@ def main():
                 print("3 %s" % cmd.returncode)
                 if cmd.returncode == 0:
                     install_return = 0
-                    if not installed_check(conda=False, album=True):
+                    if not installed_check(conda=False, album=True, coordinates=coordinates):
                         print('Solution is not installed. Installing...')
                         install_return = call_named_album_install_conda_exe()
                     if install_return != 0:
@@ -273,7 +281,7 @@ def main():
                     print("4%s" % cmd.returncode)
                     if cmd.returncode == 0:
                         install_return = 0
-                        if not installed_check(conda=False, album=False):
+                        if not installed_check(conda=False, album=False, coordinates=coordinates):
                             print('Solution is not installed. Installing...')
                             install_return = call_prefixed_album_install_conda_exe()
                         if install_return != 0:
@@ -296,7 +304,7 @@ def main():
                 print("3 %s" % cmd.returncode)
                 if cmd.returncode == 0:
                     install_return = 0
-                    if not installed_check(conda=False, album=True):
+                    if not installed_check(conda=False, album=True, coordinates=coordinates):
                         print('Solution is not installed. Installing...')
                         install_return = call_named_album_install_conda_exe()
                     if install_return != 0:
@@ -316,7 +324,7 @@ def main():
                     print("4%s" % cmd.returncode)
                     if cmd.returncode == 0:
                         install_return = 0
-                        if not installed_check(conda=False, album=False):
+                        if not installed_check(conda=False, album=False, coordinates=coordinates):
                             print('Solution is not installed. Installing...')
                             install_return = call_prefixed_album_install_conda_exe()
                         if install_return != 0:
