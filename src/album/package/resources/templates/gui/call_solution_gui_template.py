@@ -1,8 +1,94 @@
+import json
 import os
 import platform
 import subprocess
 import sys
 from pathlib import Path
+
+
+def get_solution_list_json(json_str):
+    json_str = json.loads(json_str.decode())
+    #list
+    catalog_list = json_str['catalogs']
+    #list of catalogs_list of solution_dicts
+    catalog_list_of_solution_lists = []
+    #list of dict containing dicts as values
+    solution_dicts_list = []
+
+    if isinstance(catalog_list, list):
+        for cat_dict in catalog_list:
+            catalog_list_of_solution_lists.append(cat_dict['solutions'])
+    for solution_list in catalog_list_of_solution_lists:
+        for solution in solution_list:
+            solution_dicts_list.append(solution)
+
+    return solution_dicts_list
+
+
+def check_solutions_dict(solution_dicts):
+    coordinates = '<coordinates>'
+    group = coordinates.split(':')[0]
+    name = coordinates.split(':')[1]
+    version = coordinates.split(':')[2]
+
+    for solution in solution_dicts:
+        internal = solution['internal']
+        setup = solution['setup']
+        installed = internal['installed']
+        tmp_group = setup['group']
+        tmp_name = setup['name']
+        tmp_version = setup['version']
+        if (group == tmp_group) and (name == tmp_name) and (version == tmp_version):
+            if installed == 1:
+                print("solution already installed")
+                return True
+            else:
+                return False
+
+    return False
+
+
+def installed_check(conda, album):
+    # conda = true if condas env path var is set
+    # album = true if there is an environment named album
+    if conda and album:
+        cmd = subprocess.run(["conda", "run", "-n", "album", "album", "index", "--json"],
+                             capture_output=True)
+        return check_solutions_dict(get_solution_list_json(cmd.stdout))
+
+    elif conda and not album:
+        cmd = subprocess.run(
+            ["conda", "run", "-p", str(Path.home().joinpath('.album', 'envs', 'album')), "album", "index", "--json"],
+            capture_output=True)
+        return check_solutions_dict(get_solution_list_json(cmd.stdout))
+
+    elif (not conda) and album:
+        if platform.system() == 'Windows':
+            cmd = subprocess.run(
+                [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-n", "album",
+                 "album", "index", "--json"], capture_output=True)
+            return check_solutions_dict(get_solution_list_json(cmd.stdout))
+
+        else:
+            cmd = subprocess.run(
+                [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda')), "run", "-n", "album",
+                 "album", "index", "--json"], capture_output=True)
+            return check_solutions_dict(get_solution_list_json(cmd.stdout))
+
+    elif (not conda) and (not album):
+        if platform.system() == 'Windows':
+            cmd = subprocess.run(
+                [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-p",
+                 str(Path.home().joinpath('.album', 'envs', 'album')), "album", "index", "--json"], capture_output=True)
+            return check_solutions_dict(get_solution_list_json(cmd.stdout))
+
+        else:
+            cmd = subprocess.run(
+                [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda')), "run", "-p",
+                 str(Path.home().joinpath('.album', 'envs', 'album')), "album", "index", "--json"], capture_output=True)
+            return check_solutions_dict(get_solution_list_json(cmd.stdout))
+    else:
+        sys.exit("Couldn't check if the solution is already installed. Please check your conda and album installation.")
 
 
 def call_named_album_install_conda_path():
@@ -107,13 +193,13 @@ def main():
         # returncode != 0 if something is not right with album
         if cmd.returncode == 0:
             print("1%s" % cmd.returncode)
-            install_return = call_named_album_install_conda_path()
+            install_return = 0
+            if not installed_check(conda=True, album=True):
+                install_return = call_named_album_install_conda_path()
+            if install_return != 0:
+                sys.exit("There was an error installing the solution!")
 
             call_return = call_named_album_gui_conda_path()
-
-            # 0 == everything went fine; 1 == solution was already installed
-            if install_return != 0 and install_return != 1:
-                sys.exit("There was an error installing the solution!")
             if call_return != 0:
                 sys.exit("There was an error running the solution!")
 
@@ -125,13 +211,13 @@ def main():
                 capture_output=True)
             print("2%s" % cmd.returncode)
             if cmd.returncode == 0:
-                install_return = call_prefixed_album_install_conda_path()
+                install_return = 0
+                if not installed_check(conda=True, album=False):
+                    install_return = call_prefixed_album_install_conda_path()
+                if install_return != 0:
+                    sys.exit("There was an error installing the solution!")
 
                 call_return = call_prefixed_album_gui_conda_path()
-
-                # 0 == everything went fine; 1 == solution was already installed
-                if install_return != 0 and install_return != 1:
-                    sys.exit("There was an error installing the solution!")
                 if call_return != 0:
                     sys.exit("There was an error running the solution!")
 
@@ -151,13 +237,13 @@ def main():
 
                 if cmd.returncode == 0:
                     print("3 %s" % cmd.returncode)
-                    install_return = call_named_album_install_conda_exe()
+                    install_return = 0
+                    if not installed_check(conda=False, album=True):
+                        install_return = call_named_album_install_conda_exe()
+                    if install_return != 0:
+                        sys.exit("There was an error installing the solution!")
 
                     call_return = call_named_album_gui_conda_exe()
-
-                    # 0 == everything went fine; 1 == solution was already installed
-                    if install_return != 0 and install_return != 1:
-                        sys.exit("There was an error installing the solution!")
                     if call_return != 0:
                         sys.exit("There was an error running the solution!")
 
@@ -170,13 +256,13 @@ def main():
                         capture_output=True)
                     print("4%s" % cmd.returncode)
                     if cmd.returncode == 0:
-                        install_return = call_prefixed_album_install_conda_exe()
+                        install_return = 0
+                        if not installed_check(conda=False, album=False):
+                            install_return = call_prefixed_album_install_conda_exe()
+                        if install_return != 0:
+                            sys.exit("There was an error installing the solution!")
 
                         call_return = call_prefixed_album_gui_conda_exe()
-
-                        # 0 == everything went fine; 1 == solution was already installed
-                        if install_return != 0 and install_return != 1:
-                            sys.exit("There was an error installing the solution!")
                         if call_return != 0:
                             sys.exit("There was an error running the solution!")
 
@@ -194,13 +280,13 @@ def main():
 
                 if cmd.returncode == 0:
                     print("3 %s" % cmd.returncode)
-                    install_return = call_named_album_install_conda_exe()
+                    install_return = 0
+                    if not installed_check(conda=False, album=True):
+                        install_return = call_named_album_install_conda_exe()
+                    if install_return != 0:
+                        sys.exit("There was an error installing the solution!")
 
                     call_return = call_named_album_gui_conda_exe()
-
-                    # 0 == everything went fine; 1 == solution was already installed
-                    if install_return != 0 and install_return != 1:
-                        sys.exit("There was an error installing the solution!")
                     if call_return != 0:
                         sys.exit("There was an error running the solution!")
 
@@ -213,13 +299,13 @@ def main():
                         capture_output=True)
                     print("4%s" % cmd.returncode)
                     if cmd.returncode == 0:
-                        install_return = call_prefixed_album_install_conda_exe()
+                        install_return = 0
+                        if not installed_check(conda=False, album=False):
+                            install_return = call_prefixed_album_install_conda_exe()
+                        if install_return != 0:
+                            sys.exit("There was an error installing the solution!")
 
                         call_return = call_prefixed_album_gui_conda_exe()
-
-                        # 0 == everything went fine; 1 == solution was already installed
-                        if install_return != 0 and install_return != 1:
-                            sys.exit("There was an error installing the solution!")
                         if call_return != 0:
                             sys.exit("There was an error running the solution!")
 

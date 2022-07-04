@@ -8,12 +8,12 @@ from album.api import Album
 from album.package import create_spec_file_no_gui, create_subscripts_no_gui
 
 
-def run(args):
+def run(args, coordinates):
     # calls an create_specfile und create_subscripts
     if not os.path.isdir(Path(args.output_path)):
         os.mkdir(Path(args.output_path))
 
-    create_subscripts_no_gui.create(args.output_path)
+    create_subscripts_no_gui.create(args.output_path, coordinates)
     spec_path = create_spec_file_no_gui.create(args.output_path, args.solution)
     exe_path_param = '--distpath=%s' % (str(args.output_path))
     try:
