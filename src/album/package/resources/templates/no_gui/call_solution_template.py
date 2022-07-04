@@ -160,6 +160,8 @@ def call_prefixed_album_install_conda_path():
     cmd = subprocess.run(
         ["conda", "run", "-p", str(Path.home().joinpath('.album', 'envs', 'album')), "album", "install",
          str(Path(os.path.realpath(__file__)).parent.joinpath('solution_files'))], capture_output=True)
+    if cmd.returncode != 0:
+        print("%s \n %s" % (cmd.stderr, cmd.stdout))
     return cmd.returncode
 
 
@@ -178,11 +180,15 @@ def call_named_album_install_conda_exe():
         cmd = subprocess.run(
             [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-n", "album", "album",
              "install", str(Path(os.path.realpath(__file__)).parent.joinpath('solution_files'))], capture_output=True)
+        if cmd.returncode != 0:
+            print("%s \n %s" % (cmd.stderr, cmd.stdout))
         return cmd.returncode
     else:
         cmd = subprocess.run(
             [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "-n", "album", "album",
              "install", Path(os.path.realpath(__file__)).parent.joinpath('solution_files')], capture_output=True)
+        if cmd.returncode != 0:
+            print("%s \n %s" % (cmd.stderr, cmd.stdout))
         return cmd.returncode
 
 
@@ -208,12 +214,15 @@ def call_prefixed_album_install_conda_exe():
                               str(Path.home().joinpath('.album', 'envs', 'album')), "album", "install",
                               str(Path(os.path.realpath(__file__)).parent.joinpath('solution_files'))],
                              capture_output=True)
+        if cmd.returncode != 0:
+            print("%s \n %s" % (cmd.stderr, cmd.stdout))
         return cmd.returncode
     else:
         cmd = subprocess.run([Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "-p",
                               Path.home().joinpath('.album', 'envs', 'album'), "album", "install",
                               Path(os.path.realpath(__file__)).parent.joinpath('solution_files')])
-        print(cmd.returncode)
+        if cmd.returncode != 0:
+            print("%s \n %s" % (cmd.stderr, cmd.stdout))
         return cmd.returncode
 
 
