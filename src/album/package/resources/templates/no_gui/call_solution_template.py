@@ -31,6 +31,8 @@ def check_solutions_dict(solution_dicts, coordinates):
     name = coordinates.split(':')[1]
     version = coordinates.split(':')[2]
 
+    # Go through the list of dictionaries and checking there setup method for the coordinates and then check the internal
+    #string for the installation status
     for solution in solution_dicts:
         internal = solution['internal']
         setup = solution['setup']
@@ -53,19 +55,40 @@ def get_params(coordinates):
     group = coordinates.split(':')[0]
     name = coordinates.split(':')[1]
     version = coordinates.split(':')[2]
+    args_list = []
 
+    # get json comntaining info of all solutions of the local collection
     cmd = subprocess.run(["conda", "run", "-n", "album", "album", "index", "--json"],
                          capture_output=True)
-    solution_dict = get_solution_list_json(cmd.stdout)
+    solution_dicts = get_solution_list_json(cmd.stdout)
+    # filter for active solution and get the arguments of the solution
+    for solution in solution_dicts:
+        setup = solution['setup']
+        tmp_group = setup['group']
+        tmp_name = setup['name']
+        tmp_version = setup['version']
+        if (group == tmp_group) and (name == tmp_name) and (version == tmp_version):
+            args_list = setup['args']
+
+    # output solution arguments
+    print("\nThe parameters of the solution are the following:\n")
+    for arg in args_list:
+        print("--%s" % arg['name'])
+        print(arg['description'])
+        print("type: %s" % arg['type'])
+        print("\n")
+
 
     commands = input('Please enter the parameters with which the package solution should be called:')
+    # if this script gets called from another Popen subprocess (like from the tests) the communicate function passes
+    # input as byte strings which need to be decoded
     if isinstance(commands, bytes):
         commands = commands.decode()
-
     commands = re.split(r'\s', commands)
     params = ''
     for p in commands:
         params += ' %s' % p
+    print(params)
     return params
 
 
@@ -73,8 +96,10 @@ def installed_check(conda, album, coordinates):
     # conda = true if condas env path var is set
     # album = true if there is an environment named album
     if conda and album:
+        # returns json string containing info about all solutions in the local collection database
         cmd = subprocess.run(["conda", "run", "-n", "album", "album", "index", "--json"],
                              capture_output=True)
+        # filter json string and check for installation status of active solution
         return check_solutions_dict(get_solution_list_json(cmd.stdout), coordinates)
 
     elif conda and not album:
@@ -116,6 +141,8 @@ def call_named_album_install_conda_path():
     # use a conda which can be called via conda command and an environment called album to install the solution
     cmd = subprocess.run(["conda", "run", "-n", "album", "album", "install",
                           str(Path(os.path.realpath(__file__)).parent.joinpath('solution_files'))], capture_output=True)
+    if cmd.returncode != 0:
+        print("%s \n %s" % (cmd.stderr, cmd.stdout))
     return cmd.returncode
 
 
@@ -209,7 +236,7 @@ def call_prefixed_album_run_conda_exe(params):
 
 def main():
     coordinates = '<coordinates>'
-    params = get_params(coordinates)
+
     # exeption if conda is missing
     try:
         # check if there is an env present with the name album and a conda installation with path env var
@@ -223,7 +250,7 @@ def main():
                 install_return = call_named_album_install_conda_path()
             if install_return != 0:
                 sys.exit("There was an error installing the solution!")
-
+            params = get_params(coordinates)
             call_return = call_named_album_run_conda_path(params)
             if call_return != 0:
                 sys.exit("There was an error running the solution!")
@@ -241,7 +268,7 @@ def main():
                     install_return = call_prefixed_album_install_conda_path()
                 if install_return != 0:
                     sys.exit("There was an error installing the solution!")
-
+                params = get_params(coordinates)
                 call_return = call_prefixed_album_run_conda_path(params)
                 if call_return != 0:
                     sys.exit("There was an error running the solution!")
@@ -266,7 +293,7 @@ def main():
                         install_return = call_named_album_install_conda_exe()
                     if install_return != 0:
                         sys.exit("There was an error installing the solution!")
-
+                    params = get_params(coordinates)
                     call_return = call_named_album_run_conda_exe(params)
                     if call_return != 0:
                         sys.exit("There was an error running the solution!")
@@ -286,7 +313,7 @@ def main():
                             install_return = call_prefixed_album_install_conda_exe()
                         if install_return != 0:
                             sys.exit("There was an error installing the solution!")
-
+                        params = get_params(coordinates)
                         call_return = call_prefixed_album_run_conda_exe(params)
                         if call_return != 0:
                             sys.exit("There was an error running the solution!")
@@ -309,7 +336,7 @@ def main():
                         install_return = call_named_album_install_conda_exe()
                     if install_return != 0:
                         sys.exit("There was an error installing the solution!")
-
+                    params = get_params(coordinates)
                     call_return = call_named_album_run_conda_exe(params)
                     if call_return != 0:
                         sys.exit("There was an error running the solution!")
@@ -329,7 +356,7 @@ def main():
                             install_return = call_prefixed_album_install_conda_exe()
                         if install_return != 0:
                             sys.exit("There was an error installing the solution!")
-
+                        params = get_params(coordinates)
                         call_return = call_prefixed_album_run_conda_exe(params)
                         if call_return != 0:
                             sys.exit("There was an error running the solution!")
