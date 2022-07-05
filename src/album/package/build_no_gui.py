@@ -15,7 +15,7 @@ def run(args, coordinates):
 
     create_subscripts_no_gui.create(args.output_path, coordinates)
     spec_path = create_spec_file_no_gui.create(args.output_path, args.solution)
-    exe_path_param = '--noconsole, --distpath=%s' % (str(args.output_path))
+    exe_path_param = '--distpath=%s' % (str(args.output_path))
     try:
         PyInstaller.__main__.run([str(spec_path), exe_path_param])
     except Exception as e:
