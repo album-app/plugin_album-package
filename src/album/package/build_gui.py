@@ -16,7 +16,7 @@ def run(args,coordinates):
     try:
         PyInstaller.__main__.run([str(spec_path), exe_path_param])
     except Exception as e:
-        raise RuntimeError("PyInstaller exited with an unexpected error!") from e
+        raise RuntimeError("PyInstaller exited with an unexpected error! %s" % e) from e
     finally:
         # Deletion of PyInstaller leftovers
         if Path(os.getcwd()).joinpath('build', 'build_executable_gui').exists():
