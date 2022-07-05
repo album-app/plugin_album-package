@@ -150,6 +150,7 @@ def call_named_album_install_conda_path():
 
 
 def call_named_album_run_conda_path(params):
+    print("!!!!!!!!!!!!!!!!!!! NAMED PATH RUN FCT!!!!!!!!!!!!!!!!")
     call = "conda run -n album album run %s%s" % (
         str(Path(os.path.realpath(__file__)).parent.joinpath('solution_files', 'solution.py')), params)
     cmd = subprocess.run(call)
@@ -257,7 +258,7 @@ def main():
         # check if there is an env present with the name album and a conda installation with path env var
         cmd = subprocess.run(["conda", "run", "-n", "album", "album", "-h"], capture_output=True)
         # returncode != 0 if something is not right with album
-        print("1%s" % cmd.returncode)
+        print("!!!!!!! 1 %s !!!!!!!!!!!" % cmd.returncode)
         if cmd.returncode == 0:
             install_return = 0
             if not installed_check(conda=True, album=True, coordinates=coordinates):
@@ -265,7 +266,9 @@ def main():
                 install_return = call_named_album_install_conda_path()
             if install_return != 0:
                 sys.exit("There was an error installing the solution!")
+            print("!!!!!!!!!!PRE PARAMS!!!!!!!!!!!!!!\n")
             params = get_params(conda=True, album=True, coordinates=coordinates)
+            print("!!!!!!!!!!POST PARAMS!!!!!!!!!!!!!!\n")
             call_return = call_named_album_run_conda_path(params)
             if call_return != 0:
                 sys.exit("There was an error running the solution!")
@@ -275,7 +278,7 @@ def main():
             cmd = subprocess.run(
                 ["conda", "run", "-p", str(Path.home().joinpath('.album', 'envs', 'album')), "album", "-h"],
                 capture_output=True)
-            print("2! %s" % cmd.returncode)
+            print("!!!!!!!!2! %s!!!!!!!" % cmd.returncode)
             if cmd.returncode == 0:
                 install_return = 0
                 if not installed_check(conda=True, album=False, coordinates=coordinates):
