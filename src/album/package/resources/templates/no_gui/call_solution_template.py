@@ -153,7 +153,10 @@ def call_named_album_run_conda_path(params):
     print("!!!!!!!!!!!!!!!!!!! NAMED PATH RUN FCT!!!!!!!!!!!!!!!!")
     call = "conda run -n album album run %s%s" % (
         str(Path(os.path.realpath(__file__)).parent.joinpath('solution_files', 'solution.py')), params)
-    cmd = subprocess.run(call)
+    call_list = re.split(r'\s', call)
+    print("!!!!!!!!!CALLLL: %s" %call)
+    print("!!!!!!!!!call list: %s"%call_list)
+    cmd = subprocess.run(call_list)
     return cmd.returncode
 
 
