@@ -2,7 +2,10 @@ import os
 import shutil
 from pathlib import Path
 
-import PyInstaller.__main__
+# import PyInstaller.__main__
+
+# import the modified PyInstaller __main__.py
+from album.package import pyinstaller_main_modded
 
 from album.api import Album
 from album.package import create_spec_file_no_gui, create_subscripts_no_gui
@@ -17,7 +20,8 @@ def run(args, coordinates):
     spec_path = create_spec_file_no_gui.create(args.output_path, args.solution)
     exe_path_param = '--distpath=%s' % (str(args.output_path))
     try:
-        PyInstaller.__main__.run([str(spec_path), exe_path_param])
+        #PyInstaller.__main__.run([str(spec_path), exe_path_param])
+        pyinstaller_main_modded.run([str(spec_path), exe_path_param])
     except Exception as e:
         raise RuntimeError("PyInstaller exited with an unexpected error! %s" % e) from e
     finally:
