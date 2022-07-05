@@ -270,6 +270,7 @@ def main():
             params = get_params(conda=True, album=True, coordinates=coordinates)
             print("!!!!!!!!!!POST PARAMS!!!!!!!!!!!!!!\n")
             call_return = call_named_album_run_conda_path(params)
+            print("!!!!!!!!!!!!!! O`POST CALL!!!!!!!!!!!!!!!")
             if call_return != 0:
                 sys.exit("There was an error running the solution!")
 
