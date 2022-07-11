@@ -13,6 +13,5 @@ commands = re.split(r'\s', commands)
 params = ['']
 for p in commands:
     params.append(str(p))
-print("PARAMS LIST!!!!%s"%params)
 album.run('<solution>', params)
 input('Press return to exit.')

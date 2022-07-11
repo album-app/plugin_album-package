@@ -192,6 +192,11 @@ def create_shortcut_script(coordinates):
         template_str = file.read()
     template_str = re.sub("<solution>", str(coordinates), template_str)
 
+    with open(Path(os.path.realpath(__file__)).parent.joinpath('uninstall_solution_gui_template.py'),
+              'r') as file:
+        template_str_uninstall = file.read()
+    template_str_uninstall = re.sub("<solution>", str(coordinates), template_str_uninstall)
+
     mod_coords = re.sub(':', '_', coordinates)
 
     if not os.path.isdir(Path.home().joinpath('.album', 'Solution_shortcuts')):
@@ -200,11 +205,17 @@ def create_shortcut_script(coordinates):
     if not os.path.isdir(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords)):
         os.mkdir(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords))
 
-    if os.path.isfile(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'run_solution.py')):
-        os.remove(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'run_solution.py'))
+    if os.path.isfile(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'run_solution_gui.py')):
+        os.remove(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'run_solution_gui.py'))
+
+    if os.path.isfile(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'uninstall_solution_gui.py')):
+        os.remove(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'uninstall_solution_gui.py'))
 
     with open(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'run_solution_gui.py'), 'w') as file:
         file.write(template_str)
+
+    with open(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'uninstall_solution_gui.py'), 'w') as file:
+        file.write(template_str_uninstall)
 
 
 def create_shortcut(coordinates, conda, album):
@@ -249,6 +260,7 @@ def create_shortcut(coordinates, conda, album):
             python_path = str(Path.home().joinpath('.album', 'envs', 'album', 'python'))
 
     make_shortcut(str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'run_solution_gui.py')), name='run_gui_%s' %mod_coords, executable=python_path)
+    make_shortcut(str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'uninstall_solution_gui.py')), name='uninstall_gui_%s' %mod_coords, executable=python_path)
 
 
 def main():
@@ -375,9 +387,9 @@ def main():
                         sys.exit(
                             "Could not find album to run the solution. Please check your album installation.")
 
-        except Exception:
+        except Exception as e:
             sys.exit(
-                "An unexpected Error occured when runnig the solution. Please check your conda installation.")
+                "An unexpected Error occured when runnig the solution. Please check your conda installation. %s" %e)
 
 
 if __name__ == "__main__":

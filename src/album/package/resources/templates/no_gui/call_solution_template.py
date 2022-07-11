@@ -268,6 +268,12 @@ def create_shortcut_script(coordinates,conda):
     template_str = re.sub("<solution>", str(coordinates), template_str)
     template_str = re.sub("<conda>", conda_exe, template_str)
 
+    with open(Path(os.path.realpath(__file__)).parent.joinpath('uninstall_solution.template'),
+              'r') as file:
+        template_str_uninstall = file.read()
+    template_str_uninstall = re.sub("<solution>", str(coordinates), template_str_uninstall)
+    template_str_uninstall = re.sub("<conda>", conda_exe, template_str_uninstall)
+
 
     mod_coords = re.sub(':', '_', coordinates)
 
@@ -280,8 +286,14 @@ def create_shortcut_script(coordinates,conda):
     if os.path.isfile(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'run_solution.py')):
         os.remove(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'run_solution.py'))
 
+    if os.path.isfile(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'uninstall_solution.py')):
+        os.remove(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'uninstall_solution.py'))
+
     with open(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'run_solution.py'), 'w') as file:
         file.write(template_str)
+
+    with open(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'uninstall_solution.py'), 'w') as file:
+        file.write(template_str_uninstall)
 
 
 def create_shortcut(coordinates, conda, album):
@@ -325,9 +337,8 @@ def create_shortcut(coordinates, conda, album):
         else:
             python_path = str(Path.home().joinpath('.album', 'envs', 'album', 'python'))
 
-    print("PYTHONPATH!!!!!!!!!!!!!!!!!")
-    print(python_path)
     make_shortcut(str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'run_solution.py')), name='run_%s' %mod_coords, executable=python_path)
+    make_shortcut(str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'uninstall_solution.py')), name='uninstall_%s' %mod_coords, executable=python_path)
 
 
 def main():
