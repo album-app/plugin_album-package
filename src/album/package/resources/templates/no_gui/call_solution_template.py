@@ -300,6 +300,16 @@ def create_shortcut(coordinates, conda, album):
     from pyshortcuts import make_shortcut
     mod_coords = re.sub(':', '_', coordinates)
 
+    if platform.system() == 'Windows':
+        icon_path = str(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_windows.ico'))
+    elif platform.system() == 'Darwin':
+        icon_path = str(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_macos.icns'))
+    elif platform.system() == 'Linux':
+        icon_path = str(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_linux.png'))
+    else:
+        print("Your OS is currently not supported")
+        raise NotImplementedError
+
     # get path of python interpreter of the album env
     if album:
         if conda:
@@ -337,8 +347,8 @@ def create_shortcut(coordinates, conda, album):
         else:
             python_path = str(Path.home().joinpath('.album', 'envs', 'album', 'python'))
 
-    make_shortcut(str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'run_solution.py')), name='run_%s' %mod_coords, executable=python_path)
-    make_shortcut(str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'uninstall_solution.py')), name='uninstall_%s' %mod_coords, executable=python_path)
+    make_shortcut(str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'run_solution.py')), name='run_%s' %mod_coords, icon=icon_path, executable=python_path)
+    make_shortcut(str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'uninstall_solution.py')), name='uninstall_%s' %mod_coords, icon=icon_path, executable=python_path)
 
 
 def main():

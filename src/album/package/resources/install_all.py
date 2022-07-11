@@ -1,5 +1,6 @@
 import os.path
 import platform
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -241,11 +242,11 @@ def check_for_script_installed_album(album_env_path, conda_path):
                 cmd = subprocess.run(
                     [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "run", "-p", album_env_path, "album",
                      "-h"], capture_output=True)
-                #cmd = subprocess.run(
+                # cmd = subprocess.run(
                 #    [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "run", python, album_main,
                 #     "-h"], capture_output=True)
 
-                #print("cmd2: %s" % cmd)
+                # print("cmd2: %s" % cmd)
                 if cmd.returncode == 0:
                     return True
                 else:
@@ -276,7 +277,7 @@ def check_for_preinstalled_gui(conda_path):
                 cmd = subprocess.run(
                     [str(Path(conda_path).joinpath('condabin', 'conda.exe')), "run", "-n", "album", "album", "gui",
                      "-h"], capture_output=True)
-                #print("cmd2: %s" % cmd)
+                # print("cmd2: %s" % cmd)
                 if cmd.returncode == 0:
                     return True
                 else:
@@ -310,7 +311,7 @@ def check_for_script_installed_gui(album_env_path, conda_path):
                 if cmd.returncode == 0:
                     return True
                 else:
-                   return False
+                    return False
             else:
                 cmd = subprocess.run(
                     [str(Path(conda_path).joinpath('condabin', 'conda')), "run", "-p", album_env_path, "album", "gui",
@@ -357,7 +358,7 @@ def check_for_script_installed_pyshortcuts(album_env_path, conda_path):
                 if cmd.returncode == 0:
                     return True
                 else:
-                   return False
+                    return False
             else:
                 cmd = subprocess.run(
                     [str(Path(conda_path).joinpath('condabin', 'conda')), "run", "-p", album_env_path, "pyshortcut",
@@ -373,7 +374,7 @@ def check_for_script_installed_pyshortcuts(album_env_path, conda_path):
 def check_for_preinstalled_pyshortcuts(conda_path):
     # check if album gui is installed in the preinstalled album
     try:
-        cmd = subprocess.run(["conda", "run", "-n", "album", "pyshortcut",  "-h"], capture_output=True)
+        cmd = subprocess.run(["conda", "run", "-n", "album", "pyshortcut", "-h"], capture_output=True)
         if cmd.returncode == 0:
             return True
         else:
@@ -396,23 +397,50 @@ def check_for_preinstalled_pyshortcuts(conda_path):
                 if cmd.returncode == 0:
                     return True
                 else:
-                   return False
+                    return False
         except Exception:
             return False
+
+
+def copy_icons(album_base_path):
+    # copy the shortcut icons into album base if needed
+    if not os.path.isdir(Path(album_base_path).joinpath('Solution_shortcuts')):
+        os.mkdir(Path(album_base_path).joinpath('Solution_shortcuts'))
+
+    if (platform.system() == 'Windows') and (
+    not os.path.isfile(Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_windows.ico'))):
+        icon_path = str(Path(os.path.realpath(__file__)).parent.joinpath('album_icon_windows.ico'))
+        shutil.copy(icon_path, Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_windows.ico'))
+    elif (platform.system() == 'Darwin') and (
+    not os.path.isfile(Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_macos.icns'))):
+        icon_path = str(Path(os.path.realpath(__file__)).parent.joinpath('album_icon_macos.icns'))
+        shutil.copy(icon_path, Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_macos.icns'))
+    elif (platform.system() == 'Linux') and (
+    not os.path.isfile(Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_linux.png'))):
+        icon_path = str(Path(os.path.realpath(__file__)).parent.joinpath('album_icon_linux.png'))
+        shutil.copy(icon_path, Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_linux.png'))
+    elif os.path.isfile(
+            Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_windows.ico')) or os.path.isfile(
+            Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_macos.icns')) or os.path.isfile(
+            Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_linux.png')):
+        pass
+    else:
+        print("Your OS is currently not supported")
+        raise NotImplementedError
+
 
 def main():
     enc = sys.getfilesystemencoding()
     album_base_path = Path.home().joinpath('.album')
     _conda_path = Path(album_base_path).joinpath("Miniconda")
     album_env_path = Path(album_base_path).joinpath('envs', 'album')
-    #album_env_path = album_env_path.as_posix()
+    # album_env_path = album_env_path.as_posix()
     album_env_path = str(album_env_path)
     album_gui_url = "https://gitlab.com/album-app/plugins/album-gui/-/archive/main/album-gui-main.zip"
     yml_url = "https://gitlab.com/album-app/album/-/raw/main/album.yml"
     yml_path = Path(os.path.realpath(__file__)).parent.joinpath('album.yml')
-    #yml_path = yml_path.as_posix()
+    # yml_path = yml_path.as_posix()
     yml_path = str(yml_path)
-
 
     # check if yml file is present
     if not os.path.isfile(yml_path):
@@ -421,6 +449,9 @@ def main():
         wget.download(yml_url, Path(yml_path))
 
     # yml_path = "{}".format(str(yml_path).encode(enc))
+
+    # copy shortcut icons into album base path
+    copy_icons(album_base_path)
 
     print("Checking for conda installation...")
     if (not check_for_preinstalled_conda()) and (not check_for_script_installed_conda(_conda_path)):
@@ -440,6 +471,7 @@ def main():
     if (not check_for_preinstalled_pyshortcuts(_conda_path)) and (
             not check_for_script_installed_pyshortcuts(album_env_path, _conda_path)):
         _install_pyshortcuts(album_base_path, album_env_path, _conda_path, album_gui_url, yml_path)
+
 
 if __name__ == '__main__':
     main()
