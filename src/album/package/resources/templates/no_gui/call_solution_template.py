@@ -256,6 +256,7 @@ def call_prefixed_album_run_conda_exe(params):
 
 
 def create_shortcut_script(coordinates,conda):
+    print("CREATING SCRIPTS!!!!!!!!!!")
     if not conda:
         conda_exe = 'str(Path.home().joinpath(\'.album\', \'Miniconda\'))'
         print(conda_exe)
@@ -274,6 +275,10 @@ def create_shortcut_script(coordinates,conda):
     template_str_uninstall = re.sub("<solution>", str(coordinates), template_str_uninstall)
     template_str_uninstall = re.sub("<conda>", conda_exe, template_str_uninstall)
 
+    print("RUN SCRIPT!!!!!!!!!!!!\n")
+    print(template_str)
+    print("Uninstall SCRIPT!!!!!!!!!!!!\n")
+    print(template_str_uninstall)
 
     mod_coords = re.sub(':', '_', coordinates)
 
@@ -290,9 +295,11 @@ def create_shortcut_script(coordinates,conda):
         os.remove(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'uninstall_solution.py'))
 
     with open(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'run_solution.py'), 'w') as file:
+        print("WRITING RUN SCRIPT!!!!!!!!!!!!\n")
         file.write(template_str)
 
     with open(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'uninstall_solution.py'), 'w') as file:
+        print("WRITING UNINSTALL SCRIPT!!!!!!!!!!!!\n")
         file.write(template_str_uninstall)
 
 

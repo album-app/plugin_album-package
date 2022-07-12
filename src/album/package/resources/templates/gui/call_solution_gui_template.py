@@ -191,6 +191,7 @@ def call_prefixed_album_gui_conda_exe():
 
 
 def create_shortcut_script(coordinates):
+    print("CREATING SCRIPTS!!!!!!!!!!")
     # make script which will be called by the shortcut and triggers the solution
     with open(Path(os.path.realpath(__file__)).parent.joinpath('run_solution_gui_template.py'),
               'r') as file:
@@ -203,6 +204,11 @@ def create_shortcut_script(coordinates):
     template_str_uninstall = re.sub("<solution>", str(coordinates), template_str_uninstall)
 
     mod_coords = re.sub(':', '_', coordinates)
+
+    print("RUN SCRIPT!!!!!!!!!!!!\n")
+    print(template_str)
+    print("Uninstall SCRIPT!!!!!!!!!!!!\n")
+    print(template_str_uninstall)
 
     if not os.path.isdir(Path.home().joinpath('.album', 'Solution_shortcuts')):
         os.mkdir(Path.home().joinpath('.album', 'Solution_shortcuts'))
@@ -217,10 +223,12 @@ def create_shortcut_script(coordinates):
         os.remove(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'uninstall_solution_gui.py'))
 
     with open(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution_gui.py'), 'w') as file:
+        print("WRITING RUN SCRIPT!!!!!!!!!!!!\n")
         file.write(template_str)
 
     with open(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'uninstall_solution_gui.py'),
               'w') as file:
+        print("WRITING UNINSTALL SCRIPT!!!!!!!!!!!!\n")
         file.write(template_str_uninstall)
 
 
