@@ -3,7 +3,6 @@ import platform
 import re
 import subprocess
 import unittest
-import pexpect
 from argparse import Namespace
 from pathlib import Path
 

@@ -4,7 +4,7 @@ import shutil
 from pathlib import Path
 
 from album.api import Album
-from album.package import create_subscripts, create_spec_file
+#from album.package import create_subscripts, create_spec_file
 from album.runner.album_logging import get_active_logger
 
 import PyInstaller.__main__
