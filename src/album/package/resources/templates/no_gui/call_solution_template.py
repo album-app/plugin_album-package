@@ -256,6 +256,7 @@ def call_prefixed_album_run_conda_exe(params):
 
 
 def create_shortcut_script(coordinates,conda):
+    print("CREATING SCRIPTS!!!!!!!!!!")
     if not conda:
         conda_exe = 'str(Path.home().joinpath(\'.album\', \'Miniconda\'))'
         print(conda_exe)
@@ -274,6 +275,10 @@ def create_shortcut_script(coordinates,conda):
     template_str_uninstall = re.sub("<solution>", str(coordinates), template_str_uninstall)
     template_str_uninstall = re.sub("<conda>", conda_exe, template_str_uninstall)
 
+    print("RUN SCRIPT!!!!!!!!!!!!\n")
+    print(template_str)
+    print("Uninstall SCRIPT!!!!!!!!!!!!\n")
+    print(template_str_uninstall)
 
     mod_coords = re.sub(':', '_', coordinates)
 
@@ -290,14 +295,16 @@ def create_shortcut_script(coordinates,conda):
         os.remove(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'uninstall_solution.py'))
 
     with open(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'run_solution.py'), 'w') as file:
+        print("WRITING RUN SCRIPT!!!!!!!!!!!!\n")
         file.write(template_str)
 
     with open(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'uninstall_solution.py'), 'w') as file:
+        print("WRITING UNINSTALL SCRIPT!!!!!!!!!!!!\n")
         file.write(template_str_uninstall)
 
 
 def create_shortcut(coordinates, conda, album):
-    from pyshortcuts import make_shortcut
+    #from pyshortcuts import make_shortcut
     mod_coords = re.sub(':', '_', coordinates)
     run_name = 'run_gui_%s' % mod_coords
     run_path = str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution_gui.py'))
@@ -327,14 +334,20 @@ def create_shortcut(coordinates, conda, album):
                 python_path = str(Path(tmp).joinpath('python.exe'))
             else:
                 python_path = str(Path(tmp).joinpath('python'))
-
+            print("CASE 1 !!!!!!!!!!!!!!!!!!!!!!!!")
             cmd_run_shortcut = subprocess.run(
                 ['conda', 'run', '-n', 'album', 'pyshortcut', '-n', run_name, '-i', icon_path, '-e', python_path,
                  run_path])
+            print("run_cut out!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print(cmd_run_shortcut.stdout)
+            print(cmd_run_shortcut.stderr)
             cmd_uninstall_shortcut = subprocess.run(
                 ['conda', 'run', '-n', 'album', 'pyshortcut', '-n', uninstall_name, '-i', icon_path, '-e',
                  python_path,
                  uninstall_path])
+            print("uninstall_cut !!!!!!!!!!!!!!!!!!!!!!")
+            print(cmd_uninstall_shortcut.stdout)
+            print(cmd_uninstall_shortcut.stderr)
         else:
             try:
                 if platform.system() == 'Windows':

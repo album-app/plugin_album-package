@@ -191,6 +191,7 @@ def call_prefixed_album_gui_conda_exe():
 
 
 def create_shortcut_script(coordinates):
+    print("CREATING SCRIPTS!!!!!!!!!!")
     # make script which will be called by the shortcut and triggers the solution
     with open(Path(os.path.realpath(__file__)).parent.joinpath('run_solution_gui_template.py'),
               'r') as file:
@@ -203,6 +204,11 @@ def create_shortcut_script(coordinates):
     template_str_uninstall = re.sub("<solution>", str(coordinates), template_str_uninstall)
 
     mod_coords = re.sub(':', '_', coordinates)
+
+    print("RUN SCRIPT!!!!!!!!!!!!\n")
+    print(template_str)
+    print("Uninstall SCRIPT!!!!!!!!!!!!\n")
+    print(template_str_uninstall)
 
     if not os.path.isdir(Path.home().joinpath('.album', 'Solution_shortcuts')):
         os.mkdir(Path.home().joinpath('.album', 'Solution_shortcuts'))
@@ -217,15 +223,18 @@ def create_shortcut_script(coordinates):
         os.remove(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'uninstall_solution_gui.py'))
 
     with open(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution_gui.py'), 'w') as file:
+        print("WRITING RUN SCRIPT!!!!!!!!!!!!\n")
         file.write(template_str)
 
     with open(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'uninstall_solution_gui.py'),
               'w') as file:
+        print("WRITING UNINSTALL SCRIPT!!!!!!!!!!!!\n")
         file.write(template_str_uninstall)
 
 
 def create_shortcut(coordinates, conda, album):
-    from pyshortcuts import make_shortcut
+
+    #from pyshortcuts import make_shortcut
     mod_coords = re.sub(':', '_', coordinates)
     run_name = 'run_gui_%s' % mod_coords
     run_path = str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution_gui.py'))
@@ -242,6 +251,8 @@ def create_shortcut(coordinates, conda, album):
         print("Your OS is currently not supported")
         raise NotImplementedError
 
+    print("CREATING SHORTCUT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+
     # get path of python interpreter of the album env
     if album:
         if conda:
@@ -254,14 +265,20 @@ def create_shortcut(coordinates, conda, album):
                 python_path = str(Path(tmp).joinpath('python.exe'))
             else:
                 python_path = str(Path(tmp).joinpath('python'))
-
+            print("CASE 1 !!!!!!!!!!!!!!!!!!!!!!!!")
             cmd_run_shortcut = subprocess.run(
                 ['conda', 'run', '-n', 'album', 'pyshortcut', '-n', run_name, '-i', icon_path, '-e', python_path,
                  run_path])
+            print("run_cut out!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print(cmd_run_shortcut.stdout)
+            print(cmd_run_shortcut.stderr)
             cmd_uninstall_shortcut = subprocess.run(
                 ['conda', 'run', '-n', 'album', 'pyshortcut', '-n', uninstall_name, '-i', icon_path, '-e',
                  python_path,
                  uninstall_path])
+            print("uninstall_cut !!!!!!!!!!!!!!!!!!!!!!")
+            print(cmd_uninstall_shortcut.stdout)
+            print(cmd_uninstall_shortcut.stderr)
         else:
             try:
                 if platform.system() == 'Windows':

@@ -40,11 +40,11 @@ class TestIntegrationBuildExecutable(TestCommon):
         else:
             exe_path = Path(self.tmp_dir.name).joinpath('solution')
 
-        coord_str = 'album.run(\'album:import_unittest:0.1.0\', params)'
-        conda_str = 'os.environ["ALBUM_CONDA_PATH"] = conda'
+        coord_str = 'album.run(\'album:import_unittest:0.1.0\', params)\n'
+        conda_str = 'os.environ["ALBUM_CONDA_PATH"] = \'conda\'\n'
         counter = 0
-        coord_str_uninstall = 'album.uninstall(\'album:import_unittest:0.1.0\')'
-        conda_str_uninstall = 'os.environ["ALBUM_CONDA_PATH"] = conda'
+        coord_str_uninstall = 'album.uninstall(\'album:import_unittest:0.1.0\')\n'
+        conda_str_uninstall = 'os.environ["ALBUM_CONDA_PATH"] = \'conda\'\n'
         counter_uninstall = 0
 
         cmd = [str(exe_path)]
@@ -53,7 +53,7 @@ class TestIntegrationBuildExecutable(TestCommon):
         print(p1)
         print("RETURNCODE!!! %s"%p.returncode)
 
-        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0.', 'run_solution.py'), 'r') as file:
+        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0', 'run_solution.py'), 'r') as file:
             for line in file:
                 if line.startswith("album.run("):
                     coord_line = line
@@ -62,7 +62,7 @@ class TestIntegrationBuildExecutable(TestCommon):
                     conda_line = line
                     counter += 1
 
-        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0.', 'uninstall_solution.py'), 'r') as file:
+        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0', 'uninstall_solution.py'), 'r') as file:
             for line in file:
                 if line.startswith("album.uninstall("):
                     coord_line_uninstall = line
@@ -120,10 +120,10 @@ class TestIntegrationBuildExecutable(TestCommon):
         p1 = p.communicate()
         print(p1)
         print("RETURNCODE!!! %s"%p.returncode)
-        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0.',
+        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0',
                                        'run_solution_gui.py')) as file:
             created_str = file.read()
-        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0.',
+        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0',
                                        'uninstall_solution_gui.py')) as file:
             created_str_uninstall = file.read()
 
