@@ -8,5 +8,5 @@ import re
 
 album = Album.Builder().base_cache_path(str(Path.home().joinpath('.album'))).build()
 album.load_or_create_collection()
-album.uninstall('<solution>', params)
+album.uninstall('<solution>')
 input('Press return to exit.')
