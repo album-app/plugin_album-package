@@ -40,11 +40,11 @@ class TestIntegrationBuildExecutable(TestCommon):
         else:
             exe_path = Path(self.tmp_dir.name).joinpath('solution')
 
-        coord_str = 'album.run(\'album:import_unittest:0.1.0\', params)'
-        conda_str = 'os.environ["ALBUM_CONDA_PATH"] = conda'
+        coord_str = 'album.run(\'album:import_unittest:0.1.0\', params)\n'
+        conda_str = 'os.environ["ALBUM_CONDA_PATH"] = \'conda\'\n'
         counter = 0
-        coord_str_uninstall = 'album.uninstall(\'album:import_unittest:0.1.0\')'
-        conda_str_uninstall = 'os.environ["ALBUM_CONDA_PATH"] = conda'
+        coord_str_uninstall = 'album.uninstall(\'album:import_unittest:0.1.0\')\n'
+        conda_str_uninstall = 'os.environ["ALBUM_CONDA_PATH"] = \'conda\'\n'
         counter_uninstall = 0
 
         cmd = [str(exe_path)]
