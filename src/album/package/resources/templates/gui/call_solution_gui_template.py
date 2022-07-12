@@ -52,6 +52,7 @@ def check_solutions_dict(solution_dicts):
 def installed_check(conda, album):
     # conda = true if condas env path var is set
     # album = true if there is an environment named album
+    print("INSTALLCHECK!!!!!!!!!!!!!!!!!!!!!!")
     if conda and album:
         cmd = subprocess.run(["conda", "run", "-n", "album", "album", "index", "--json"],
                              capture_output=True)
@@ -96,6 +97,7 @@ def call_named_album_install_conda_path():
     # use a conda which can be called via conda command and an environment called album to install the solution
     cmd = subprocess.run(["conda", "run", "-n", 'album', "album", "install",
                           str(Path(os.path.realpath(__file__)).parent.joinpath('solution_files'))], capture_output=True)
+    print("INSTALLING!!!!!!!!! %s" %cmd.stdout)
     return cmd.returncode
 
 
@@ -284,7 +286,7 @@ def main():
         cmd = subprocess.run(["conda", "run", "-n", "album", "album", "gui", "-h"], capture_output=True)
         # returncode != 0 if something is not right with album
         if cmd.returncode == 0:
-            print("1%s" % cmd.returncode)
+            print("1 %s" % cmd.returncode)
             install_return = 0
             if not installed_check(conda=True, album=True):
                 install_return = call_named_album_install_conda_path()
@@ -314,6 +316,7 @@ def main():
                     "Could not find album to run the solution. Please check your album installation.")
 
     except Exception as e:
+        print("EXCEPTION!!!!! %s"%e)
         try:
             if platform.system() == 'Windows':
                 # check if there is an env present with the name album containing album gui and a conda installation

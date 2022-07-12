@@ -405,6 +405,8 @@ def check_for_preinstalled_pyshortcuts(conda_path):
 def copy_icons(album_base_path):
     # copy the shortcut icons into album base if needed
     if not os.path.isdir(Path(album_base_path).joinpath('Solution_shortcuts')):
+        if not os.path.isdir(album_base_path):
+            os.mkdir(album_base_path)
         os.mkdir(Path(album_base_path).joinpath('Solution_shortcuts'))
 
     if (platform.system() == 'Windows') and (
