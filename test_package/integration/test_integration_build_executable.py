@@ -120,10 +120,10 @@ class TestIntegrationBuildExecutable(TestCommon):
         p1 = p.communicate()
         print(p1)
         print("RETURNCODE!!! %s"%p.returncode)
-        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0.',
+        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0',
                                        'run_solution_gui.py')) as file:
             created_str = file.read()
-        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0.',
+        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0',
                                        'uninstall_solution_gui.py')) as file:
             created_str_uninstall = file.read()
 
