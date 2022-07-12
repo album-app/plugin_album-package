@@ -343,6 +343,7 @@ def check_for_script_installed_conda(conda_path):
 
 def check_for_script_installed_pyshortcuts(album_env_path, conda_path):
     # check if pyshortcuts is installed in the album installed via this script
+    print("VERSION SCRIPT SHORTCUTS PRE CALL: %s !!!!!!!!!!!!!!!!!!!!!!" % sys.version)
     try:
         cmd = subprocess.run(["conda", "run", "-p", album_env_path, "pyshortcut", "-h"], capture_output=True)
         if cmd.returncode == 0:
@@ -350,6 +351,7 @@ def check_for_script_installed_pyshortcuts(album_env_path, conda_path):
         else:
             return False
     except Exception:
+        print("VERSION SCRIPT SHORTCUTS EXCEPTION : %s !!!!!!!!!!!!!!!!!!!!!!" % sys.version)
         try:
             if platform.system() == 'Windows':
                 cmd = subprocess.run(
@@ -374,12 +376,14 @@ def check_for_script_installed_pyshortcuts(album_env_path, conda_path):
 def check_for_preinstalled_pyshortcuts(conda_path):
     # check if album gui is installed in the preinstalled album
     try:
+        print("VERSION CHECK FOR shortcuts PRE CALL: %s !!!!!!!!!!!!!!!!!!!!!!" % sys.version)
         cmd = subprocess.run(["conda", "run", "-n", "album", "pyshortcut", "-h"], capture_output=True)
         if cmd.returncode == 0:
             return True
         else:
             return False
     except Exception:
+        print("VERSION SHORTCUTS CHECK EXCEPTION: %s !!!!!!!!!!!!!!!!!!!!!!" % sys.version)
         try:
             if platform.system() == 'Windows':
                 cmd = subprocess.run(
