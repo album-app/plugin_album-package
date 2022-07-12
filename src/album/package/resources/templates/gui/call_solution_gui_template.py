@@ -225,7 +225,8 @@ def create_shortcut_script(coordinates):
 
 
 def create_shortcut(coordinates, conda, album):
-    from pyshortcuts import make_shortcut
+
+    #from pyshortcuts import make_shortcut
     mod_coords = re.sub(':', '_', coordinates)
     run_name = 'run_gui_%s' % mod_coords
     run_path = str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution_gui.py'))
