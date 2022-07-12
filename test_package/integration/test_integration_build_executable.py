@@ -49,10 +49,10 @@ class TestIntegrationBuildExecutable(TestCommon):
 
         cmd = [str(exe_path)]
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-        p.communicate()
-        print(p)
-        print(p.stdout)
-        print(p.stderr)
+        p1 = p.communicate()
+        print(p1)
+        print("RETURNCODE!!! %s"%p.returncode)
+
         with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0.', 'run_solution.py'), 'r') as file:
             for line in file:
                 if line.startswith("album.run("):
@@ -117,10 +117,9 @@ class TestIntegrationBuildExecutable(TestCommon):
         # call
         cmd = [str(exe_path)]
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-        p.communicate()
-        print(p)
-        print(p.stdout)
-        print(p.stderr)
+        p1 = p.communicate()
+        print(p1)
+        print("RETURNCODE!!! %s"%p.returncode)
         with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0.',
                                        'run_solution_gui.py')) as file:
             created_str = file.read()
