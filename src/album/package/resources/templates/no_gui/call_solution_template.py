@@ -299,6 +299,11 @@ def create_shortcut_script(coordinates,conda):
 def create_shortcut(coordinates, conda, album):
     from pyshortcuts import make_shortcut
     mod_coords = re.sub(':', '_', coordinates)
+    run_name = 'run_gui_%s' % mod_coords
+    run_path = str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution_gui.py'))
+    uninstall_name = 'uninstall_gui_%s' % mod_coords
+    uninstall_path = str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'uninstall_solution_gui.py'))
+
 
     if platform.system() == 'Windows':
         icon_path = str(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_windows.ico'))
@@ -313,7 +318,7 @@ def create_shortcut(coordinates, conda, album):
     # get path of python interpreter of the album env
     if album:
         if conda:
-            cmd = subprocess.run(['conda','run', '-n', 'album', 'conda', 'info'], capture_output=True)
+            cmd = subprocess.run(['conda', 'run', '-n', 'album', 'conda', 'info'], capture_output=True)
             out = cmd.stdout.decode()
             tmp = out.split('\n')[2]
             tmp = tmp.split('\r')[0]
@@ -322,9 +327,19 @@ def create_shortcut(coordinates, conda, album):
                 python_path = str(Path(tmp).joinpath('python.exe'))
             else:
                 python_path = str(Path(tmp).joinpath('python'))
+
+            cmd_run_shortcut = subprocess.run(
+                ['conda', 'run', '-n', 'album', 'pyshortcut', '-n', run_name, '-i', icon_path, '-e', python_path,
+                 run_path])
+            cmd_uninstall_shortcut = subprocess.run(
+                ['conda', 'run', '-n', 'album', 'pyshortcut', '-n', uninstall_name, '-i', icon_path, '-e',
+                 python_path,
+                 uninstall_path])
         else:
             try:
                 if platform.system() == 'Windows':
+                    # perform a conda info inside the album env to get the location of the album env and with that the
+                    # location of the python of the album env
                     cmd = subprocess.run([str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')),
                                           'run', '-n', 'album', str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), 'info'], capture_output=True)
                     out = cmd.stdout.decode()
@@ -332,23 +347,65 @@ def create_shortcut(coordinates, conda, album):
                     tmp = tmp.split('\r')[0]
                     tmp = tmp.split(': ')[1]
                     python_path = str(Path(tmp).joinpath('python.exe'))
+
+                    cmd_run_shortcut = subprocess.run(
+                        [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), 'run', '-n',
+                         'album', 'pyshortcut', '-n', run_name, '-i', icon_path, '-e', python_path, run_path])
+                    cmd_uninstall_shortcut = subprocess.run(
+                        [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), 'run', '-n',
+                         'album', 'pyshortcut', '-n', uninstall_name, '-i', icon_path, '-e', python_path,
+                         uninstall_path])
+
                 else:
-                    cmd = subprocess.run(['conda', 'run', '-n', 'album', 'conda', 'info'], capture_output=True)
+                    cmd = subprocess.run([str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda')),
+                                          'run', '-n', 'album',
+                                          str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda')),
+                                          'info'], capture_output=True)
                     out = cmd.stdout.decode()
                     tmp = out.split('\n')[2]
                     tmp = tmp.split('\r')[0]
                     tmp = tmp.split(': ')[1]
                     python_path = str(Path(tmp).joinpath('python'))
+
+                    cmd_run_shortcut = subprocess.run(
+                        [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda')), 'run', '-n',
+                         'album', 'pyshortcut', '-n', run_name, '-i', icon_path, '-e', python_path, run_path])
+                    cmd_uninstall_shortcut = subprocess.run(
+                        [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda')), 'run', '-n',
+                         'album', 'pyshortcut', '-n', uninstall_name, '-i', icon_path, '-e', python_path, uninstall_path])
+
             except Exception:
                 sys.exit('There was a Problem with your Album env. There seams to be env called Album but no conda installation lists it.')
     else:
-        if platform.system() == 'Windows':
-            python_path = str(Path.home().joinpath('.album', 'envs', 'album', 'python.exe'))
+        if conda:
+            if platform.system() == 'Windows':
+                python_path = str(Path.home().joinpath('.album', 'envs', 'album', 'python.exe'))
+            else:
+                python_path = str(Path.home().joinpath('.album', 'envs', 'album', 'python'))
+            cmd_run_shortcut = subprocess.run(
+                ['conda', 'run', '-n', 'album', 'pyshortcut', '-n', run_name, '-i', icon_path, '-e', python_path,
+                 run_path])
+            cmd_uninstall_shortcut = subprocess.run(
+                ['conda', 'run', '-n', 'album', 'pyshortcut', '-n', uninstall_name, '-i', icon_path, '-e',
+                 python_path,
+                 uninstall_path])
         else:
-            python_path = str(Path.home().joinpath('.album', 'envs', 'album', 'python'))
+            if platform.system() == 'Windows':
+                python_path = str(Path.home().joinpath('.album', 'envs', 'album', 'python.exe'))
+                conda_exe = str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'))
+            else:
+                python_path = str(Path.home().joinpath('.album', 'envs', 'album', 'python'))
+                conda_exe = str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'))
+            cmd_run_shortcut = subprocess.run(
+                [conda_exe, 'run', '-n', 'album', 'pyshortcut', '-n', run_name, '-i', icon_path, '-e', python_path,
+                 run_path])
+            cmd_uninstall_shortcut = subprocess.run(
+                [conda_exe, 'run', '-n', 'album', 'pyshortcut', '-n', uninstall_name, '-i', icon_path, '-e',
+                 python_path,
+                 uninstall_path])
 
-    make_shortcut(str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'run_solution.py')), name='run_%s' %mod_coords, icon=icon_path, executable=python_path)
-    make_shortcut(str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'uninstall_solution.py')), name='uninstall_%s' %mod_coords, icon=icon_path, executable=python_path)
+    #make_shortcut(str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'run_solution.py')), name='run_%s' %mod_coords, icon=icon_path, executable=python_path)
+    #make_shortcut(str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords ,'uninstall_solution.py')), name='uninstall_%s' %mod_coords, icon=icon_path, executable=python_path)
 
 
 def main():
