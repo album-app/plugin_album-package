@@ -327,14 +327,20 @@ def create_shortcut(coordinates, conda, album):
                 python_path = str(Path(tmp).joinpath('python.exe'))
             else:
                 python_path = str(Path(tmp).joinpath('python'))
-
+            print("CASE 1 !!!!!!!!!!!!!!!!!!!!!!!!")
             cmd_run_shortcut = subprocess.run(
                 ['conda', 'run', '-n', 'album', 'pyshortcut', '-n', run_name, '-i', icon_path, '-e', python_path,
                  run_path])
+            print("run_cut out!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print(cmd_run_shortcut.stdout)
+            print(cmd_run_shortcut.stderr)
             cmd_uninstall_shortcut = subprocess.run(
                 ['conda', 'run', '-n', 'album', 'pyshortcut', '-n', uninstall_name, '-i', icon_path, '-e',
                  python_path,
                  uninstall_path])
+            print("uninstall_cut !!!!!!!!!!!!!!!!!!!!!!")
+            print(cmd_uninstall_shortcut.stdout)
+            print(cmd_uninstall_shortcut.stderr)
         else:
             try:
                 if platform.system() == 'Windows':
