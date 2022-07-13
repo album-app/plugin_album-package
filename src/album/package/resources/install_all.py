@@ -215,9 +215,11 @@ def check_for_preinstalled_album(conda_path):
         cmd = subprocess.run(["conda", "run", "-n", "album", "album", "-h"], capture_output=True)
         if cmd.returncode == 0:
             print("PRE INSTALLED ALBUM OUT!!!!!!! %s"%cmd.stdout)
-            print("PRE INSTALLED ALBUM ERR!!!!!!! %s"%cmd.stderr)
+            #print("PRE INSTALLED ALBUM ERR!!!!!!! %s"%cmd.stderr)
             return True
         else:
+            #print("PRE INSTALLED ALBUM OUT!!!!!!! %s"%cmd.stdout)
+            print("PRE INSTALLED ALBUM ERR!!!!!!! %s"%cmd.stderr)
             return False
     except Exception:
         try:
@@ -490,6 +492,7 @@ def main():
             not check_for_script_installed_pyshortcuts(album_env_path, _conda_path)):
         _install_pyshortcuts(album_base_path, album_env_path, _conda_path, album_gui_url, yml_path)
 
+    print("END INSTALL SCRIPT!!!!!!!")
 
 if __name__ == '__main__':
     main()
