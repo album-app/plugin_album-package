@@ -26,17 +26,14 @@
     - 'Get-ChildItem -Path .\download'                                                                                                                                                                                                                                                                                                                                           # show download folder content
     - '$env:PATH += ";$pwd\miniconda\condabin"'                                                                                                                                                                                                                                                                                                                                  # set path information
     - '$env:PATH += ";$pwd\miniconda\Scripts"'
-    - '$env:PATH += ";$pwd\miniconda\"'
-    - '$env:PATH += ";$pwd\miniconda\Library\bin"'
     - '$conda_available = try {Get-Command "Get-CondaEnvironment" -errorAction Stop} catch {$null}'                                                                                                                                                                                                                                                                              # check if conda cmnd already available
     - 'if($force_install -eq "true") {$conda_available = $null}'                                                                                                                                                                                                                                                                                                                 # mark conda reinstall
     - 'if($conda_available -eq $null) {echo "conda cmnd not available! Will install in $pwd\miniconda..."; Start-Process .\download\miniconda3.exe -argumentlist "/InstallationType=JustMe /S /D=$pwd\miniconda" -wait} else {echo "Skip downloading!..."}'
     - 'echo "Environment path: $env:PATH"'
     - 'conda init'
     - 'conda config --set notify_outdated_conda false'
-    - 'conda condig --set ssl_verify no'
+    - 'conda config --set ssl_verify no'
     - 'conda install -y mamba -c conda-forge'
-    - 'conda install -y openssl'
     - '$progressPreference = $oldProgressPreference'
   tags:
     - windows
