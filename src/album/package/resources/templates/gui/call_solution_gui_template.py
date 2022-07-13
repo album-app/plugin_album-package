@@ -377,6 +377,9 @@ def main():
 
 
         else:
+            print("CALL SOLUTION OUTPUT OF CASE 1 CMD!!!!!!!! %s "%cmd.stdout)
+            print("CALL SOLUTION ERR OF CASE 1 CMD!!!!!!!! %s " % cmd.stderr)
+
             # check if there is an album env with prefix and a conda installation with path env var
             cmd = subprocess.run(
                 ["conda", "run", "-p", str(Path.home().joinpath('.album', 'envs', 'album')), "album", "gui", "-h"],
