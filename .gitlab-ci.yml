@@ -32,8 +32,8 @@
     - 'echo "Environment path: $env:PATH"'
     - 'conda init'
     - 'conda config --set notify_outdated_conda false'
+    - 'conda condig --set ssl_verify no'
     - 'conda install -y mamba -c conda-forge'
-    - 'conda install -y openssl'
     - '$progressPreference = $oldProgressPreference'
   tags:
     - windows
