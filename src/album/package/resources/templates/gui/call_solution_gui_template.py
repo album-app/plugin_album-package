@@ -368,6 +368,7 @@ def main():
         cmd = subprocess.run(["conda", "run", "-n", "album", "album", "gui", "-h"], capture_output=True)
         # returncode != 0 if something is not right with album
         if cmd.returncode == 0:
+            print("VERSION Pre Install Check GUI: %s !!!!!!!!!!!!!!!!!!!!!!" % sys.version)
             print("1 %s" % cmd.returncode)
             install_return = 0
             if not installed_check(conda=True, album=True):

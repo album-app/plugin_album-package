@@ -142,6 +142,7 @@ def installed_check(conda, album, coordinates):
 
 def call_named_album_install_conda_path():
     # use a conda which can be called via conda command and an environment called album to install the solution
+    print("VERSION Installin NO GUI: %s !!!!!!!!!!!!!!!!!!!!!!" % sys.version)
     cmd = subprocess.run(["conda", "run", "-n", "album", "album", "install",
                           str(Path(os.path.realpath(__file__)).parent.joinpath('solution_files'))], capture_output=True)
     if cmd.returncode != 0:
@@ -430,7 +431,7 @@ def main():
         cmd = subprocess.run(["conda", "run", "-n", "album", "album", "-h"], capture_output=True)
         # returncode != 0 if something is not right with album
         print("!! 1 %s !!" % cmd.returncode)
-        print("VERSION Pre Install Check : %s !!!!!!!!!!!!!!!!!!!!!!" % sys.version)
+        print("VERSION Pre Install Check NO GUI: %s !!!!!!!!!!!!!!!!!!!!!!" % sys.version)
         if cmd.returncode == 0:
             install_return = 0
             if not installed_check(conda=True, album=True, coordinates=coordinates):

@@ -40,7 +40,7 @@ class TestIntegrationBuildExecutable(TestCommon):
             exe_path = Path(self.tmp_dir.name).joinpath('solution.exe')
         else:
             exe_path = Path(self.tmp_dir.name).joinpath('solution')
-        print("VERSION TEST 1 : %s !!!!!!!!!!!!!!!!!!!!!!" %sys.version)
+        print("VERSION TEST NO GUI : %s !!!!!!!!!!!!!!!!!!!!!!" %sys.version)
         coord_str = 'album.run(\'album:import_unittest:0.1.0\', params)\n'
         conda_str = 'os.environ["ALBUM_CONDA_PATH"] = \'conda\'\n'
         counter = 0
@@ -114,7 +114,7 @@ class TestIntegrationBuildExecutable(TestCommon):
         with open(pkg_resources.resource_filename('album.package.resources.templates.gui', 'uninstall_solution_gui_template.py'),'r') as file:
             template_str_uninstall = file.read()
         template_str_uninstall = re.sub("<solution>", coord_str, template_str_uninstall)
-        print("VERSION TEST 2 : %s !!!!!!!!!!!!!!!!!!!!!!" % sys.version)
+        print("VERSION TEST GUI : %s !!!!!!!!!!!!!!!!!!!!!!" % sys.version)
         # call
         cmd = [str(exe_path)]
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
