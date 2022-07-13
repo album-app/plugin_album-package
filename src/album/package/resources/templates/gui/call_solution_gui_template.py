@@ -207,11 +207,6 @@ def create_shortcut_script(coordinates):
 
     mod_coords = re.sub(':', '_', coordinates)
 
-    print("RUN SCRIPT!!!!!!!!!!!!\n")
-    print(template_str)
-    print("Uninstall SCRIPT!!!!!!!!!!!!\n")
-    print(template_str_uninstall)
-
     if not os.path.isdir(Path.home().joinpath('.album', 'Solution_shortcuts')):
         os.mkdir(Path.home().joinpath('.album', 'Solution_shortcuts'))
 
