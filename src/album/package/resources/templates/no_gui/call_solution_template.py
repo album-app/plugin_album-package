@@ -430,6 +430,7 @@ def main():
         cmd = subprocess.run(["conda", "run", "-n", "album", "album", "-h"], capture_output=True)
         # returncode != 0 if something is not right with album
         print("!! 1 %s !!" % cmd.returncode)
+        print("VERSION Pre Install Check : %s !!!!!!!!!!!!!!!!!!!!!!" % sys.version)
         if cmd.returncode == 0:
             install_return = 0
             if not installed_check(conda=True, album=True, coordinates=coordinates):
