@@ -102,10 +102,16 @@ def _install_pyshortcuts(album_base_path, album_env_path, conda_path, album_gui_
         conda_exe = _install_missing_conda(conda_path)
 
     # FIXME: HERE THE SUCCESS OF THE INSTALL NEEDS TO BE CHECKED!!!
+    #if check_for_preinstalled_album(conda_path):
+    #    subprocess.run([conda_exe, "run", "-n", "album", "pip", "install", "pyshortcuts==1.8.2"])
+    #elif check_for_script_installed_album(album_env_path, conda_path):
+    #    subprocess.run([conda_exe, "run", "-p", album_env_path, "pip", "install", "pyshortcuts==1.8.2"])
+    #else:
+    #    _install_album_full(album_base_path, conda_path, album_env_path, album_gui_url, yml_path)
     if check_for_preinstalled_album(conda_path):
-        subprocess.run([conda_exe, "run", "-n", "album", "pip", "install", "pyshortcuts==1.8.2"])
+        subprocess.run([conda_exe, "install", "-n", "album", "pyshortcuts==1.8.2"])
     elif check_for_script_installed_album(album_env_path, conda_path):
-        subprocess.run([conda_exe, "run", "-p", album_env_path, "pip", "install", "pyshortcuts==1.8.2"])
+        subprocess.run([conda_exe, "install", "-p", album_env_path, "pyshortcuts==1.8.2"])
     else:
         _install_album_full(album_base_path, conda_path, album_env_path, album_gui_url, yml_path)
 
