@@ -488,10 +488,10 @@ def main():
             not check_for_script_installed_gui(album_env_path, _conda_path)):
         _install_missing_gui(album_base_path, _conda_path, album_env_path, album_gui_url, yml_path)
 
-    print("Checking for PyShortcuts")
-    if (not check_for_preinstalled_pyshortcuts(_conda_path)) and (
-            not check_for_script_installed_pyshortcuts(album_env_path, _conda_path)):
-        _install_pyshortcuts(album_base_path, album_env_path, _conda_path, album_gui_url, yml_path)
+    #print("Checking for PyShortcuts")
+    #if (not check_for_preinstalled_pyshortcuts(_conda_path)) and (
+    #        not check_for_script_installed_pyshortcuts(album_env_path, _conda_path)):
+    #    _install_pyshortcuts(album_base_path, album_env_path, _conda_path, album_gui_url, yml_path)
 
     print("END INSTALL SCRIPT!!!!!!!")
 
