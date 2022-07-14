@@ -212,6 +212,7 @@ def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_u
 
 def check_for_preinstalled_album(conda_path):
     try:
+        print("PYTHON VERSION !!!!!!!!!! %s !!!!" %sys.version)
         cmd = subprocess.run(["conda", "run", "-n", "album", "album", "-h"], capture_output=True)
         if cmd.returncode == 0:
             print("PRE INSTALLED ALBUM OUT!!!!!!! %s"%cmd.stdout)
