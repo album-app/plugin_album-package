@@ -334,7 +334,7 @@ def create_shortcut(coordinates, conda, album):
             if platform.system() == 'Windows':
                 python_path = str(Path(tmp).joinpath('python.exe'))
             else:
-                python_path = str(Path(tmp).joinpath('python'))
+                python_path = str(Path(tmp).joinpath('bin', 'python'))
             print("CASE 1 !!!!!!!!!!!!!!!!!!!!!!!!")
             cmd_run_shortcut = subprocess.run(
                 ['conda', 'run', '-n', 'album', 'pyshortcut', '-n', run_name, '-i', icon_path, '-e', python_path,
@@ -379,7 +379,7 @@ def create_shortcut(coordinates, conda, album):
                     tmp = out.split('\n')[2]
                     tmp = tmp.split('\r')[0]
                     tmp = tmp.split(': ')[1]
-                    python_path = str(Path(tmp).joinpath('python'))
+                    python_path = str(Path(tmp).joinpath('bin', 'python'))
 
                     cmd_run_shortcut = subprocess.run(
                         [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda')), 'run', '-n',
@@ -395,7 +395,7 @@ def create_shortcut(coordinates, conda, album):
             if platform.system() == 'Windows':
                 python_path = str(Path.home().joinpath('.album', 'envs', 'album', 'python.exe'))
             else:
-                python_path = str(Path.home().joinpath('.album', 'envs', 'album', 'python'))
+                python_path = str(Path.home().joinpath('.album', 'envs', 'album', 'bin', 'python'))
             cmd_run_shortcut = subprocess.run(
                 ['conda', 'run', '-p', str(Path.home().joinpath('.album', 'envs', 'album')), 'pyshortcut', '-n', run_name, '-i', icon_path, '-e', python_path,
                  run_path])
@@ -408,7 +408,7 @@ def create_shortcut(coordinates, conda, album):
                 python_path = str(Path.home().joinpath('.album', 'envs', 'album', 'python.exe'))
                 conda_exe = str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'))
             else:
-                python_path = str(Path.home().joinpath('.album', 'envs', 'album', 'python'))
+                python_path = str(Path.home().joinpath('.album', 'envs', 'album', 'bin', 'python'))
                 conda_exe = str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'))
             cmd_run_shortcut = subprocess.run(
                 [conda_exe, 'run', '-p', str(Path.home().joinpath('.album', 'envs', 'album')) , 'pyshortcut', '-n', run_name, '-i', icon_path, '-e', python_path,
