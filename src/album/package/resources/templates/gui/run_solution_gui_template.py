@@ -7,7 +7,7 @@ from pathlib import Path
 def call_named_album_gui_conda_path():
     # use a conda which can be called via conda command and a named album environment
     # to run the solution in the gui
-    cmd = subprocess.run(["conda", "run", "-n", 'album', "album", "gui", "--solution", '<solution>'])
+    cmd = subprocess.run(["conda", "run", "album", "gui", "--solution", '<solution>'])
     return cmd.returncode
 
 
@@ -25,12 +25,12 @@ def call_named_album_gui_conda_exe():
     # to run the solution in the gui
     if platform.system() == 'Windows':
         cmd = subprocess.run(
-            [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-n", 'album', "album", "gui",
+            [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "album", "gui",
              "--solution", '<solution>'])
         return cmd.returncode
     else:
         cmd = subprocess.run(
-            [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "-n", 'album', "album", "gui",
+            [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "album", "gui",
              "--solution", '<solution>'])
         return cmd.returncode
 
@@ -55,7 +55,7 @@ def call_prefixed_album_gui_conda_exe():
 try:
     # check if there is an env present with the name album containing album gui and a conda installation
     # with path env var
-    cmd = subprocess.run(["conda", "run", "-n", "album", "album", "gui", "-h"], capture_output=True)
+    cmd = subprocess.run(["conda", "run", "album", "gui", "-h"], capture_output=True)
     # returncode != 0 if something is not right with album
     if cmd.returncode == 0:
         call_return = call_named_album_gui_conda_path()
@@ -81,7 +81,7 @@ except Exception as e:
             # check if there is an env present with the name album containing album gui and a conda installation
             # in the album base dir
             cmd = subprocess.run(
-                [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-n", "album",
+                [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run",
                  "album",
                  "-h"], capture_output=True)
             if cmd.returncode == 0:
@@ -108,7 +108,7 @@ except Exception as e:
             # check if there is an env present with the name album containing album gui and a conda installation
             # in the album base dir
             cmd = subprocess.run(
-                [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "-n", "album",
+                [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run",
                  "album",
                  "-h"], capture_output=True)
 
