@@ -221,7 +221,6 @@ def create_shortcut_script(coordinates):
 
     with open(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution_gui.py'), 'w') as file:
         file.write(template_str)
-
     with open(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'uninstall_solution_gui.py'),
               'w') as file:
         file.write(template_str_uninstall)
