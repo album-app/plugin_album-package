@@ -233,6 +233,8 @@ def create_shortcut(coordinates, conda, album):
 
     #from pyshortcuts import make_shortcut
     mod_coords = re.sub(':', '_', coordinates)
+    if platform.system() == 'Darwin':
+        mod_coords = re.sub('\.', '_', mod_coords)
     run_name = 'run_gui_%s' % mod_coords
     run_path = str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution_gui.py'))
     uninstall_name = 'uninstall_gui_%s' % mod_coords
