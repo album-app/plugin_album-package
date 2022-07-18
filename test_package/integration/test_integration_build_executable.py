@@ -92,6 +92,7 @@ class TestIntegrationBuildExecutable(TestCommon):
                 os.path.isfile(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_linux.png')))
 
     def test_execute_gui(self):
+        self.maxDiff = None
         # build an executable and see if it was successfully build
         build_executable.run(
             self.album_mock,
