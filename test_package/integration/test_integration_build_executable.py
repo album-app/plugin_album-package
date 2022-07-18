@@ -1,6 +1,7 @@
 import os
 import platform
 import re
+import shutil
 import subprocess
 import sys
 import unittest
@@ -93,6 +94,7 @@ class TestIntegrationBuildExecutable(TestCommon):
 
     def test_execute_gui(self):
         self.maxDiff = None
+        shutil.rmtree(Path.home().joinpath('.album'))
         # build an executable and see if it was successfully build
         build_executable.run(
             self.album_mock,
