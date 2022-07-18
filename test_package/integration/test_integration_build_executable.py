@@ -55,7 +55,7 @@ class TestIntegrationBuildExecutable(TestCommon):
         print(p1)
         print("RETURNCODE!!! %s"%p.returncode)
 
-        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0', 'run_solution.py'), 'r') as file:
+        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0', 'run_solution.py'), 'r') as file:
             for line in file:
                 if line.startswith("album.run("):
                     coord_line = line
@@ -64,7 +64,7 @@ class TestIntegrationBuildExecutable(TestCommon):
                     conda_line = line
                     counter += 1
 
-        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0', 'uninstall_solution.py'), 'r') as file:
+        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0', 'uninstall_solution.py'), 'r') as file:
             for line in file:
                 if line.startswith("album.uninstall("):
                     coord_line_uninstall = line
