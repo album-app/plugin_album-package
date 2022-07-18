@@ -55,8 +55,7 @@ def call_prefixed_album_gui_conda_exe():
 try:
     # check if there is an env present with the name album containing album gui and a conda installation
     # with path env var
-    cmd = subprocess.run(["conda", "run","-n", 'album',
-                          "album", "gui", "-h"], capture_output=True)
+    cmd = subprocess.run(["conda", "run","-n", 'album', "album", "gui", "-h"], capture_output=True)
     # returncode != 0 if something is not right with album
     if cmd.returncode == 0:
         call_return = call_named_album_gui_conda_path()
@@ -67,7 +66,7 @@ try:
         cmd = subprocess.run(
             ["conda", "run", "-p", str(Path.home().joinpath('.album', 'envs', 'album')), "album", "gui", "-h"],
             capture_output=True)
-        print("2%s" % cmd.returncode)
+        #print("2%s" % cmd.returncode)
         if cmd.returncode == 0:
             call_return = call_prefixed_album_gui_conda_path()
             if call_return != 0:
@@ -96,7 +95,7 @@ except Exception as e:
                     [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-p",
                      str(Path.home().joinpath('.album', 'envs', 'album')), "album", "gui", "-h"],
                     capture_output=True)
-                print("4%s" % cmd.returncode)
+                #print("4%s" % cmd.returncode)
                 if cmd.returncode == 0:
                     call_return = call_prefixed_album_gui_conda_exe()
                     if call_return != 0:
@@ -114,7 +113,7 @@ except Exception as e:
                  "-h"], capture_output=True)
 
             if cmd.returncode == 0:
-                print("3 %s" % cmd.returncode)
+                #print("3 %s" % cmd.returncode)
                 call_return = call_named_album_gui_conda_exe()
                 if call_return != 0:
                     sys.exit("There was an error running the solution!")
@@ -125,7 +124,7 @@ except Exception as e:
                     [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "-p",
                      Path.home().joinpath('.album', 'envs', 'album'), "album", "gui", "-h"],
                     capture_output=True)
-                print("4%s" % cmd.returncode)
+                #print("4%s" % cmd.returncode)
                 if cmd.returncode == 0:
                     call_return = call_prefixed_album_gui_conda_exe()
                     if call_return != 0:
