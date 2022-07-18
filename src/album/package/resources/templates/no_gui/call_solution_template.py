@@ -274,6 +274,9 @@ def create_shortcut_script(coordinates,conda):
     template_str_uninstall = re.sub("<conda>", conda_exe, template_str_uninstall)
 
     mod_coords = re.sub(':', '_', coordinates)
+    # on macos the coordniates must not contain .'s since the shortcut cannot get the album logo as icon
+    if platform.system() == 'Darwin':
+        mod_coords = re.sub('\.', '_', mod_coords)
 
     if not os.path.isdir(Path.home().joinpath('.album', 'Solution_shortcuts')):
         os.mkdir(Path.home().joinpath('.album', 'Solution_shortcuts'))
@@ -297,6 +300,9 @@ def create_shortcut_script(coordinates,conda):
 def create_shortcut(coordinates, conda, album):
     #from pyshortcuts import make_shortcut
     mod_coords = re.sub(':', '_', coordinates)
+    # on macos the coordniates must not contain .'s since the shortcut cannot get the album logo as icon
+    if platform.system() == 'Darwin':
+        mod_coords = re.sub('\.', '_', mod_coords)
     run_name = 'run_%s' % mod_coords
     run_path = str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution.py'))
     uninstall_name = 'uninstall_%s' % mod_coords
