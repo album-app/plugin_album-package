@@ -206,6 +206,8 @@ def create_shortcut_script(coordinates):
     template_str_uninstall = re.sub("<solution>", str(coordinates), template_str_uninstall)
 
     mod_coords = re.sub(':', '_', coordinates)
+    if platform.system() == 'Darwin':
+        mod_coords = re.sub('\.', '_', mod_coords)
 
     if not os.path.isdir(Path.home().joinpath('.album', 'Solution_shortcuts')):
         os.mkdir(Path.home().joinpath('.album', 'Solution_shortcuts'))
