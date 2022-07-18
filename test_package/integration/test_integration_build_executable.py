@@ -21,7 +21,9 @@ class TestIntegrationBuildExecutable(TestCommon):
 
     def tearDown(self) -> None:
         super().tearDown()
-
+        
+    @unittest.skipIf(sys.platform == 'win32' or sys.platform == 'cygwin',
+                     "The windows runner doens't work with pywin32")
     def test_execute_no_gui(self):
         # build an executable and try running it
         build_executable.run(
@@ -113,6 +115,8 @@ class TestIntegrationBuildExecutable(TestCommon):
             self.assertTrue(
                 os.path.isfile(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_linux.png')))
 
+    @unittest.skipIf(sys.platform == 'win32' or sys.platform == 'cygwin',
+                     "The windows runner doens't work with pywin32")
     def test_execute_gui(self):
         self.maxDiff = None
         # build an executable and see if it was successfully build
