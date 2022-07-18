@@ -94,7 +94,6 @@ class TestIntegrationBuildExecutable(TestCommon):
 
     def test_execute_gui(self):
         self.maxDiff = None
-        shutil.rmtree(Path.home().joinpath('.album'))
         # build an executable and see if it was successfully build
         build_executable.run(
             self.album_mock,
@@ -124,10 +123,10 @@ class TestIntegrationBuildExecutable(TestCommon):
         p1 = p.communicate()
         print(p1)
         print("RETURNCODE!!! %s"%p.returncode)
-        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0',
+        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
                                        'run_solution_gui.py')) as file:
             created_str = file.read()
-        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0',
+        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
                                        'uninstall_solution_gui.py')) as file:
             created_str_uninstall = file.read()
 
