@@ -55,23 +55,44 @@ class TestIntegrationBuildExecutable(TestCommon):
         print(p1)
         print("RETURNCODE!!! %s"%p.returncode)
 
-        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0', 'run_solution.py'), 'r') as file:
-            for line in file:
-                if line.startswith("album.run("):
-                    coord_line = line
-                    counter += 1
-                if line.startswith("os.environ["):
-                    conda_line = line
-                    counter += 1
+        if platform.system() == 'Darwin':
+            with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
+                                           'run_solution.py'), 'r') as file:
+                for line in file:
+                    if line.startswith("album.run("):
+                        coord_line = line
+                        counter += 1
+                    if line.startswith("os.environ["):
+                        conda_line = line
+                        counter += 1
 
-        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0', 'uninstall_solution.py'), 'r') as file:
-            for line in file:
-                if line.startswith("album.uninstall("):
-                    coord_line_uninstall = line
-                    counter_uninstall += 1
-                if line.startswith("os.environ["):
-                    conda_line_uninstall = line
-                    counter_uninstall += 1
+            with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
+                                           'uninstall_solution.py'), 'r') as file:
+                for line in file:
+                    if line.startswith("album.uninstall("):
+                        coord_line_uninstall = line
+                        counter_uninstall += 1
+                    if line.startswith("os.environ["):
+                        conda_line_uninstall = line
+                        counter_uninstall += 1
+        else:
+            with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0', 'run_solution.py'), 'r') as file:
+                for line in file:
+                    if line.startswith("album.run("):
+                        coord_line = line
+                        counter += 1
+                    if line.startswith("os.environ["):
+                        conda_line = line
+                        counter += 1
+
+            with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0', 'uninstall_solution.py'), 'r') as file:
+                for line in file:
+                    if line.startswith("album.uninstall("):
+                        coord_line_uninstall = line
+                        counter_uninstall += 1
+                    if line.startswith("os.environ["):
+                        conda_line_uninstall = line
+                        counter_uninstall += 1
 
         self.assertTrue(os.path.isfile(exe_path) and os.access(exe_path, os.X_OK),
                         "No executable created or executable not accessible.")
@@ -123,17 +144,20 @@ class TestIntegrationBuildExecutable(TestCommon):
         p1 = p.communicate()
         print(p1)
         print("RETURNCODE!!! %s"%p.returncode)
-        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
-                                       'run_solution_gui.py')) as file:
-            created_str = file.read()
-        with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
-                                       'uninstall_solution_gui.py')) as file:
-            created_str_uninstall = file.read()
-
-        print(template_str)
-        print("!!!!!!!!!!!")
-        print(created_str)
-
+        if platform.system() == 'Darwin':
+            with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
+                                           'run_solution_gui.py')) as file:
+                created_str = file.read()
+            with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
+                                           'uninstall_solution_gui.py')) as file:
+                created_str_uninstall = file.read()
+        else:
+            with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0',
+                                           'run_solution_gui.py')) as file:
+                created_str = file.read()
+            with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0',
+                                           'uninstall_solution_gui.py')) as file:
+                created_str_uninstall = file.read()
 
         # assert
         self.assertTrue(os.path.isfile(exe_path) and os.access(exe_path, os.X_OK),
