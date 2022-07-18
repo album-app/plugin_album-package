@@ -55,7 +55,7 @@ def call_prefixed_album_gui_conda_exe():
 try:
     # check if there is an env present with the name album containing album gui and a conda installation
     # with path env var
-    cmd = subprocess.run(["conda", "run",
+    cmd = subprocess.run(["conda", "run","-n", 'album',
                           "album", "gui", "-h"], capture_output=True)
     # returncode != 0 if something is not right with album
     if cmd.returncode == 0:
