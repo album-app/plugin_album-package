@@ -360,6 +360,7 @@ def main():
             #print("1 %s" % cmd.returncode)
             install_return = 0
             if not installed_check(conda=True, album=True):
+                print('Solution is not installed. Installing...')
                 install_return = call_named_album_install_conda_path()
             if install_return != 0:
                 sys.exit("There was an error installing the solution!")
@@ -374,6 +375,7 @@ def main():
             if cmd.returncode == 0:
                 install_return = 0
                 if not installed_check(conda=True, album=False):
+                    print('Solution is not installed. Installing...')
                     install_return = call_prefixed_album_install_conda_path()
                 if install_return != 0:
                     sys.exit("There was an error installing the solution!")
@@ -398,6 +400,7 @@ def main():
                     #print("3 %s" % cmd.returncode)
                     install_return = 0
                     if not installed_check(conda=False, album=True):
+                        print('Solution is not installed. Installing...')
                         install_return = call_named_album_install_conda_exe()
                     if install_return != 0:
                         sys.exit("There was an error installing the solution!")
@@ -416,6 +419,7 @@ def main():
                     if cmd.returncode == 0:
                         install_return = 0
                         if not installed_check(conda=False, album=False):
+                            print('Solution is not installed. Installing...')
                             install_return = call_prefixed_album_install_conda_exe()
                         if install_return != 0:
                             sys.exit("There was an error installing the solution!")
@@ -439,6 +443,7 @@ def main():
                     #print("3 %s" % cmd.returncode)
                     install_return = 0
                     if not installed_check(conda=False, album=True):
+                        print('Solution is not installed. Installing...')
                         install_return = call_named_album_install_conda_exe()
                     if install_return != 0:
                         sys.exit("There was an error installing the solution!")
@@ -457,6 +462,7 @@ def main():
                     if cmd.returncode == 0:
                         install_return = 0
                         if not installed_check(conda=False, album=False):
+                            print('Solution is not installed. Installing...')
                             install_return = call_prefixed_album_install_conda_exe()
                         if install_return != 0:
                             sys.exit("There was an error installing the solution!")
