@@ -129,6 +129,11 @@ class TestIntegrationBuildExecutable(TestCommon):
                                        'uninstall_solution_gui.py')) as file:
             created_str_uninstall = file.read()
 
+        print(template_str)
+        print("!!!!!!!!!!!")
+        print(created_str)
+
+
         # assert
         self.assertTrue(os.path.isfile(exe_path) and os.access(exe_path, os.X_OK),
                         "No executable created or executable not accessible.")
