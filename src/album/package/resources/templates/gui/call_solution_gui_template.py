@@ -206,6 +206,8 @@ def create_shortcut_script(coordinates):
     template_str_uninstall = re.sub("<solution>", str(coordinates), template_str_uninstall)
 
     mod_coords = re.sub(':', '_', coordinates)
+    # on macos the coordniates must not contain .'s since the shortcut cannot get the album logo as icon
+    # change the path here too to stay consistent
     if platform.system() == 'Darwin':
         mod_coords = re.sub('\.', '_', mod_coords)
 
@@ -235,6 +237,7 @@ def create_shortcut(coordinates, conda, album):
 
     #from pyshortcuts import make_shortcut
     mod_coords = re.sub(':', '_', coordinates)
+    # on macos the coordniates must not contain .'s since the shortcut cannot get the album logo as icon
     if platform.system() == 'Darwin':
         mod_coords = re.sub('\.', '_', mod_coords)
     run_name = 'run_gui_%s' % mod_coords
