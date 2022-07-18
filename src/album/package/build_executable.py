@@ -73,7 +73,6 @@ def run(album_instance: Album, args):
         get_active_logger().info("--no_gui: %s" % args.no_gui)
         mode = args.no_gui
 
-        print(args.solution)
         if not mode:
             build_gui.run(args,coordinats)
         else:

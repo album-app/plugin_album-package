@@ -181,11 +181,7 @@ def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_u
     print("-------------------------")
 
     print("Installing album into %s..." % album_env_path)
-    print(conda_exe)
-    print(os.path.isfile(conda_exe))
-    print(album_env_path)
-    print(yml_path)
-    print(os.path.isfile(yml_path))
+
     a = subprocess.run([conda_exe, 'env', 'create', '-p', album_env_path, '-f', yml_path], capture_output=True)
 
     if a.returncode == 0:
@@ -212,15 +208,10 @@ def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_u
 
 def check_for_preinstalled_album(conda_path):
     try:
-        print("PYTHON VERSION !!!!!!!!!! %s !!!!" %sys.version)
         cmd = subprocess.run(["conda", "run", "-n", "album", "album", "-h"], capture_output=True)
         if cmd.returncode == 0:
-            print("PRE INSTALLED ALBUM OUT!!!!!!! %s"%cmd.stdout)
-            #print("PRE INSTALLED ALBUM ERR!!!!!!! %s"%cmd.stderr)
             return True
         else:
-            #print("PRE INSTALLED ALBUM OUT!!!!!!! %s"%cmd.stdout)
-            print("PRE INSTALLED ALBUM ERR!!!!!!! %s"%cmd.stderr)
             return False
     except Exception:
         try:
@@ -358,7 +349,6 @@ def check_for_script_installed_conda(conda_path):
 
 def check_for_script_installed_pyshortcuts(album_env_path, conda_path):
     # check if pyshortcuts is installed in the album installed via this script
-    print("VERSION SCRIPT SHORTCUTS PRE CALL: %s !!!!!!!!!!!!!!!!!!!!!!" % sys.version)
     try:
         cmd = subprocess.run(["conda", "run", "-p", album_env_path, "pyshortcut", "-h"], capture_output=True)
         if cmd.returncode == 0:
@@ -366,7 +356,6 @@ def check_for_script_installed_pyshortcuts(album_env_path, conda_path):
         else:
             return False
     except Exception:
-        print("VERSION SCRIPT SHORTCUTS EXCEPTION : %s !!!!!!!!!!!!!!!!!!!!!!" % sys.version)
         try:
             if platform.system() == 'Windows':
                 cmd = subprocess.run(
@@ -391,14 +380,12 @@ def check_for_script_installed_pyshortcuts(album_env_path, conda_path):
 def check_for_preinstalled_pyshortcuts(conda_path):
     # check if album gui is installed in the preinstalled album
     try:
-        print("VERSION CHECK FOR shortcuts PRE CALL: %s !!!!!!!!!!!!!!!!!!!!!!" % sys.version)
         cmd = subprocess.run(["conda", "run", "-n", "album", "pyshortcut", "-h"], capture_output=True)
         if cmd.returncode == 0:
             return True
         else:
             return False
     except Exception:
-        print("VERSION SHORTCUTS CHECK EXCEPTION: %s !!!!!!!!!!!!!!!!!!!!!!" % sys.version)
         try:
             if platform.system() == 'Windows':
                 cmd = subprocess.run(
@@ -455,12 +442,10 @@ def main():
     album_base_path = Path.home().joinpath('.album')
     _conda_path = Path(album_base_path).joinpath("Miniconda")
     album_env_path = Path(album_base_path).joinpath('envs', 'album')
-    # album_env_path = album_env_path.as_posix()
     album_env_path = str(album_env_path)
     album_gui_url = "https://gitlab.com/album-app/plugins/album-gui/-/archive/main/album-gui-main.zip"
     yml_url = "https://gitlab.com/album-app/album/-/raw/main/album.yml"
     yml_path = Path(os.path.realpath(__file__)).parent.joinpath('album.yml')
-    # yml_path = yml_path.as_posix()
     yml_path = str(yml_path)
 
     # check if yml file is present
@@ -468,8 +453,6 @@ def main():
         print("Downloading album yml file...")
         yml_path = Path(album_base_path).joinpath('album.yml')
         wget.download(yml_url, Path(yml_path))
-
-    # yml_path = "{}".format(str(yml_path).encode(enc))
 
     # copy shortcut icons into album base path
     copy_icons(album_base_path)
@@ -488,12 +471,11 @@ def main():
             not check_for_script_installed_gui(album_env_path, _conda_path)):
         _install_missing_gui(album_base_path, _conda_path, album_env_path, album_gui_url, yml_path)
 
-    print("Checking for PyShortcuts")
+    print("Checking for PyShortcuts installation...")
     if (not check_for_preinstalled_pyshortcuts(_conda_path)) and (
             not check_for_script_installed_pyshortcuts(album_env_path, _conda_path)):
         _install_pyshortcuts(album_base_path, album_env_path, _conda_path, album_gui_url, yml_path)
 
-    print("END INSTALL SCRIPT!!!!!!!")
 
 if __name__ == '__main__':
     main()
