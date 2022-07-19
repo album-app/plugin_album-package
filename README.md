@@ -1,7 +1,8 @@
 # Album plugin for packaging solutions into executables
 
-This plugin is used to create executables from solutions, so a solution can be run with a simple
-double click. The executables can be distributed to a different system running the same operating system.
+This plugin is used to create executables from solutions, so a solution can be installed with a simple
+double click. The executable creates a shortcut for running the solution and a shortcut for uninstalling the solution on the desktop of the user.
+The executables can be distributed to a different system running the same operating system.
  To create executables for different operating systems, run the this plugin on 
 the a system running the target operating system.
 If the the target system runs Windows or MacOS it doesn't need to have anything preinstalled, the executable will install every 
