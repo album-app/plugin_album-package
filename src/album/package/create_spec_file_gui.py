@@ -1,4 +1,5 @@
 import os.path
+import platform
 import re
 from pathlib import Path
 
@@ -10,6 +11,21 @@ def create(output_path, solution):
     spec_path = Path(output_path).joinpath('build_executable_gui.spec')
     yml_path = repr(str(Path(output_path).joinpath('album.yml')))
     hook_path = repr(str(Path(pkg_resources.resource_filename('album.package.resources', 'install_all.py'))))
+    run_sol_path = repr(
+        str(pkg_resources.resource_filename('album.package.resources.templates.gui', 'run_solution_gui_template.py')))
+    uninstall_sol_path = repr(
+        str(pkg_resources.resource_filename('album.package.resources.templates.gui', 'uninstall_solution_gui_template.py')))
+
+    if platform.system() == 'Windows':
+        icon_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'album_icon_windows.ico')))
+    elif platform.system() == 'Darwin':
+        icon_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'album_icon_macos.icns')))
+    elif platform.system() == 'Linux':
+        icon_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'album_icon_linux.png')))
+    else:
+        print("Your OS is currently not supported")
+        raise NotImplementedError
+
     if os.path.isdir(Path(solution)):
         solution_path = repr(str(Path(solution).joinpath('*')))
     if os.path.isfile(Path(solution)):
@@ -25,6 +41,12 @@ def create(output_path, solution):
     template_str = re.sub("<solution_path>", tmp, template_str)
     tmp = re.sub(r"\\", r"\\\\", hook_path)
     template_str = re.sub("<hook_path>", tmp, template_str)
+    tmp = re.sub(r"\\", r"\\\\", run_sol_path)
+    template_str = re.sub("<run_sol_path>", tmp, template_str)
+    tmp = re.sub(r"\\", r"\\\\", uninstall_sol_path)
+    template_str = re.sub("<uninstall_sol_path>", tmp, template_str)
+    tmp = re.sub(r"\\", r"\\\\", icon_path)
+    template_str = re.sub("<icon>", tmp, template_str)
 
     with open(spec_path, 'w') as file:
         file.write(template_str)
