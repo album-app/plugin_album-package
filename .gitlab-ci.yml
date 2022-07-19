@@ -26,6 +26,7 @@
     - 'Get-ChildItem -Path .\download'                                                                                                                                                                                                                                                                                                                                           # show download folder content
     - '$env:PATH += ";$pwd\miniconda\condabin"'                                                                                                                                                                                                                                                                                                                                  # set path information
     - '$env:PATH += ";$pwd\miniconda\Scripts"'
+    - '$env:PATH += ";$pwd\miniconda\Library\bin"'
     - '$conda_available = try {Get-Command "Get-CondaEnvironment" -errorAction Stop} catch {$null}'                                                                                                                                                                                                                                                                              # check if conda cmnd already available
     - 'if($force_install -eq "true") {$conda_available = $null}'                                                                                                                                                                                                                                                                                                                 # mark conda reinstall
     - 'if($conda_available -eq $null) {echo "conda cmnd not available! Will install in $pwd\miniconda..."; Start-Process .\download\miniconda3.exe -argumentlist "/InstallationType=JustMe /S /D=$pwd\miniconda" -wait} else {echo "Skip downloading!..."}'
@@ -272,5 +273,6 @@ integration tests windows:
   extends: .windows_base_template
   stage: test
   script:
-    - $cmnd = powershell.exe -command {conda create -y --channel=conda-forge -n album python=3.7 pip git 2>&1 | Write-Host; conda activate album 2>&1 | Write-Host; pip install album 2>&1 | Write-Host; pip install --no-cache-dir $env:CI_PROJECT_DIR 2>&1 | Write-Host; python -m unittest test_package\integration\run_all_integration.py 2>&1 | Write-Host; exit(0)}
+    - $cmndP = powershell.exe -command {python -V}
+    - $cmnd = powershell.exe -command {conda create -y --channel=conda-forge -n album python=3.7 pip git pywin32 2>&1 | Write-Host; conda activate album 2>&1 | Write-Host; pip install album 2>&1 | Write-Host; pip install --no-cache-dir $env:CI_PROJECT_DIR 2>&1 | Write-Host; python C:\GitLab-Runner\builds\album-app\plugins\album-package\miniconda\envs\album\Scripts\pywin32_postinstall.py -install | Write-Host; python -m unittest test_package\integration\run_all_integration.py 2>&1 | Write-Host; exit(0)}
     - if ("Success" -in $cmnd[-5..-1]) {exit(0)} else {exit(1)}

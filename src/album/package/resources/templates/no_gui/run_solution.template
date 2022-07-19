@@ -1,0 +1,17 @@
+import os
+from pathlib import Path
+# must happen before importing Album
+os.environ["ALBUM_CONDA_PATH"] = <conda>
+
+from album.api import Album
+import re
+
+album = Album.Builder().base_cache_path(str(Path.home().joinpath('.album'))).build()
+album.load_or_create_collection()
+commands = input('Please enter the parameters with which the package solution should be called:')
+commands = re.split(r'\s', commands)
+params = ['']
+for p in commands:
+    params.append(str(p))
+album.run('<solution>', params)
+input('Press return to exit.')

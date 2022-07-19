@@ -1,5 +1,6 @@
 import inspect
 import os
+import platform
 import sys
 import unittest.mock
 from pathlib import Path
@@ -10,6 +11,7 @@ from album import core
 from album.argument_parsing import create_parser
 from album.package import build_executable, create_subscripts_gui, create_subscripts_no_gui, create_spec_file_gui, \
     create_spec_file_no_gui
+from album.package.argument_parsing import album_package
 from test_package.test_common import TestCommon
 
 
@@ -29,14 +31,14 @@ class TestUnitBuildExecutable(TestCommon):
         self.assertEqual("1234", args[0].solution)
         self.assertEqual(False, args[0].no_gui)
         self.assertEqual("An_example_path", args[0].output_path)
-        self.assertEqual(inspect.getsource(build_executable.run), inspect.getsource(args[0].func))
+        self.assertEqual(inspect.getsource(album_package), inspect.getsource(args[0].func))
 
         sys.argv = ["", "package", "1234", "An_example_path", "--no_gui"]
         args = parser.parse_known_args()
         self.assertEqual("1234", args[0].solution)
         self.assertEqual(True, args[0].no_gui)
         self.assertEqual("An_example_path", args[0].output_path)
-        self.assertEqual(inspect.getsource(build_executable.run), inspect.getsource(args[0].func))
+        self.assertEqual(inspect.getsource(album_package), inspect.getsource(args[0].func))
 
     def test_call_solution_gui(self):
         # test if the call_solution_gui_template was successfully created
@@ -55,8 +57,7 @@ class TestUnitBuildExecutable(TestCommon):
                         "There was no call_solution_gui.py subscript created!")
         self.assertEqual(test_coords, coord_line,
                         'There was an error inserting the solution coordinates into the call_solution_gui.py!')
-        self.assertEqual(1, counter, 'The coordinates got inserted more than one time!')
-
+        self.assertEqual(2, counter, 'The coordinates got inserted more than one time!')
 
     def test_call_solution_no_gui(self):
         # test if the call_solution_template was successfully created
@@ -83,8 +84,24 @@ class TestUnitBuildExecutable(TestCommon):
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', 'solution.py')))
         hook_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'install_all.py')))
+        run_sol_path = repr(
+            str(pkg_resources.resource_filename('album.package.resources.templates.gui',
+                                                'run_solution_gui_template.py')))
+        uninstall_sol_path = repr(
+            str(pkg_resources.resource_filename('album.package.resources.templates.gui',
+                                                'uninstall_solution_gui_template.py')))
 
-        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files')],\n" % (yml_path, test_solution_path)
+        if platform.system() == 'Windows':
+            icon_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'album_icon_windows.ico')))
+        elif platform.system() == 'Darwin':
+            icon_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'album_icon_macos.icns')))
+        elif platform.system() == 'Linux':
+            icon_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'album_icon_linux.png')))
+        else:
+            print("Your OS is currently not supported")
+            raise NotImplementedError
+
+        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files'),(%s, '.'),(%s, '.'),(%s, '.')],\n" % (yml_path, test_solution_path, run_sol_path, uninstall_sol_path, icon_path)
         hook_string = "\t\t\t runtime_hooks=[%s],\n" % hook_path
 
         create_spec_file_gui.create(self.tmp_dir.name,
@@ -117,9 +134,26 @@ class TestUnitBuildExecutable(TestCommon):
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', 'solution.py')))
         hook_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'install_all.py')))
+        run_sol_path = repr(
+            str(pkg_resources.resource_filename('album.package.resources.templates.no_gui',
+                                                'run_solution.template')))
+        uninstall_sol_path = repr(
+            str(pkg_resources.resource_filename('album.package.resources.templates.no_gui',
+                                                'uninstall_solution.template')))
 
-        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files')],\n" % (
-            yml_path, test_solution_path)
+        if platform.system() == 'Windows':
+            icon_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'album_icon_windows.ico')))
+        elif platform.system() == 'Darwin':
+            icon_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'album_icon_macos.icns')))
+        elif platform.system() == 'Linux':
+            icon_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'album_icon_linux.png')))
+        else:
+            print("Your OS is currently not supported")
+            raise NotImplementedError
+
+        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files'),(%s, '.'),(%s, '.'),(%s, '.')],\n" % (
+        yml_path, test_solution_path, run_sol_path, uninstall_sol_path, icon_path)
+
         hook_string = "\t\t\t runtime_hooks=[%s],\n" % hook_path
 
         create_spec_file_no_gui.create(self.tmp_dir.name,
@@ -152,8 +186,26 @@ class TestUnitBuildExecutable(TestCommon):
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))
         hook_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'install_all.py')))
+        run_sol_path = repr(
+            str(pkg_resources.resource_filename('album.package.resources.templates.gui',
+                                                'run_solution_gui_template.py')))
+        uninstall_sol_path = repr(
+            str(pkg_resources.resource_filename('album.package.resources.templates.gui',
+                                                'uninstall_solution_gui_template.py')))
 
-        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files')],\n" % (yml_path, test_solution_path)
+        if platform.system() == 'Windows':
+            icon_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'album_icon_windows.ico')))
+        elif platform.system() == 'Darwin':
+            icon_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'album_icon_macos.icns')))
+        elif platform.system() == 'Linux':
+            icon_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'album_icon_linux.png')))
+        else:
+            print("Your OS is currently not supported")
+            raise NotImplementedError
+
+        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files'),(%s, '.'),(%s, '.'),(%s, '.')],\n" % (
+        yml_path, test_solution_path, run_sol_path, uninstall_sol_path, icon_path)
+
         hook_string = "\t\t\t runtime_hooks=[%s],\n" % hook_path
 
         create_spec_file_gui.create(self.tmp_dir.name,
@@ -185,9 +237,25 @@ class TestUnitBuildExecutable(TestCommon):
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))
         hook_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'install_all.py')))
+        run_sol_path = repr(
+            str(pkg_resources.resource_filename('album.package.resources.templates.no_gui',
+                                                'run_solution.template')))
+        uninstall_sol_path = repr(
+            str(pkg_resources.resource_filename('album.package.resources.templates.no_gui',
+                                                'uninstall_solution.template')))
 
-        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files')],\n" % (
-            yml_path, test_solution_path)
+        if platform.system() == 'Windows':
+            icon_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'album_icon_windows.ico')))
+        elif platform.system() == 'Darwin':
+            icon_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'album_icon_macos.icns')))
+        elif platform.system() == 'Linux':
+            icon_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'album_icon_linux.png')))
+        else:
+            print("Your OS is currently not supported")
+            raise NotImplementedError
+
+        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files'),(%s, '.'),(%s, '.'),(%s, '.')],\n" % (
+        yml_path, test_solution_path, run_sol_path, uninstall_sol_path, icon_path)
         hook_string = "\t\t\t runtime_hooks=[%s],\n" % hook_path
 
         create_spec_file_no_gui.create(self.tmp_dir.name,
@@ -231,6 +299,8 @@ class TestUnitBuildExecutable(TestCommon):
         self.assertEqual(ver_str, ver_line, "An error occured when inserting the current album version!")
         self.assertEqual(counter, 1, "There were to many lines replaced! Error in the album.yml creation")
 
+
+# TODO: Fix Parser test
 
 if __name__ == '__main__':
     unittest.main()
