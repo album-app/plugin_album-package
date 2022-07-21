@@ -7,12 +7,10 @@ from album import core
 import pkg_resources
 
 
-def create(output_path, coordinates, no_gui):
+def create(output_path, coordinates):
     create_yml(output_path)
     create_execution_entrypoint(output_path)
-    #if no_gui:
     create_call_solution_no_gui(output_path, coordinates)
-    #else:
     create_call_solution_gui(output_path, coordinates)
 
 
