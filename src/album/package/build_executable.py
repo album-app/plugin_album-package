@@ -24,14 +24,12 @@ def run(album_instance: Album, args):
         get_active_logger().info(
             "solution: %s at %s" % (coordinates, args.solution))
         get_active_logger().info("--output_path: %s" % args.output_path)
-        get_active_logger().info("--no_gui: %s" % args.no_gui)
-        mode = args.no_gui
 
         if not os.path.isdir(Path(args.output_path)):
             os.mkdir(Path(args.output_path))
 
-        create_subscripts.create(args.output_path, coordinates, mode)
-        spec_path = create_specfile.create(args.output_path, args.solution, mode)
+        create_subscripts.create(args.output_path, coordinates)
+        spec_path = create_specfile.create(args.output_path, args.solution)
         exe_path_param = '--distpath=%s' % (str(args.output_path))
         try:
             PyInstaller.__main__.run([str(spec_path), exe_path_param])
@@ -42,6 +40,8 @@ def run(album_instance: Album, args):
                 shutil.rmtree(Path(os.getcwd()).joinpath('build'))
             os.remove(Path(args.output_path).joinpath('build_executable.spec'))
             os.remove(Path(args.output_path).joinpath('call_solution.py'))
+            os.remove(Path(args.output_path).joinpath('call_solution_gui.py'))
+            os.remove(Path(args.output_path).joinpath('execution_entrypoint.py'))
             os.remove(Path(args.output_path).joinpath('album.yml'))
 
     except AttributeError as e:
