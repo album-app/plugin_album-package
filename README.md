@@ -18,7 +18,7 @@ conda activate album
 ```
 3. Install the album package plugin:
 ```
-pip install HERE LINK
+pip install album-package
 ```
 4. If you are using a linux system, make sure the source and the target system got the binutils package installed.
 For example on ubuntu it can be installed with the following command:

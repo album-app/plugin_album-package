@@ -1,10 +1,15 @@
 import os.path
 import platform
+import re
 import shutil
 import subprocess
 import sys
 from pathlib import Path
 import wget
+
+warned_named = False
+warned_prefix = False
+deleted = False
 
 
 def _install_conda_windows(conda_path):
@@ -75,12 +80,12 @@ def _install_missing_gui(album_base_path, conda_path, album_env_path, album_gui_
         else:
             conda_exe = str(Path(album_base_path).joinpath('Miniconda', 'condabin', 'conda'))
     else:
-        conda_exe = _install_missing_conda(conda_path)
+        conda_exe = _install_missing_conda(conda_path, album_base_path)
 
     # FIXME: HERE THE SUCCESS OF THE INSTALL NEEDS TO BE CHECKED!!!
-    if check_for_preinstalled_album(conda_path):
+    if check_for_preinstalled_album(conda_path, yml_path):
         subprocess.run([conda_exe, "run", "-n", "album", "pip", "install", album_gui_url])
-    elif check_for_script_installed_album(album_env_path, conda_path):
+    elif check_for_script_installed_album(album_env_path, conda_path, yml_path):
         subprocess.run([conda_exe, "run", "-p", album_env_path, "pip", "install", album_gui_url])
     else:
         _install_album_full(album_base_path, conda_path, album_env_path, album_gui_url, yml_path)
@@ -99,25 +104,27 @@ def _install_pyshortcuts(album_base_path, album_env_path, conda_path, album_gui_
         else:
             conda_exe = str(Path(album_base_path).joinpath('Miniconda', 'condabin', 'conda'))
     else:
-        conda_exe = _install_missing_conda(conda_path)
+        conda_exe = _install_missing_conda(conda_path, album_base_path)
 
     # FIXME: HERE THE SUCCESS OF THE INSTALL NEEDS TO BE CHECKED!!!
-    if check_for_preinstalled_album(conda_path):
+    if check_for_preinstalled_album(conda_path, yml_path):
         subprocess.run([conda_exe, "run", "-n", "album", "pip", "install", "pyshortcuts==1.8.2"])
-    elif check_for_script_installed_album(album_env_path, conda_path):
+    elif check_for_script_installed_album(album_env_path, conda_path, yml_path):
         subprocess.run([conda_exe, "run", "-p", album_env_path, "pip", "install", "pyshortcuts==1.8.2"])
     else:
         _install_album_full(album_base_path, conda_path, album_env_path, album_gui_url, yml_path)
-    #if check_for_preinstalled_album(conda_path):
+    # if check_for_preinstalled_album(conda_path):
+
+
 ##
-    #    cmd = subprocess.run([conda_exe, "install", "-n", "album", '-c', 'conda-forge', '-y', "pyshortcuts==1.8.2"],
-    #                         capture_output=True)
-    #    print("SHORTCUT INSTALL OUT!!!!!!!!!! %s"%cmd.stdout)
-    #    print("SHORtCUT INSTALL ERR!!!!!!!!!! %s"%cmd.stderr)
-    #elif check_for_script_installed_album(album_env_path, conda_path):
-    #    subprocess.run([conda_exe, "install", "-p", album_env_path, '-c', 'conda-forge', '-y', "pyshortcuts==1.8.2"])
-    #else:
-    #    _install_album_full(album_base_path, conda_path, album_env_path, album_gui_url, yml_path)
+#    cmd = subprocess.run([conda_exe, "install", "-n", "album", '-c', 'conda-forge', '-y', "pyshortcuts==1.8.2"],
+#                         capture_output=True)
+#    print("SHORTCUT INSTALL OUT!!!!!!!!!! %s"%cmd.stdout)
+#    print("SHORtCUT INSTALL ERR!!!!!!!!!! %s"%cmd.stderr)
+# elif check_for_script_installed_album(album_env_path, conda_path):
+#    subprocess.run([conda_exe, "install", "-p", album_env_path, '-c', 'conda-forge', '-y', "pyshortcuts==1.8.2"])
+# else:
+#    _install_album_full(album_base_path, conda_path, album_env_path, album_gui_url, yml_path)
 
 
 def _install_missing_conda(conda_path, album_base_path):
@@ -145,7 +152,8 @@ def _install_missing_conda(conda_path, album_base_path):
 
 def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_url, yml_path):
     # install album and album gui and if needed miniconda
-    print("Could not find album. Checking for conda installation....")
+    if not deleted:
+        print("Could not find album. Checking for conda installation....")
 
     if not os.path.isdir(album_base_path):
         os.mkdir(album_base_path)
@@ -194,7 +202,8 @@ def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_u
             print("An error occurred installing album gui:")
             print(g.stderr)
         print("Installing PyShortcuts...")
-        s = subprocess.run([conda_exe, 'install', '-p', album_env_path, '-c', 'conda-forge', '-y', "pyshortcuts==1.8.2"])
+        s = subprocess.run(
+            [conda_exe, 'install', '-p', album_env_path, '-c', 'conda-forge', '-y', "pyshortcuts==1.8.2"])
         if s.returncode == 0:
             print("Successfully installed pyshortcuts.")
         else:
@@ -206,10 +215,17 @@ def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_u
         sys.exit()
 
 
-def check_for_preinstalled_album(conda_path):
+def check_for_preinstalled_album(conda_path, yml_path):
+    #    if not deleted:
     try:
         cmd = subprocess.run(["conda", "run", "-n", "album", "album", "-h"], capture_output=True)
         if cmd.returncode == 0:
+            if not warned_named:
+                album_version_check(yml_path=yml_path, conda=True, album=True, album_env_path=None,
+                                    conda_path=conda_path)
+                if deleted:
+                    return False
+
             return True
         else:
             return False
@@ -220,6 +236,12 @@ def check_for_preinstalled_album(conda_path):
                     [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "run", "-n", "album", "album", "-h"],
                     capture_output=True)
                 if cmd.returncode == 0:
+                    if not warned_named:
+                        album_version_check(yml_path=yml_path, conda=False, album=True, album_env_path=None,
+                                            conda_path=conda_path)
+                        if deleted:
+                            return False
+
                     return True
                 else:
                     return False
@@ -228,6 +250,12 @@ def check_for_preinstalled_album(conda_path):
                     [str(Path(conda_path).joinpath('condabin', 'conda')), "run", "-n", "album", "album", "-h"],
                     capture_output=True)
                 if cmd.returncode == 0:
+                    if not warned_named:
+                        album_version_check(yml_path=yml_path, conda=False, album=True, album_env_path=None,
+                                            conda_path=conda_path)
+                        if deleted:
+                            return False
+
                     return True
                 else:
                     return False
@@ -235,10 +263,20 @@ def check_for_preinstalled_album(conda_path):
             return False
 
 
-def check_for_script_installed_album(album_env_path, conda_path):
+#    else:
+#        return False
+
+
+def check_for_script_installed_album(album_env_path, conda_path, yml_path):
+    #    if not deleted:
     try:
         cmd = subprocess.run(["conda", "run", "-p", album_env_path, "album", "-h"], capture_output=True)
         if cmd.returncode == 0:
+            if not warned_prefix:
+                album_version_check(yml_path=yml_path, conda=True, album=False,
+                                    album_env_path=album_env_path, conda_path=conda_path)
+                if deleted:
+                    return False
             return True
         else:
             return False
@@ -248,12 +286,13 @@ def check_for_script_installed_album(album_env_path, conda_path):
                 cmd = subprocess.run(
                     [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "run", "-p", album_env_path, "album",
                      "-h"], capture_output=True)
-                # cmd = subprocess.run(
-                #    [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "run", python, album_main,
-                #     "-h"], capture_output=True)
-
-                # print("cmd2: %s" % cmd)
                 if cmd.returncode == 0:
+                    if not warned_prefix:
+                        album_version_check(yml_path=yml_path, conda=False, album=False,
+                                            album_env_path=album_env_path, conda_path=conda_path)
+                        if deleted:
+                            return False
+
                     return True
                 else:
                     return False
@@ -262,11 +301,22 @@ def check_for_script_installed_album(album_env_path, conda_path):
                     [str(Path(conda_path).joinpath('condabin', 'conda')), "run", "-p", album_env_path, "album", "-h"],
                     capture_output=True)
                 if cmd.returncode == 0:
+                    if not warned_prefix:
+                        album_version_check(yml_path=yml_path, conda=False, album=False,
+                                            album_env_path=album_env_path, conda_path=conda_path)
+                        if deleted:
+                            return False
+
                     return True
                 else:
                     return False
-        except Exception:
+        except Exception as e:
+            print(e)
             return False
+
+
+#    else:
+#        return False
 
 
 def check_for_preinstalled_gui(conda_path):
@@ -281,7 +331,7 @@ def check_for_preinstalled_gui(conda_path):
         try:
             if platform.system() == 'Windows':
                 cmd = subprocess.run(
-                    [str(Path(conda_path).joinpath('condabin', 'conda.exe')), "run", "-n", "album", "album", "gui",
+                    [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "run", "-n", "album", "album", "gui",
                      "-h"], capture_output=True)
                 # print("cmd2: %s" % cmd)
                 if cmd.returncode == 0:
@@ -389,7 +439,7 @@ def check_for_preinstalled_pyshortcuts(conda_path):
         try:
             if platform.system() == 'Windows':
                 cmd = subprocess.run(
-                    [str(Path(conda_path).joinpath('condabin', 'conda.exe')), "run", "-n", "album", "pyshortcut", "-h"],
+                    [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "run", "-n", "album", "pyshortcut", "-h"],
                     capture_output=True)
                 # print("cmd2: %s" % cmd)
                 if cmd.returncode == 0:
@@ -416,25 +466,177 @@ def copy_icons(album_base_path):
         os.mkdir(Path(album_base_path).joinpath('Solution_shortcuts'))
 
     if (platform.system() == 'Windows') and (
-    not os.path.isfile(Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_windows.ico'))):
+            not os.path.isfile(Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_windows.ico'))):
         icon_path = str(Path(os.path.realpath(__file__)).parent.joinpath('album_icon_windows.ico'))
         shutil.copy(icon_path, Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_windows.ico'))
     elif (platform.system() == 'Darwin') and (
-    not os.path.isfile(Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_macos.icns'))):
+            not os.path.isfile(Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_macos.icns'))):
         icon_path = str(Path(os.path.realpath(__file__)).parent.joinpath('album_icon_macos.icns'))
         shutil.copy(icon_path, Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_macos.icns'))
     elif (platform.system() == 'Linux') and (
-    not os.path.isfile(Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_linux.png'))):
+            not os.path.isfile(Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_linux.png'))):
         icon_path = str(Path(os.path.realpath(__file__)).parent.joinpath('album_icon_linux.png'))
         shutil.copy(icon_path, Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_linux.png'))
     elif os.path.isfile(
             Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_windows.ico')) or os.path.isfile(
-            Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_macos.icns')) or os.path.isfile(
-            Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_linux.png')):
+        Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_macos.icns')) or os.path.isfile(
+        Path(album_base_path).joinpath('Solution_shortcuts', 'album_icon_linux.png')):
         pass
     else:
         print("Your OS is currently not supported")
         raise NotImplementedError
+
+
+def album_version_check(yml_path, conda, album, album_env_path, conda_path):
+    with open(yml_path, 'r') as file:
+        for line in file:
+            if line.startswith('      - album'):
+                exe_version = line.split('==')[1]
+    if conda:
+        if album:
+            cmd = subprocess.run(["conda", "run", "-n", "album", "album", "-V"], capture_output=True)
+            installed_version = cmd.stdout.decode()
+        else:
+            cmd = subprocess.run(["conda", "run", "-p", album_env_path, "album", "-V"], capture_output=True)
+            installed_version = cmd.stdout.decode()
+    else:
+        if platform.system() == 'Windows':
+            if album:
+                cmd = subprocess.run(
+                    [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "run", "-n", "album", "album", "-V"],
+                    capture_output=True)
+                installed_version = cmd.stdout.decode()
+            else:
+                cmd = subprocess.run(
+                    [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "run", "-p", album_env_path, "album",
+                     "-V"], capture_output=True)
+                installed_version = cmd.stdout.decode()
+        else:
+            if album:
+                cmd = subprocess.run(
+                    [str(Path(conda_path).joinpath('condabin', 'conda')), "run", "-n", "album", "album", "-V"],
+                    capture_output=True)
+                installed_version = cmd.stdout.decode()
+            else:
+                cmd = subprocess.run(
+                    [str(Path(conda_path).joinpath('condabin', 'conda')), "run", "-p", album_env_path, "album", "-V"],
+                    capture_output=True)
+                installed_version = cmd.stdout.decode()
+
+    installed_version = re.sub('\s', '', installed_version)
+    exe_version = re.sub('\s', '', exe_version)
+
+    # older album versions don't have a -V fundtion so the output is a long error which contains the version number
+    # in the album head print so it needs to be extracted
+    if len(installed_version) > 5:
+        installed_version = re.search(r'albumversion\d\.\d\.\d', installed_version).group().split('version')[1]
+
+    global warned_named
+    global warned_prefix
+    global deleted
+    if installed_version == exe_version:
+        if album:
+            warned_named = True
+        else:
+            warned_prefix = True
+        deleted = False
+        return True
+    else:
+        if album:
+            if not warned_named:
+                print(
+                    "WARNING: The Version of the installed album (%s) differs from the album used to create this executable (%s)." % (
+                        installed_version, exe_version))
+                if installed_version == '' or int(installed_version.split('.')[1]) < 7 or (int(installed_version.split('.')[1]) == 7 and int(installed_version.split('.')[2]) < 1):
+                    print("Your version seems to be older than 0.7.1. If you want to run album gui and this executable you need to reinstall album.")
+                answer = input(
+                    "Do you want to delete the outdated album environment and if needed install a new version of album? (y/n)")
+                while (True):
+                    if answer == 'y' or answer == 'yes':
+                        if conda:
+                            if album:
+                                cmd = subprocess.run(["conda", "env", "remove", "-n", "album"], capture_output=True)
+                            else:
+                                cmd = subprocess.run(["conda", "env", "remove", "-p", album_env_path], capture_output=True)
+                                shutil.rmtree(album_env_path)
+                        else:
+                            if platform.system() == 'Windows':
+                                if album:
+                                    cmd = subprocess.run(
+                                        [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "env", "remove", "-n",
+                                         "album"], capture_output=True)
+                                else:
+                                    cmd = subprocess.run(
+                                        [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "env", "remove", "-p",
+                                         album_env_path], capture_output=True)
+                                    shutil.rmtree(album_env_path)
+                            else:
+                                if album:
+                                    cmd = subprocess.run(
+                                        [str(Path(conda_path).joinpath('condabin', 'conda')), "env", "remove", "-n",
+                                         "album"], capture_output=True)
+                                else:
+                                    cmd = subprocess.run(
+                                        [str(Path(conda_path).joinpath('condabin', 'conda')), "env", "remove", "-p",
+                                         album_env_path], capture_output=True)
+                                    shutil.rmtree(album_env_path)
+                        deleted = True
+                        return False
+                    elif answer == 'n' or answer == 'no':
+                        deleted = False
+                        break
+                    else:
+                        answer = input("Invalid choise please enter y/yes or n/no.")
+                warned_named = True
+            return False
+        else:
+            if not warned_prefix:
+                print(
+                    "WARNING: The Version of the installed album (%s) differs from the album used to create this executable (%s)." % (
+                        installed_version, exe_version))
+                if installed_version == '' or int(installed_version.split('.')[1]) < 7 or (int(installed_version.split('.')[1]) == 7 and int(installed_version.split('.')[2]) < 1):
+                    print("Your version seems to be older than 0.7.1. If you want to run album gui and this executable you need to reinstall album.")
+                answer = input(
+                    "Do you want to delete the outdated album environment and if needed install a new version of album? (y/n)")
+                while (True):
+                    if answer == 'y' or answer == 'yes':
+                        if conda:
+                            if album:
+                                cmd = subprocess.run(["conda", "env", "remove", "-n", "album"], capture_output=True)
+                            else:
+                                cmd = subprocess.run(["conda", "env", "remove", "-p", album_env_path], capture_output=True)
+                                shutil.rmtree(album_env_path)
+                        else:
+                            if platform.system() == 'Windows':
+                                if album:
+                                    cmd = subprocess.run(
+                                        [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "env", "remove", "-n",
+                                         "album"], capture_output=True)
+                                else:
+                                    cmd = subprocess.run(
+                                        [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "env", "remove", "-p",
+                                         album_env_path], capture_output=True)
+                                    shutil.rmtree(album_env_path)
+                            else:
+                                if album:
+                                    cmd = subprocess.run(
+                                        [str(Path(conda_path).joinpath('condabin', 'conda')), "env", "remove", "-n",
+                                         "album"], capture_output=True)
+                                else:
+                                    cmd = subprocess.run(
+                                        [str(Path(conda_path).joinpath('condabin', 'conda')), "env", "remove", "-p",
+                                         album_env_path], capture_output=True)
+                                    shutil.rmtree(album_env_path)
+                        deleted = True
+                        return False
+                    elif answer == 'n' or answer == 'no':
+                        deleted = False
+                        break
+                    else:
+                        answer = input("Invalid choise please enter y/yes or n/no.")
+                warned_prefix = True
+            return False
+
 
 
 def main():
@@ -447,6 +649,7 @@ def main():
     yml_url = "https://gitlab.com/album-app/album/-/raw/main/album.yml"
     yml_path = Path(os.path.realpath(__file__)).parent.joinpath('album.yml')
     yml_path = str(yml_path)
+
 
     # check if yml file is present
     if not os.path.isfile(yml_path):
@@ -462,19 +665,20 @@ def main():
         _install_missing_conda(_conda_path, album_base_path)
 
     print("Checking for album installation...")
-    if (not check_for_preinstalled_album(_conda_path)) and (
-            not check_for_script_installed_album(album_env_path, _conda_path)):
+    if (not check_for_preinstalled_album(_conda_path, yml_path)) and (
+            not check_for_script_installed_album(album_env_path, _conda_path, yml_path)):
         _install_album_full(album_base_path, _conda_path, album_env_path, album_gui_url, yml_path)
 
-    print("Checking for album gui installation...")
-    if (not check_for_preinstalled_gui(_conda_path)) and (
-            not check_for_script_installed_gui(album_env_path, _conda_path)):
-        _install_missing_gui(album_base_path, _conda_path, album_env_path, album_gui_url, yml_path)
+    if not deleted:
+        print("Checking for album gui installation...")
+        if (not check_for_preinstalled_gui(_conda_path)) and (
+                not check_for_script_installed_gui(album_env_path, _conda_path)):
+            _install_missing_gui(album_base_path, _conda_path, album_env_path, album_gui_url, yml_path)
 
-    print("Checking for PyShortcuts installation...")
-    if (not check_for_preinstalled_pyshortcuts(_conda_path)) and (
-            not check_for_script_installed_pyshortcuts(album_env_path, _conda_path)):
-        _install_pyshortcuts(album_base_path, album_env_path, _conda_path, album_gui_url, yml_path)
+        print("Checking for PyShortcuts installation...")
+        if (not check_for_preinstalled_pyshortcuts(_conda_path)) and (
+                not check_for_script_installed_pyshortcuts(album_env_path, _conda_path)):
+            _install_pyshortcuts(album_base_path, album_env_path, _conda_path, album_gui_url, yml_path)
 
 
 if __name__ == '__main__':
