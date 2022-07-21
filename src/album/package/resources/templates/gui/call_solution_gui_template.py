@@ -356,7 +356,7 @@ def main():
         cmd = subprocess.run(["conda", "run", "-n", "album", "album", "gui", "-h"], capture_output=True)
         # returncode != 0 if something is not right with album
         if cmd.returncode == 0:
-            #print("1 %s" % cmd.returncode)
+            print("1 %s" % cmd.returncode)
             install_return = 0
             if not installed_check(conda=True, album=True):
                 print('Solution is not installed. Installing...')
@@ -370,7 +370,7 @@ def main():
             cmd = subprocess.run(
                 ["conda", "run", "-p", str(Path.home().joinpath('.album', 'envs', 'album')), "album", "gui", "-h"],
                 capture_output=True)
-            #print("2%s" % cmd.returncode)
+            print("2%s" % cmd.returncode)
             if cmd.returncode == 0:
                 install_return = 0
                 if not installed_check(conda=True, album=False):
@@ -396,7 +396,7 @@ def main():
                      "-h"], capture_output=True)
 
                 if cmd.returncode == 0:
-                    #print("3 %s" % cmd.returncode)
+                    print("3 %s" % cmd.returncode)
                     install_return = 0
                     if not installed_check(conda=False, album=True):
                         print('Solution is not installed. Installing...')
@@ -414,7 +414,7 @@ def main():
                         [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-p",
                          str(Path.home().joinpath('.album', 'envs', 'album')), "album", "gui", "-h"],
                         capture_output=True)
-                    #print("4%s" % cmd.returncode)
+                    print("4%s" % cmd.returncode)
                     if cmd.returncode == 0:
                         install_return = 0
                         if not installed_check(conda=False, album=False):
@@ -439,7 +439,7 @@ def main():
                      "-h"], capture_output=True)
 
                 if cmd.returncode == 0:
-                    #print("3 %s" % cmd.returncode)
+                    print("3 %s" % cmd.returncode)
                     install_return = 0
                     if not installed_check(conda=False, album=True):
                         print('Solution is not installed. Installing...')
@@ -457,7 +457,7 @@ def main():
                         [Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'), "run", "-p",
                          Path.home().joinpath('.album', 'envs', 'album'), "album", "gui", "-h"],
                         capture_output=True)
-                    #print("4%s" % cmd.returncode)
+                    print("4%s" % cmd.returncode)
                     if cmd.returncode == 0:
                         install_return = 0
                         if not installed_check(conda=False, album=False):
@@ -478,5 +478,5 @@ def main():
                 "An unexpected Error occured when runnig the solution. Please check your conda installation. %s" % e)
 
 
-if __name__ == "__main__":
-    main()
+#if __name__ == "__main__":
+#    main()

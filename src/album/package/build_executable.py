@@ -40,9 +40,9 @@ def run(album_instance: Album, args):
         finally:
             if Path(os.getcwd()).joinpath('build', 'build_executable').exists():
                 shutil.rmtree(Path(os.getcwd()).joinpath('build'))
-            os.remove(Path(args.output_path).joinpath('build_executable.spec'))
-            os.remove(Path(args.output_path).joinpath('call_solution.py'))
-            os.remove(Path(args.output_path).joinpath('album.yml'))
+            #os.remove(Path(args.output_path).joinpath('build_executable.spec'))
+            #os.remove(Path(args.output_path).joinpath('call_solution.py'))
+            #os.remove(Path(args.output_path).joinpath('album.yml'))
 
     except AttributeError as e:
         get_active_logger().error("album command failed: Cannot find solution %s! " \

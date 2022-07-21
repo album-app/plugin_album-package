@@ -1,0 +1,11 @@
+import call_solution
+import call_solution_gui
+
+answer = input("Should the solution be launched with a GUI? (y/n)")
+while (True):
+    if answer == 'y' or answer == 'yes':
+        call_solution_gui.main()
+        break
+    elif answer == 'n' or answer == 'no':
+        call_solution.main()
+        break
