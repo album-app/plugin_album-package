@@ -4,7 +4,7 @@
 block_cipher = None
 
 
-a = Analysis(['call_solution_gui.py'],
+a = Analysis(['call_solution.py'],
 			 pathex=[],
 			 binaries=[],
 			 datas=[(<yml_path>, '.'),(<solution_path>, 'solution_files'),(<run_sol_path>, '.'),(<uninstall_sol_path>, '.'),(<icon>, '.')],
