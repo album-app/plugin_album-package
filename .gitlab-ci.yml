@@ -128,9 +128,9 @@
 stages:
   - build
   - test
-#  - release-test
-#  - release
-#  - deploy
+  - release-test
+  - release
+  - deploy
 
 
 #----------------------------
