@@ -9,3 +9,5 @@ while (True):
     elif answer == 'n' or answer == 'no':
         call_solution.main()
         break
+    else:
+        answer = input("Invalid choise please enter y/yes or n/no.")
