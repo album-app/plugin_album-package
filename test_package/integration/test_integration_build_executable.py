@@ -34,8 +34,7 @@ class TestIntegrationBuildExecutable(TestCommon):
                     'resources',
                     'test_solution'
                 ),
-                output_path=self.tmp_dir.name,
-                no_gui=True
+                output_path=self.tmp_dir.name
             )
         )
 
@@ -53,7 +52,7 @@ class TestIntegrationBuildExecutable(TestCommon):
 
         cmd = [str(exe_path)]
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-        p1 = p.communicate()
+        p1 = p.communicate(b'n')
         print(p1)
         print("RETURNCODE!!! %s"%p.returncode)
 
@@ -104,7 +103,7 @@ class TestIntegrationBuildExecutable(TestCommon):
         self.assertEqual(2, counter, "The many lies got altered in the template the run_solution.py.")
         self.assertEqual(coord_str_uninstall, coord_line_uninstall, "The coordinates did not got replaced correctly in the uninstall_solution.py")
         self.assertEqual(conda_str_uninstall, conda_line_uninstall, "The path of the conda executable did not got replaced correctly in the uninstall_solution.py")
-        self.assertEqual(2, counter_uninstall, "The many lies got altered in the uninstall_solution template.")
+        self.assertEqual(2, counter_uninstall, "The many lines got altered in the uninstall_solution template.")
 
         if platform.system() == 'Windows':
             self.assertTrue(os.path.isfile(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_windows.ico')))
@@ -124,8 +123,7 @@ class TestIntegrationBuildExecutable(TestCommon):
             self.album_mock,
             Namespace(
                 solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
-                output_path=self.tmp_dir.name,
-                no_gui=False
+                output_path=self.tmp_dir.name
             )
         )
         # create correct output
@@ -145,7 +143,7 @@ class TestIntegrationBuildExecutable(TestCommon):
         # call
         cmd = [str(exe_path)]
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-        p1 = p.communicate()
+        p1 = p.communicate(b'y')
         print(p1)
         print("RETURNCODE!!! %s"%p.returncode)
         if platform.system() == 'Darwin':
@@ -211,35 +209,23 @@ class TestIntegrationBuildExecutable(TestCommon):
         self.assertEqual(error_str, cm.output[0],
                          "Missing solution was not caught.")
 
-    def test_clean_up_no_gui(self):
-        # test if the cleanup was done
+    def test_clean_up(self):
         build_executable.run(self.album_mock, Namespace(
             solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
-            output_path=self.tmp_dir.name,
-            no_gui=True))
-
-        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('run_solution.py')),
-                         "run_solution.py was not deleted.")
-        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution.py')),
-                         "call_solution.py was not deleted.")
-        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('build_executable.spec')),
-                         "build_executable.spec was not deleted.")
-        self.assertFalse(os.path.isdir(Path(self.tmp_dir.name).joinpath('build')),
-                         "PyInstallers build directory was not deleted.")
-
-    def test_clean_up_gui(self):
-        # test if the cleanup was done
-        build_executable.run(self.album_mock, Namespace(
-            solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
-            output_path=self.tmp_dir.name,
-            no_gui=False))
+            output_path=self.tmp_dir.name))
 
         self.assertFalse(os.path.isdir(Path(self.tmp_dir.name).joinpath('build')),
                          "PyInstallers build directory was not deleted.")
         self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution_gui.py')),
                          "call_solution_gui.py was not deleted.")
-        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('build_executable_gui.spec')),
-                         "build_executable_gui.spec was not deleted.")
+        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution.py')),
+                         "call_solution.py was not deleted.")
+        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('build_executable.spec')),
+                         "build_executable.spec was not deleted.")
+        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('execution_entrypoint.py')),
+                         "execution_entrypoint.py was not deleted.")
+        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('album.yml')),
+                         "album.yml was not deleted.")
 
 
 if __name__ == '__main__':
