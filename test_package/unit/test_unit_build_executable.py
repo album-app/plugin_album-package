@@ -37,6 +37,10 @@ class TestUnitBuildExecutable(TestCommon):
         self.assertEqual("An_example_path", args[0].output_path)
         self.assertEqual(inspect.getsource(album_package), inspect.getsource(args[0].func))
 
+    def test_entrypoint(self):
+        create_subscripts.create_execution_entrypoint(self.tmp_dir.name)
+        self.assertTrue(os.path.isfile(Path(self.tmp_dir.name).joinpath('execution_entrypoint.py')))
+
     def test_call_solution_gui(self):
         # test if the call_solution_gui_template was successfully created
         test_coords = '    coordinates = \'album:import_unittest:0.1.0\'\n'
