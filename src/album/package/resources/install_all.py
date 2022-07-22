@@ -279,6 +279,18 @@ def check_for_script_installed_album(album_env_path, conda_path, yml_path):
                     return False
             return True
         else:
+            if os.path.isdir(album_env_path):
+                answer = input("There seems to be a broken album environment at %s. "
+                               "Do you want to delete it to be able to install a new album environment? (y/n)")
+                while (True):
+                    if answer == 'y' or answer == 'yes':
+                        print("Deleting broken album environment...")
+                        shutil.rmtree(album_env_path)
+                        break
+                    elif answer == 'n' or answer == 'no':
+                        break
+                    else:
+                        answer = input("Invalid choise please enter y/yes or n/no.")
             return False
     except Exception:
         try:
@@ -311,7 +323,18 @@ def check_for_script_installed_album(album_env_path, conda_path, yml_path):
                 else:
                     return False
         except Exception as e:
-            print(e)
+            if os.path.isdir(album_env_path):
+                answer = input("There seems to be a broken album environment at %s. "
+                               "Do you want to delete it to be able to install a new album environment? (y/n)")
+                while (True):
+                    if answer == 'y' or answer == 'yes':
+                        print("Deleting broken album environment...")
+                        shutil.rmtree(album_env_path)
+                        break
+                    elif answer == 'n' or answer == 'no':
+                        break
+                    else:
+                        answer = input("Invalid choise please enter y/yes or n/no.")
             return False
 
 
