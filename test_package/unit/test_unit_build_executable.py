@@ -77,7 +77,7 @@ class TestUnitBuildExecutable(TestCommon):
                         "There was no call_solution.py subscript created!")
         self.assertEqual(test_coords, coord_line,
                         'There was an error inserting the solution coordinates into the call_solution.py!')
-        self.assertEqual(1, counter, 'The coordinates got inserted more than one time!')
+        self.assertEqual(2, counter, 'The coordinates got inserted more than one time!')
 
     def test_spec_file_single(self):
         yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
@@ -134,7 +134,7 @@ class TestUnitBuildExecutable(TestCommon):
                          "There was an error creating the string for additional data in the spec file.")
         self.assertEqual(hook_string, hook_line,
                          "There was an error creating the string for the install script in the spec file.")
-        self.assertEqual(counter, 2, "There were to many lines replaced! Error in the spec file creation")
+        self.assertEqual(2, counter, "There were to many lines replaced! Error in the spec file creation")
 
     def test_spec_file_dir(self):
         yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
