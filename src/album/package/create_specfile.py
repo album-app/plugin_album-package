@@ -11,18 +11,17 @@ def create(output_path, solution):
     yml_path = repr(str(Path(output_path).joinpath('album.yml')))
     hook_path = repr(str(Path(pkg_resources.resource_filename('album.package.resources', 'install_all.py'))))
     call_sol_path = repr(str(Path(output_path).joinpath('call_solution.py')))
-    call_sol_gui_path = repr(str(Path(output_path).joinpath('call_solution_gui.py')))
     run_sol_path = repr(
-        str(pkg_resources.resource_filename('album.package.resources.templates.no_gui', 'run_solution.template')))
+        str(pkg_resources.resource_filename('album.package.resources.templates', 'run_solution.template')))
     run_sol_gui_path = repr(
-        str(pkg_resources.resource_filename('album.package.resources.templates.gui',
-                                            'run_solution_gui_template.py')))
+        str(pkg_resources.resource_filename('album.package.resources.templates',
+                                            'run_solution_gui.template')))
     uninstall_sol_path = repr(
-        str(pkg_resources.resource_filename('album.package.resources.templates.no_gui',
+        str(pkg_resources.resource_filename('album.package.resources.templates',
                                             'uninstall_solution.template')))
     uninstall_sol_gui_path = repr(
-        str(pkg_resources.resource_filename('album.package.resources.templates.gui',
-                                            'uninstall_solution_gui_template.py')))
+        str(pkg_resources.resource_filename('album.package.resources.templates',
+                                            'uninstall_solution_gui.template')))
     if platform.system() == 'Windows':
         icon_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'album_icon_windows.ico')))
     elif platform.system() == 'Darwin':
@@ -39,7 +38,7 @@ def create(output_path, solution):
         solution_path = repr(str(Path(solution)))
 
     with open(pkg_resources.resource_filename('album.package.resources.templates',
-                                              'build_executable_hybrid_template.spec'), 'r') as file:
+                                              'build_executable_spec.template'), 'r') as file:
         template_str = file.read()
 
     tmp = re.sub(r"\\", r"\\\\", yml_path)
@@ -60,9 +59,6 @@ def create(output_path, solution):
     template_str = re.sub("<icon>", tmp, template_str)
     tmp = re.sub(r"\\", r"\\\\", call_sol_path)
     template_str = re.sub("<call_sol_path>", tmp, template_str)
-    tmp = re.sub(r"\\", r"\\\\", call_sol_gui_path)
-    template_str = re.sub("<call_sol_gui_path>", tmp, template_str)
-
 
     with open(spec_path, 'w') as file:
         file.write(template_str)

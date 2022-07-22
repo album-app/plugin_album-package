@@ -40,7 +40,6 @@ def run(album_instance: Album, args):
                 shutil.rmtree(Path(os.getcwd()).joinpath('build'))
             os.remove(Path(args.output_path).joinpath('build_executable.spec'))
             os.remove(Path(args.output_path).joinpath('call_solution.py'))
-            os.remove(Path(args.output_path).joinpath('call_solution_gui.py'))
             os.remove(Path(args.output_path).joinpath('execution_entrypoint.py'))
             os.remove(Path(args.output_path).joinpath('album.yml'))
 
