@@ -397,7 +397,7 @@ def main():
             run_conda_exe(coordinates)
         except Exception as e:
             sys.exit(
-                "An unexpected Error occured when runnig the solution. Please check your conda installation. %s" % e)
+                "An unexpected Error occurred when runnig the solution. Please check your conda installation. %s" % e)
 
 
 if __name__ == "__main__":
