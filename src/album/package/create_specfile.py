@@ -23,11 +23,11 @@ def create(output_path, solution):
         str(pkg_resources.resource_filename('album.package.resources.templates',
                                             'uninstall_solution_gui.template')))
     if platform.system() == 'Windows':
-        icon_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'album_icon_windows.ico')))
+        icon_path = repr(str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_windows.ico')))
     elif platform.system() == 'Darwin':
-        icon_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'album_icon_macos.icns')))
+        icon_path = repr(str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_macos.icns')))
     elif platform.system() == 'Linux':
-        icon_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'album_icon_linux.png')))
+        icon_path = repr(str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_linux.png')))
     else:
         print("Your OS is currently not supported")
         raise NotImplementedError
