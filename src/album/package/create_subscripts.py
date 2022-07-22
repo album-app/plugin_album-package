@@ -10,7 +10,7 @@ import pkg_resources
 def create(output_path, coordinates):
     create_yml(output_path)
     create_execution_entrypoint(output_path)
-    create_call_solution_hybrid(output_path, coordinates)
+    create_call_solution(output_path, coordinates)
 
 
 def create_yml(output_path):
@@ -28,7 +28,7 @@ def create_execution_entrypoint(output_path):
                 entrypoint_path)
 
 
-def create_call_solution_hybrid(output_path, coordinates):
+def create_call_solution(output_path, coordinates):
     with open(pkg_resources.resource_filename('album.package.resources.templates', 'call_solution.template'),
               'r') as file:
         template_str = file.read()
