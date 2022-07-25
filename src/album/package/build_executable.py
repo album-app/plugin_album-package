@@ -20,7 +20,7 @@ def run(album_instance: Album, args):
         if not (Path.exists(Path(args.solution))):
             args.solution = album_instance.resolve(args.solution).path()
         coordinates = album_instance.resolve(args.solution).coordinates()
-        get_active_logger().info("Build an executable which runs the solution.")
+        get_active_logger().info("Build an executable which installs the solution.")
         get_active_logger().info(
             "solution: %s at %s" % (coordinates, args.solution))
         get_active_logger().info("--output_path: %s" % args.output_path)
