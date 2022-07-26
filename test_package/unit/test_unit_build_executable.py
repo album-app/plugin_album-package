@@ -64,7 +64,7 @@ class TestUnitBuildExecutable(TestCommon):
         yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', 'solution.py')))
-        hook_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'install_all.py')))
+        hook_path = repr(str(pkg_resources.resource_filename('album.package.resources.installer', 'install_all.py')))
         call_sol_path = repr(str(Path(self.tmp_dir.name).joinpath('call_solution.py')))
         run_sol_gui_path = repr(
             str(pkg_resources.resource_filename('album.package.resources.templates',
@@ -80,16 +80,25 @@ class TestUnitBuildExecutable(TestCommon):
                                                 'uninstall_solution.template')))
 
         if platform.system() == 'Windows':
-            icon_path = repr(str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_windows.ico')))
+            icon_path = repr(
+                str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_windows.ico')))
+            installer_path = repr(str(pkg_resources.resource_filename('album.package.resources.installer',
+                                                                      'Miniconda_installer_windows.exe')))
         elif platform.system() == 'Darwin':
-            icon_path = repr(str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_macos.icns')))
+            icon_path = repr(
+                str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_macos.icns')))
+            installer_path = repr(str(pkg_resources.resource_filename('album.package.resources.installer',
+                                                                      'Miniconda_installer_macos.sh')))
         elif platform.system() == 'Linux':
-            icon_path = repr(str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_linux.png')))
+            icon_path = repr(
+                str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_linux.png')))
+            installer_path = repr(str(pkg_resources.resource_filename('album.package.resources.installer',
+                                                                      'Miniconda_installer_linux.sh')))
         else:
             print("Your OS is currently not supported")
             raise NotImplementedError
 
-        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.')],\n" % (yml_path, test_solution_path, run_sol_path, uninstall_sol_path, icon_path, run_sol_gui_path, uninstall_sol_gui_path, call_sol_path)
+        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.')],\n" % (yml_path, test_solution_path, run_sol_path, uninstall_sol_path, icon_path, run_sol_gui_path, uninstall_sol_gui_path, call_sol_path, installer_path)
         hook_string = "\t\t\t runtime_hooks=[%s],\n" % hook_path
 
         create_specfile.create(self.tmp_dir.name,
@@ -120,7 +129,7 @@ class TestUnitBuildExecutable(TestCommon):
         yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
         test_solution_path = repr(
             str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))
-        hook_path = repr(str(pkg_resources.resource_filename('album.package.resources', 'install_all.py')))
+        hook_path = repr(str(pkg_resources.resource_filename('album.package.resources.installer', 'install_all.py')))
         call_sol_path = repr(str(Path(self.tmp_dir.name).joinpath('call_solution.py')))
         run_sol_gui_path = repr(
             str(pkg_resources.resource_filename('album.package.resources.templates',
@@ -136,21 +145,27 @@ class TestUnitBuildExecutable(TestCommon):
                                                 'uninstall_solution.template')))
 
         if platform.system() == 'Windows':
-            icon_path = repr(str(pkg_resources.resource_filename('album.package.resources.icons',
-                                                                 'album_icon_windows.ico')))
+            icon_path = repr(
+                str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_windows.ico')))
+            installer_path = repr(str(pkg_resources.resource_filename('album.package.resources.installer',
+                                                                      'Miniconda_installer_windows.exe')))
         elif platform.system() == 'Darwin':
-            icon_path = repr(str(pkg_resources.resource_filename('album.package.resources.icons',
-                                                                 'album_icon_macos.icns')))
+            icon_path = repr(
+                str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_macos.icns')))
+            installer_path = repr(str(pkg_resources.resource_filename('album.package.resources.installer',
+                                                                      'Miniconda_installer_macos.sh')))
         elif platform.system() == 'Linux':
-            icon_path = repr(str(pkg_resources.resource_filename('album.package.resources.icons',
-                                                                 'album_icon_linux.png')))
+            icon_path = repr(
+                str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_linux.png')))
+            installer_path = repr(str(pkg_resources.resource_filename('album.package.resources.installer',
+                                                                      'Miniconda_installer_linux.sh')))
         else:
             print("Your OS is currently not supported")
             raise NotImplementedError
 
-        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.')],\n" % (
+        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.')],\n" % (
         yml_path, test_solution_path, run_sol_path, uninstall_sol_path, icon_path, run_sol_gui_path,
-        uninstall_sol_gui_path, call_sol_path)
+        uninstall_sol_gui_path, call_sol_path, installer_path)
         hook_string = "\t\t\t runtime_hooks=[%s],\n" % hook_path
 
         create_specfile.create(self.tmp_dir.name,
