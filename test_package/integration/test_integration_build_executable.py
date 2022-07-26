@@ -173,8 +173,8 @@ class TestIntegrationBuildExecutable(TestCommon):
         self.assertEqual(coord_str, coord_line, "The coordinates did not got replaced correctly in the run_solution.py")
         self.assertEqual(coord_str, coord_line_uninstall,
                          "The coordinates did not got replaced correctly in the uninstall _solution.py")
-        self.assertEqual(2, counter, "The many lies got altered in the template the run_solution.py.")
-        self.assertEqual(2, counter_uninstall, "The many lies got altered in the template the uninstall_solution.py.")
+        self.assertEqual(1, counter, "The many lies got altered in the template the run_solution.py.")
+        self.assertEqual(1, counter_uninstall, "The many lies got altered in the template the uninstall_solution.py.")
         if platform.system() == 'Windows':
             self.assertTrue(os.path.isfile(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_windows.ico')))
         elif platform.system() == 'Darwin':
