@@ -342,17 +342,17 @@ def create_shortcut_script_no_gui(coordinates, conda):
     if platform.system() == 'Darwin':
         mod_coords = re.sub('\.', '_', mod_coords)
 
-    if not os.path.isdir(Path.home().joinpath('.album', 'Solution_shortcuts')):
-        os.mkdir(Path.home().joinpath('.album', 'Solution_shortcuts'))
+    if not Path.home().joinpath('.album', 'Solution_shortcuts').is_dir():
+        Path.home().joinpath('.album', 'Solution_shortcuts').mkdir()
 
-    if not os.path.isdir(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords)):
-        os.mkdir(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords))
+    if not Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords).is_dir():
+        Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords).mkdir()
 
-    if os.path.isfile(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution.py')):
-        os.remove(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution.py'))
+    if Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution.py').is_file():
+        Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution.py').unlink()
 
-    if os.path.isfile(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'uninstall_solution.py')):
-        os.remove(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'uninstall_solution.py'))
+    if Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'uninstall_solution.py').is_file():
+        Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'uninstall_solution.py').unlink()
 
     with open(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution.py'), 'w') as file:
         file.write(template_str)
@@ -379,17 +379,17 @@ def create_shortcut_script_gui(coordinates):
     if platform.system() == 'Darwin':
         mod_coords = re.sub('\.', '_', mod_coords)
 
-    if not os.path.isdir(Path.home().joinpath('.album', 'Solution_shortcuts')):
-        os.mkdir(Path.home().joinpath('.album', 'Solution_shortcuts'))
+    if not Path.home().joinpath('.album', 'Solution_shortcuts').is_dir():
+        Path.home().joinpath('.album', 'Solution_shortcuts').mkdir()
 
-    if not os.path.isdir(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords)):
-        os.mkdir(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords))
+    if not Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords).is_dir():
+        Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords).mkdir()
 
-    if os.path.isfile(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution_gui.py')):
-        os.remove(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution_gui.py'))
+    if Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution_gui.py').is_file():
+        Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution_gui.py').unlink()
 
-    if os.path.isfile(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'uninstall_solution_gui.py')):
-        os.remove(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'uninstall_solution_gui.py'))
+    if Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'uninstall_solution_gui.py').is_file():
+        Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'uninstall_solution_gui.py').unlink()
 
     with open(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution_gui.py'), 'w') as file:
         file.write(template_str)
