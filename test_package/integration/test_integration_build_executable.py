@@ -1,7 +1,5 @@
 import os
 import platform
-import re
-import shutil
 import subprocess
 import sys
 import unittest
@@ -42,7 +40,7 @@ class TestIntegrationBuildExecutable(TestCommon):
             exe_path = Path(self.tmp_dir.name).joinpath('solution.exe')
         else:
             exe_path = Path(self.tmp_dir.name).joinpath('solution')
-        print("VERSION TEST NO GUI : %s !!!!!!!!!!!!!!!!!!!!!!" %sys.version)
+
         coord_str = 'album.run(\'album:import_unittest:0.1.0\', params)\n'
         conda_str = 'os.environ["ALBUM_CONDA_PATH"] = \'conda\'\n'
         counter = 0
@@ -53,8 +51,6 @@ class TestIntegrationBuildExecutable(TestCommon):
         cmd = [str(exe_path)]
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         p1 = p.communicate(b'n')
-        print(p1)
-        print("RETURNCODE!!! %s"%p.returncode)
 
         if platform.system() == 'Darwin':
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
@@ -131,43 +127,54 @@ class TestIntegrationBuildExecutable(TestCommon):
             exe_path = Path(self.tmp_dir.name).joinpath('solution.exe')
         else:
             exe_path = Path(self.tmp_dir.name).joinpath('solution')
-        coord_str = 'album:import_unittest:0.1.0'
-        with open(pkg_resources.resource_filename('album.package.resources.templates.gui', 'run_solution_gui_template.py'),'r') as file:
-            template_str = file.read()
-        template_str = re.sub("<solution>", coord_str, template_str)
+        coord_str = '        run_input = \'album:import_unittest:0.1.0\'\n'
+        counter = 0
+        counter_uninstall = 0
 
-        with open(pkg_resources.resource_filename('album.package.resources.templates.gui', 'uninstall_solution_gui_template.py'),'r') as file:
-            template_str_uninstall = file.read()
-        template_str_uninstall = re.sub("<solution>", coord_str, template_str_uninstall)
-        print("VERSION TEST GUI : %s !!!!!!!!!!!!!!!!!!!!!!" % sys.version)
         # call
         cmd = [str(exe_path)]
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         p1 = p.communicate(b'y')
-        print(p1)
-        print("RETURNCODE!!! %s"%p.returncode)
+
         if platform.system() == 'Darwin':
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
-                                           'run_solution_gui.py')) as file:
-                created_str = file.read()
+                                           'run_solution_gui.py'), 'r') as file:
+                for line in file:
+                    if line.startswith("        run_input"):
+                        coord_line = line
+                        counter += 1
+
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
-                                           'uninstall_solution_gui.py')) as file:
-                created_str_uninstall = file.read()
+                                           'uninstall_solution_gui.py'), 'r') as file:
+                for line in file:
+                    if line.startswith("        run_input"):
+                        coord_line_uninstall = line
+                        counter_uninstall += 1
+
         else:
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0',
-                                           'run_solution_gui.py')) as file:
-                created_str = file.read()
+                                           'run_solution_gui.py'), 'r') as file:
+                for line in file:
+                    if line.startswith("        run_input"):
+                        coord_line = line
+                        counter += 1
+
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0',
-                                           'uninstall_solution_gui.py')) as file:
-                created_str_uninstall = file.read()
+                                           'uninstall_solution_gui.py'), 'r') as file:
+                for line in file:
+                    if line.startswith("        run_input"):
+                        coord_line_uninstall = line
+                        counter_uninstall += 1
 
         # assert
         self.assertTrue(os.path.isfile(exe_path) and os.access(exe_path, os.X_OK),
                         "No executable created or executable not accessible.")
         self.assertEqual(0, p.returncode, "Executable could not be executed correctly.")
-        self.assertEqual(template_str, created_str, "The coordinates did not got replaced correctly in the run_solution.py")
-        self.assertEqual(template_str_uninstall , created_str_uninstall ,
+        self.assertEqual(coord_str, coord_line, "The coordinates did not got replaced correctly in the run_solution.py")
+        self.assertEqual(coord_str, coord_line_uninstall,
                          "The coordinates did not got replaced correctly in the uninstall _solution.py")
+        self.assertEqual(1, counter, "The many lies got altered in the template the run_solution.py.")
+        self.assertEqual(1, counter_uninstall, "The many lies got altered in the template the uninstall_solution.py.")
         if platform.system() == 'Windows':
             self.assertTrue(os.path.isfile(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_windows.ico')))
         elif platform.system() == 'Darwin':
@@ -216,8 +223,6 @@ class TestIntegrationBuildExecutable(TestCommon):
 
         self.assertFalse(os.path.isdir(Path(self.tmp_dir.name).joinpath('build')),
                          "PyInstallers build directory was not deleted.")
-        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution_gui.py')),
-                         "call_solution_gui.py was not deleted.")
         self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution.py')),
                          "call_solution.py was not deleted.")
         self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('build_executable.spec')),
