@@ -13,9 +13,6 @@ deleted = False
 
 def _install_conda_windows(conda_path):
     # install miniconda for windows
-    #conda_url_win = "https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe"
-    #conda_installer = Path(conda_path).joinpath("Miniconda_install.exe")
-    #wget.download(conda_url_win, str(conda_installer))
     conda_installer = Path(os.path.realpath(__file__)).parent.joinpath('Miniconda_installer_windows.exe')
     cmd = "Start-Process %s -argumentlist \"/InstallationType=JustMe /S /D=%s\" -wait" % (
         conda_installer, conda_path)
@@ -34,9 +31,6 @@ def _install_conda_windows(conda_path):
 
 def _install_conda_linux(conda_path):
     # install miniconda for linux
-    #conda_url_linux = "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
-    #conda_installer = Path(conda_path).joinpath("Miniconda_install.sh")
-    #wget.download(conda_url_linux, str(conda_installer))
     conda_installer = Path(os.path.realpath(__file__)).parent.joinpath('Miniconda_installer_linux.sh')
     install_process = subprocess.run(["bash", conda_installer, "-b", "-u", "-p", conda_path, ">", "/dev/null"],
                                      capture_output=True)
@@ -52,9 +46,6 @@ def _install_conda_linux(conda_path):
 
 def _install_conda_macos(conda_path):
     # install miniconda for macos
-    #conda_url_macos = "https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh"
-    #conda_installer = Path(conda_path).joinpath("Miniconda_install.sh")
-    #wget.download(conda_url_macos, str(conda_installer))
     conda_installer = Path(os.path.realpath(__file__)).parent.joinpath('Miniconda_installer_macos.sh')
     install_process = subprocess.run(["bash", conda_installer, "-b", "-u", "-p", conda_path, ">", "/dev/null"],
                                      capture_output=True)
@@ -115,18 +106,6 @@ def _install_pyshortcuts(album_base_path, album_env_path, conda_path, album_gui_
         subprocess.run([conda_exe, "run", "-p", album_env_path, "pip", "install", "pyshortcuts==1.8.2"])
     else:
         _install_album_full(album_base_path, conda_path, album_env_path, album_gui_url, yml_path)
-    # if check_for_preinstalled_album(conda_path):
-
-
-##
-#    cmd = subprocess.run([conda_exe, "install", "-n", "album", '-c', 'conda-forge', '-y', "pyshortcuts==1.8.2"],
-#                         capture_output=True)
-#    print("SHORTCUT INSTALL OUT!!!!!!!!!! %s"%cmd.stdout)
-#    print("SHORtCUT INSTALL ERR!!!!!!!!!! %s"%cmd.stderr)
-# elif check_for_script_installed_album(album_env_path, conda_path):
-#    subprocess.run([conda_exe, "install", "-p", album_env_path, '-c', 'conda-forge', '-y', "pyshortcuts==1.8.2"])
-# else:
-#    _install_album_full(album_base_path, conda_path, album_env_path, album_gui_url, yml_path)
 
 
 def _install_missing_conda(conda_path, album_base_path):
@@ -265,12 +244,7 @@ def check_for_preinstalled_album(conda_path, yml_path):
             return False
 
 
-#    else:
-#        return False
-
-
 def check_for_script_installed_album(album_env_path, conda_path, yml_path):
-    #    if not deleted:
     try:
         cmd = subprocess.run(["conda", "run", "-p", album_env_path, "album", "-h"], capture_output=True)
         if cmd.returncode == 0:
@@ -328,7 +302,7 @@ def check_for_script_installed_album(album_env_path, conda_path, yml_path):
             if os.path.isdir(album_env_path):
                 answer = input("There seems to be a broken album environment at %s. "
                                "Do you want to delete it to be able to install a new album environment? (y/n)")
-                while (True):
+                while True:
                     if answer == 'y' or answer == 'yes':
                         print("Deleting broken album environment...")
                         shutil.rmtree(album_env_path)
@@ -338,10 +312,6 @@ def check_for_script_installed_album(album_env_path, conda_path, yml_path):
                     else:
                         answer = input("Invalid choise please enter y/yes or n/no.")
             return False
-
-
-#    else:
-#        return False
 
 
 def check_for_preinstalled_gui(conda_path):
@@ -358,7 +328,6 @@ def check_for_preinstalled_gui(conda_path):
                 cmd = subprocess.run(
                     [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "run", "-n", "album", "album", "gui",
                      "-h"], capture_output=True)
-                # print("cmd2: %s" % cmd)
                 if cmd.returncode == 0:
                     return True
                 else:
@@ -466,7 +435,6 @@ def check_for_preinstalled_pyshortcuts(conda_path):
                 cmd = subprocess.run(
                     [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "run", "-n", "album", "pyshortcut", "-h"],
                     capture_output=True)
-                # print("cmd2: %s" % cmd)
                 if cmd.returncode == 0:
                     return True
                 else:
@@ -671,16 +639,8 @@ def main():
     album_env_path = Path(album_base_path).joinpath('envs', 'album')
     album_env_path = str(album_env_path)
     album_gui_url = "https://gitlab.com/album-app/plugins/album-gui/-/archive/main/album-gui-main.zip"
-    yml_url = "https://gitlab.com/album-app/album/-/raw/main/album.yml"
     yml_path = Path(os.path.realpath(__file__)).parent.joinpath('album.yml')
     yml_path = str(yml_path)
-
-
-    # check if yml file is present
-    if not os.path.isfile(yml_path):
-        print("Downloading album yml file...")
-        yml_path = Path(album_base_path).joinpath('album.yml')
-        wget.download(yml_url, Path(yml_path))
 
     # copy shortcut icons into album base path
     copy_icons(album_base_path)
