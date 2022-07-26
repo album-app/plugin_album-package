@@ -41,7 +41,7 @@ class TestIntegrationBuildExecutable(TestCommon):
         else:
             exe_path = Path(self.tmp_dir.name).joinpath('solution')
 
-        coord_str = 'album.run(\'album:import_unittest:0.1.0\', params)\n'
+        coord_str = 'coords = \'album:import_unittest:0.1.0\'\n'
         conda_str = 'os.environ["ALBUM_CONDA_PATH"] = \'conda\'\n'
         counter = 0
         coord_str_uninstall = 'album.uninstall(\'album:import_unittest:0.1.0\')\n'
@@ -56,7 +56,7 @@ class TestIntegrationBuildExecutable(TestCommon):
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
                                            'run_solution.py'), 'r') as file:
                 for line in file:
-                    if line.startswith("album.run("):
+                    if line.startswith("coords ="):
                         coord_line = line
                         counter += 1
                     if line.startswith("os.environ["):
@@ -75,7 +75,7 @@ class TestIntegrationBuildExecutable(TestCommon):
         else:
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0', 'run_solution.py'), 'r') as file:
                 for line in file:
-                    if line.startswith("album.run("):
+                    if line.startswith("coords ="):
                         coord_line = line
                         counter += 1
                     if line.startswith("os.environ["):
