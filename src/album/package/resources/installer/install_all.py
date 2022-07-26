@@ -5,7 +5,6 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-import wget
 
 warned_named = False
 warned_prefix = False
