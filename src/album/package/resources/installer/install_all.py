@@ -14,9 +14,10 @@ deleted = False
 
 def _install_conda_windows(conda_path):
     # install miniconda for windows
-    conda_url_win = "https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe"
-    conda_installer = Path(conda_path).joinpath("Miniconda_install.exe")
-    wget.download(conda_url_win, str(conda_installer))
+    #conda_url_win = "https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe"
+    #conda_installer = Path(conda_path).joinpath("Miniconda_install.exe")
+    #wget.download(conda_url_win, str(conda_installer))
+    conda_installer = Path(os.path.realpath(__file__)).parent.joinpath('Miniconda_installer_windows.exe')
     cmd = "Start-Process %s -argumentlist \"/InstallationType=JustMe /S /D=%s\" -wait" % (
         conda_installer, conda_path)
     install_process = subprocess.run(["powershell", "-Command", cmd], capture_output=True)
@@ -34,9 +35,10 @@ def _install_conda_windows(conda_path):
 
 def _install_conda_linux(conda_path):
     # install miniconda for linux
-    conda_url_linux = "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
-    conda_installer = Path(conda_path).joinpath("Miniconda_install.sh")
-    wget.download(conda_url_linux, str(conda_installer))
+    #conda_url_linux = "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+    #conda_installer = Path(conda_path).joinpath("Miniconda_install.sh")
+    #wget.download(conda_url_linux, str(conda_installer))
+    conda_installer = Path(os.path.realpath(__file__)).parent.joinpath('Miniconda_installer_linux.sh')
     install_process = subprocess.run(["bash", conda_installer, "-b", "-u", "-p", conda_path, ">", "/dev/null"],
                                      capture_output=True)
     conda_exe = str(Path(conda_path).joinpath("condabin", "conda"))
@@ -51,9 +53,10 @@ def _install_conda_linux(conda_path):
 
 def _install_conda_macos(conda_path):
     # install miniconda for macos
-    conda_url_macos = "https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh"
-    conda_installer = Path(conda_path).joinpath("Miniconda_install.sh")
-    wget.download(conda_url_macos, str(conda_installer))
+    #conda_url_macos = "https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh"
+    #conda_installer = Path(conda_path).joinpath("Miniconda_install.sh")
+    #wget.download(conda_url_macos, str(conda_installer))
+    conda_installer = Path(os.path.realpath(__file__)).parent.joinpath('Miniconda_installer_macos.sh')
     install_process = subprocess.run(["bash", conda_installer, "-b", "-u", "-p", conda_path, ">", "/dev/null"],
                                      capture_output=True)
     conda_exe = str(Path(conda_path).joinpath("condabin", "conda"))
