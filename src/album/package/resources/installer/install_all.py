@@ -76,9 +76,9 @@ def _install_missing_gui(album_base_path, conda_path, album_env_path, album_gui_
         conda_exe = _install_missing_conda(conda_path, album_base_path)
 
     # FIXME: HERE THE SUCCESS OF THE INSTALL NEEDS TO BE CHECKED!!!
-    if check_for_preinstalled_album(conda_path, yml_path):
+    if check_for_preinstalled_album(conda_path, yml_path, album_env_path, album_base_path):
         subprocess.run([conda_exe, "run", "-n", "album", "pip", "install", album_gui_url])
-    elif check_for_script_installed_album(album_env_path, conda_path, yml_path):
+    elif check_for_script_installed_album(album_env_path, conda_path, yml_path, album_base_path):
         subprocess.run([conda_exe, "run", "-p", album_env_path, "pip", "install", album_gui_url])
     else:
         _install_album_full(album_base_path, conda_path, album_env_path, album_gui_url, yml_path)
@@ -100,9 +100,9 @@ def _install_pyshortcuts(album_base_path, album_env_path, conda_path, album_gui_
         conda_exe = _install_missing_conda(conda_path, album_base_path)
 
     # FIXME: HERE THE SUCCESS OF THE INSTALL NEEDS TO BE CHECKED!!!
-    if check_for_preinstalled_album(conda_path, yml_path):
+    if check_for_preinstalled_album(conda_path, yml_path, album_env_path, album_base_path):
         subprocess.run([conda_exe, "run", "-n", "album", "pip", "install", "pyshortcuts==1.8.2"])
-    elif check_for_script_installed_album(album_env_path, conda_path, yml_path):
+    elif check_for_script_installed_album(album_env_path, conda_path, yml_path, album_base_path):
         subprocess.run([conda_exe, "run", "-p", album_env_path, "pip", "install", "pyshortcuts==1.8.2"])
     else:
         _install_album_full(album_base_path, conda_path, album_env_path, album_gui_url, yml_path)
@@ -177,56 +177,65 @@ def _get_exe_album_version(yml_path):
     with open(yml_path, 'r') as file:
         for line in file:
             if 'album' in line:
-                exe_version = line.split('==')[1]
+                exe_version_list = line.split('==')
+    exe_version = exe_version_list[1]
     return re.sub('\s', '', exe_version)
 
 
-def _delete_old_album(conda, album, album_env_path, conda_path):
+def _delete_old_album(conda, album, album_env_path, conda_path, album_base_path):
     if conda:
         if album:
             cmd = subprocess.run(["conda", "env", "remove", "-n", "album"], capture_output=True)
+            Path(album_base_path).joinpath('catalogs', 'catalog_collection.db').unlink()
         else:
             cmd = subprocess.run(["conda", "env", "remove", "-p", album_env_path],
                                  capture_output=True)
             shutil.rmtree(album_env_path)
+            Path(album_base_path).joinpath('catalogs', 'catalog_collection.db').unlink()
     else:
         if platform.system() == 'Windows':
             if album:
                 cmd = subprocess.run(
                     [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "env", "remove", "-n",
                      "album"], capture_output=True)
+                Path(album_base_path).joinpath('catalogs', 'catalog_collection.db').unlink()
             else:
                 cmd = subprocess.run(
                     [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "env", "remove", "-p",
                      album_env_path], capture_output=True)
                 shutil.rmtree(album_env_path)
+                Path(album_base_path).joinpath('catalogs', 'catalog_collection.db').unlink()
         else:
             if album:
                 cmd = subprocess.run(
                     [str(Path(conda_path).joinpath('condabin', 'conda')), "env", "remove", "-n",
                      "album"], capture_output=True)
+                Path(album_base_path).joinpath('catalogs', 'catalog_collection.db').unlink()
             else:
                 cmd = subprocess.run(
                     [str(Path(conda_path).joinpath('condabin', 'conda')), "env", "remove", "-p",
                      album_env_path], capture_output=True)
                 shutil.rmtree(album_env_path)
+                Path(album_base_path).joinpath('catalogs', 'catalog_collection.db').unlink()
 
 
-def _ask_to_delete_old_album(conda, album, album_env_path, conda_path, installed_version, exe_version):
+def _ask_to_delete_old_album(conda, album, album_env_path, conda_path, installed_version, exe_version, album_base_path):
     global deleted
     print(
-        "WARNING: The Version of the installed album (%s) differs from the album used to create this executable (%s)." % (
-            installed_version, exe_version))
+        "WARNING: The Version of the installed album (%s) differs from the album used to create this executable (%s)." %
+        (installed_version, exe_version))
     if installed_version == '' or int(installed_version.split('.')[1]) < 7 or (
             int(installed_version.split('.')[1]) == 7 and int(installed_version.split('.')[2]) < 1):
         print(
-            "Your version seems to be older than 0.7.1. If you want to run album gui and this executable you need to reinstall album.")
+            "Your version seems to be older than 0.7.1. "
+            "If you want to run album gui and this executable you need to reinstall album.")
     answer = input(
         "Do you want to delete the outdated album environment and if needed install a new version of album? (y/n)")
 
-    while (True):
+    while True:
         if answer == 'y' or answer == 'yes':
-            _delete_old_album(conda=conda, album=album, album_env_path=album_env_path, conda_path=conda_path)
+            _delete_old_album(conda=conda, album=album, album_env_path=album_env_path, conda_path=conda_path,
+                              album_base_path=album_base_path)
             deleted = True
             break
         elif answer == 'n' or answer == 'no':
@@ -240,15 +249,16 @@ def _ask_to_delete_prefixed_album(conda, album, album_env_path, conda_path, inst
     global deleted
     global warned_prefix
     print(
-        "WARNING: The Version of the installed album (%s) differs from the album used to create this executable (%s)." % (
-            installed_version, exe_version))
+        "WARNING: The Version of the installed album (%s) differs from the album used to create this executable (%s)." %
+        (installed_version, exe_version))
     if installed_version == '' or int(installed_version.split('.')[1]) < 7 or (
             int(installed_version.split('.')[1]) == 7 and int(installed_version.split('.')[2]) < 1):
         print(
-            "Your version seems to be older than 0.7.1. If you want to run album gui and this executable you need to reinstall album.")
+            "Your version seems to be older than 0.7.1. "
+            "If you want to run album gui and this executable you need to reinstall album.")
     answer = input(
         "Do you want to delete the outdated album environment and if needed install a new version of album? (y/n)")
-    while (True):
+    while True:
         if answer == 'y' or answer == 'yes':
             if conda:
                 if album:
@@ -354,21 +364,19 @@ def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_u
         sys.exit()
 
 
-def check_for_preinstalled_album(conda_path, yml_path):
-    #    if not deleted:
+def check_for_preinstalled_album(conda_path, yml_path, album_env_path, album_base_path):
     try:
         cmd = subprocess.run(["conda", "run", "-n", "album", "album", "-h"], capture_output=True)
         if cmd.returncode == 0:
             if not warned_named:
-                album_version_check(yml_path=yml_path, conda=True, album=True, album_env_path=None,
-                                    conda_path=conda_path)
+                album_version_check(yml_path=yml_path, conda=True, album=True, album_env_path=album_env_path,
+                                    conda_path=conda_path, album_base_path=album_base_path)
                 if deleted:
                     return False
-
             return True
         else:
             return False
-    except Exception:
+    except Exception as e:
         try:
             if platform.system() == 'Windows':
                 cmd = subprocess.run(
@@ -377,7 +385,7 @@ def check_for_preinstalled_album(conda_path, yml_path):
                 if cmd.returncode == 0:
                     if not warned_named:
                         album_version_check(yml_path=yml_path, conda=False, album=True, album_env_path=None,
-                                            conda_path=conda_path)
+                                            conda_path=conda_path, album_base_path=album_base_path)
                         if deleted:
                             return False
 
@@ -391,7 +399,7 @@ def check_for_preinstalled_album(conda_path, yml_path):
                 if cmd.returncode == 0:
                     if not warned_named:
                         album_version_check(yml_path=yml_path, conda=False, album=True, album_env_path=None,
-                                            conda_path=conda_path)
+                                            conda_path=conda_path, album_base_path=album_base_path)
                         if deleted:
                             return False
 
@@ -402,13 +410,14 @@ def check_for_preinstalled_album(conda_path, yml_path):
             return False
 
 
-def check_for_script_installed_album(album_env_path, conda_path, yml_path):
+def check_for_script_installed_album(album_env_path, conda_path, yml_path, album_base_path):
     try:
         cmd = subprocess.run(["conda", "run", "-p", album_env_path, "album", "-h"], capture_output=True)
         if cmd.returncode == 0:
             if not warned_prefix:
                 album_version_check(yml_path=yml_path, conda=True, album=False,
-                                    album_env_path=album_env_path, conda_path=conda_path)
+                                    album_env_path=album_env_path, conda_path=conda_path,
+                                    album_base_path=album_base_path)
                 if deleted:
                     return False
             return True
@@ -416,7 +425,7 @@ def check_for_script_installed_album(album_env_path, conda_path, yml_path):
             if Path(album_env_path).is_dir():
                 answer = input("There seems to be a broken album environment at %s. "
                                "Do you want to delete it to be able to install a new album environment? (y/n)")
-                while (True):
+                while True:
                     if answer == 'y' or answer == 'yes':
                         print("Deleting broken album environment...")
                         shutil.rmtree(album_env_path)
@@ -435,7 +444,8 @@ def check_for_script_installed_album(album_env_path, conda_path, yml_path):
                 if cmd.returncode == 0:
                     if not warned_prefix:
                         album_version_check(yml_path=yml_path, conda=False, album=False,
-                                            album_env_path=album_env_path, conda_path=conda_path)
+                                            album_env_path=album_env_path, conda_path=conda_path,
+                                            album_base_path=album_base_path)
                         if deleted:
                             return False
 
@@ -449,7 +459,8 @@ def check_for_script_installed_album(album_env_path, conda_path, yml_path):
                 if cmd.returncode == 0:
                     if not warned_prefix:
                         album_version_check(yml_path=yml_path, conda=False, album=False,
-                                            album_env_path=album_env_path, conda_path=conda_path)
+                                            album_env_path=album_env_path, conda_path=conda_path,
+                                            album_base_path=album_base_path)
                         if deleted:
                             return False
 
@@ -640,14 +651,13 @@ def copy_icons(album_base_path):
         raise NotImplementedError
 
 
-def album_version_check(yml_path, conda, album, album_env_path, conda_path):
+def album_version_check(yml_path, conda, album, album_env_path, conda_path, album_base_path):
     global warned_named
     global warned_prefix
     global deleted
 
     # get album version of used for the executable
     exe_version = _get_exe_album_version(yml_path=yml_path)
-
     # get album version of preinstalled album
     installed_version = _get_installed_album_version(conda=conda, album=album, album_env_path=album_env_path,
                                                      conda_path=conda_path)
@@ -663,13 +673,13 @@ def album_version_check(yml_path, conda, album, album_env_path, conda_path):
             if not warned_named:
                 _ask_to_delete_old_album(conda=conda, album=album, album_env_path=album_env_path,
                                          conda_path=conda_path, installed_version=installed_version,
-                                         exe_version=exe_version)
+                                         exe_version=exe_version, album_base_path=album_base_path)
                 warned_named = True
         else:
             if not warned_prefix:
                 _ask_to_delete_old_album(conda=conda, album=album, album_env_path=album_env_path,
                                          conda_path=conda_path, installed_version=installed_version,
-                                         exe_version=exe_version)
+                                         exe_version=exe_version, album_base_path=album_base_path)
                 warned_prefix = True
 
 
@@ -691,8 +701,8 @@ def main():
         _install_missing_conda(_conda_path, album_base_path)
 
     print("Checking for album installation...")
-    if (not check_for_preinstalled_album(_conda_path, yml_path)) and (
-            not check_for_script_installed_album(album_env_path, _conda_path, yml_path)):
+    if (not check_for_preinstalled_album(_conda_path, yml_path, album_env_path, album_base_path)) and (
+            not check_for_script_installed_album(album_env_path, _conda_path, yml_path, album_base_path)):
         _install_album_full(album_base_path, _conda_path, album_env_path, album_gui_url, yml_path)
 
     if not deleted:
