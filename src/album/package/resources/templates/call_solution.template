@@ -608,7 +608,7 @@ def create_shortcut_no_gui(coordinates, conda, album):
 
 
 def main(gui):
-    # exeption --> conda is missing, returncode != 0 --> album missing
+    # exception --> conda is missing, returncode != 0 --> album missing
     coordinates = '<coordinates>'
     try:
         # check if there is an env present with the name album and a conda installation with path env var
@@ -624,4 +624,4 @@ def main(gui):
                 run_no_gui_conda_exe(coordinates)
         except Exception as e:
             sys.exit(
-                "An unexpected Error occurred when runnig the solution. Please check your conda installation. %s" % e)
+                "An unexpected Error occurred when running the solution. Please check your conda installation. %s" % e)
