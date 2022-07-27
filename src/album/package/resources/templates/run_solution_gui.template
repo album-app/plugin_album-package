@@ -83,7 +83,7 @@ def _call_conda_run(conda, album, mode):
         return _call_gui_help(conda, album)
 
     elif mode == 'gui':
-        return _call_gui_help(conda, album)
+        return _call_gui(conda, album)
 
 
 def _run_conda_path():
