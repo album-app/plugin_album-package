@@ -127,7 +127,7 @@ class TestIntegrationBuildExecutable(TestCommon):
             exe_path = Path(self.tmp_dir.name).joinpath('solution.exe')
         else:
             exe_path = Path(self.tmp_dir.name).joinpath('solution')
-        coord_str = '        run_input = \'album:import_unittest:0.1.0\'\n'
+        coord_str = '    run_input = \'album:import_unittest:0.1.0\'\n'
         counter = 0
         counter_uninstall = 0
 
