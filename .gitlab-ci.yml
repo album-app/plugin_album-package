@@ -37,6 +37,7 @@
     - '$progressPreference = $oldProgressPreference'
   tags:
     - windows
+    - mdc
   variables:
     PIP_CACHE_DIR: $CI_PROJECT_DIR\.cache\pip
     ErrorActionPreference: Continue  # not working properly
