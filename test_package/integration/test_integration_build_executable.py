@@ -56,38 +56,38 @@ class TestIntegrationBuildExecutable(TestCommon):
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
                                            'run_solution.py'), 'r') as file:
                 for line in file:
-                    if line.startswith("coords ="):
+                    if "coords =" in line:
                         coord_line = line
                         counter += 1
-                    if line.startswith("os.environ["):
+                    if "os.environ[" in line:
                         conda_line = line
                         counter += 1
 
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
                                            'uninstall_solution.py'), 'r') as file:
                 for line in file:
-                    if line.startswith("album.uninstall("):
+                    if "album.uninstall(" in line:
                         coord_line_uninstall = line
                         counter_uninstall += 1
-                    if line.startswith("os.environ["):
+                    if "os.environ[" in line:
                         conda_line_uninstall = line
                         counter_uninstall += 1
         else:
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0', 'run_solution.py'), 'r') as file:
                 for line in file:
-                    if line.startswith("coords ="):
+                    if "coords =" in line:
                         coord_line = line
                         counter += 1
-                    if line.startswith("os.environ["):
+                    if "os.environ[" in line:
                         conda_line = line
                         counter += 1
 
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0', 'uninstall_solution.py'), 'r') as file:
                 for line in file:
-                    if line.startswith("album.uninstall("):
+                    if "album.uninstall(" in line:
                         coord_line_uninstall = line
                         counter_uninstall += 1
-                    if line.startswith("os.environ["):
+                    if "os.environ[" in line:
                         conda_line_uninstall = line
                         counter_uninstall += 1
 
@@ -140,14 +140,14 @@ class TestIntegrationBuildExecutable(TestCommon):
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
                                            'run_solution_gui.py'), 'r') as file:
                 for line in file:
-                    if line.startswith("        run_input"):
+                    if "run_input" in line:
                         coord_line = line
                         counter += 1
 
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
                                            'uninstall_solution_gui.py'), 'r') as file:
                 for line in file:
-                    if line.startswith("        run_input"):
+                    if "run_input" in line:
                         coord_line_uninstall = line
                         counter_uninstall += 1
 
@@ -155,14 +155,14 @@ class TestIntegrationBuildExecutable(TestCommon):
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0',
                                            'run_solution_gui.py'), 'r') as file:
                 for line in file:
-                    if line.startswith("        run_input"):
+                    if "run_input" in line:
                         coord_line = line
                         counter += 1
 
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0',
                                            'uninstall_solution_gui.py'), 'r') as file:
                 for line in file:
-                    if line.startswith("        run_input"):
+                    if "run_input" in line:
                         coord_line_uninstall = line
                         counter_uninstall += 1
 
