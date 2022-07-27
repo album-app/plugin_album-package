@@ -39,7 +39,7 @@ class TestUnitBuildExecutable(TestCommon):
 
     def test_entrypoint(self):
         create_subscripts.create_execution_entrypoint(self.tmp_dir.name)
-        self.assertTrue(os.path.isfile(Path(self.tmp_dir.name).joinpath('execution_entrypoint.py')))
+        self.assertTrue(Path(self.tmp_dir.name).joinpath('execution_entrypoint.py').is_file())
 
     def test_call_solution_gui(self):
         # test if the call_solution_gui_template was successfully created
@@ -54,7 +54,7 @@ class TestUnitBuildExecutable(TestCommon):
                     coord_line = line
                     counter += 1
 
-        self.assertTrue(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution.py')),
+        self.assertTrue(Path(self.tmp_dir.name).joinpath('call_solution.py').is_file(),
                         "There was no call_solution.py subscript created!")
         self.assertEqual(test_coords, coord_line,
                         'There was an error inserting the solution coordinates into the call_solution.py!')
@@ -118,7 +118,7 @@ class TestUnitBuildExecutable(TestCommon):
                     hook_line = line
                     counter += 1
 
-        self.assertTrue(os.path.isfile(created_spec_gui), "There was no spec file created!")
+        self.assertTrue(Path(created_spec_gui).is_file(), "There was no spec file created!")
         self.assertEqual(datas_string, data_line,
                          "There was an error creating the string for additional data in the spec file.")
         self.assertEqual(hook_string, hook_line,
@@ -184,7 +184,7 @@ class TestUnitBuildExecutable(TestCommon):
                     hook_line = line
                     counter += 1
 
-        self.assertTrue(os.path.isfile(created_spec_gui), "There was no spec file created!")
+        self.assertTrue(Path(created_spec_gui).is_file(), "There was no spec file created!")
         self.assertEqual(datas_string, data_line,
                          "There was an error creating the string for additional data in the spec file.")
         self.assertEqual(hook_string, hook_line,
@@ -204,7 +204,7 @@ class TestUnitBuildExecutable(TestCommon):
                     ver_line = line
                     counter += 1
 
-        self.assertTrue(os.path.isfile(yml_path), "There was no album.yml file created!")
+        self.assertTrue(Path(yml_path).is_file(), "There was no album.yml file created!")
         self.assertEqual(ver_str, ver_line, "An error occured when inserting the current album version!")
         self.assertEqual(counter, 1, "There were to many lines replaced! Error in the album.yml creation")
 

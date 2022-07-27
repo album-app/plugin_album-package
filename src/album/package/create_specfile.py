@@ -1,4 +1,3 @@
-import os.path
 import platform
 import re
 from pathlib import Path
@@ -38,9 +37,9 @@ def create(output_path, solution):
         print("Your OS is currently not supported")
         raise NotImplementedError
 
-    if os.path.isdir(Path(solution)):
+    if Path(solution).is_dir():
         solution_path = repr(str(Path(solution).joinpath('*')))
-    if os.path.isfile(Path(solution)):
+    if Path(solution).is_file():
         solution_path = repr(str(Path(solution)))
 
     with open(pkg_resources.resource_filename('album.package.resources.templates',

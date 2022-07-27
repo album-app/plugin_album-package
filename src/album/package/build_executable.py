@@ -25,8 +25,8 @@ def run(album_instance: Album, args):
             "solution: %s at %s" % (coordinates, args.solution))
         get_active_logger().info("--output_path: %s" % args.output_path)
 
-        if not os.path.isdir(Path(args.output_path)):
-            os.mkdir(Path(args.output_path))
+        if not Path(args.output_path).is_dir():
+            Path(args.output_path).mkdir()
 
         create_subscripts.create(args.output_path, coordinates)
         spec_path = create_specfile.create(args.output_path, args.solution)
@@ -38,10 +38,10 @@ def run(album_instance: Album, args):
         finally:
             if Path(os.getcwd()).joinpath('build', 'build_executable').exists():
                 shutil.rmtree(Path(os.getcwd()).joinpath('build'))
-            os.remove(Path(args.output_path).joinpath('build_executable.spec'))
-            os.remove(Path(args.output_path).joinpath('call_solution.py'))
-            os.remove(Path(args.output_path).joinpath('execution_entrypoint.py'))
-            os.remove(Path(args.output_path).joinpath('album.yml'))
+            Path(args.output_path).joinpath('build_executable.spec').unlink()
+            Path(args.output_path).joinpath('call_solution.py').unlink()
+            Path(args.output_path).joinpath('execution_entrypoint.py').unlink()
+            Path(args.output_path).joinpath('album.yml').unlink()
 
     except AttributeError as e:
         get_active_logger().error("album command failed: Cannot find solution %s! " \

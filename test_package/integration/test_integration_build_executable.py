@@ -56,42 +56,42 @@ class TestIntegrationBuildExecutable(TestCommon):
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
                                            'run_solution.py'), 'r') as file:
                 for line in file:
-                    if line.startswith("coords ="):
+                    if "coords =" in line:
                         coord_line = line
                         counter += 1
-                    if line.startswith("os.environ["):
+                    if "os.environ[" in line:
                         conda_line = line
                         counter += 1
 
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
                                            'uninstall_solution.py'), 'r') as file:
                 for line in file:
-                    if line.startswith("album.uninstall("):
+                    if "album.uninstall(" in line:
                         coord_line_uninstall = line
                         counter_uninstall += 1
-                    if line.startswith("os.environ["):
+                    if "os.environ[" in line:
                         conda_line_uninstall = line
                         counter_uninstall += 1
         else:
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0', 'run_solution.py'), 'r') as file:
                 for line in file:
-                    if line.startswith("coords ="):
+                    if "coords =" in line:
                         coord_line = line
                         counter += 1
-                    if line.startswith("os.environ["):
+                    if "os.environ[" in line:
                         conda_line = line
                         counter += 1
 
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0', 'uninstall_solution.py'), 'r') as file:
                 for line in file:
-                    if line.startswith("album.uninstall("):
+                    if "album.uninstall(" in line:
                         coord_line_uninstall = line
                         counter_uninstall += 1
-                    if line.startswith("os.environ["):
+                    if "os.environ[" in line:
                         conda_line_uninstall = line
                         counter_uninstall += 1
 
-        self.assertTrue(os.path.isfile(exe_path) and os.access(exe_path, os.X_OK),
+        self.assertTrue(Path(exe_path).is_file() and os.access(exe_path, os.X_OK),
                         "No executable created or executable not accessible.")
         self.assertEqual(0, p.returncode, "Executable could not be executed correctly.")
         self.assertEqual(coord_str, coord_line, "The coordinates did not got replaced correctly in the run_solution.py")
@@ -102,13 +102,13 @@ class TestIntegrationBuildExecutable(TestCommon):
         self.assertEqual(2, counter_uninstall, "The many lines got altered in the uninstall_solution template.")
 
         if platform.system() == 'Windows':
-            self.assertTrue(os.path.isfile(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_windows.ico')))
+            self.assertTrue(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_windows.ico').is_file())
         elif platform.system() == 'Darwin':
             self.assertTrue(
-                os.path.isfile(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_macos.icns')))
+                Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_macos.icns').is_file())
         elif platform.system() == 'Linux':
             self.assertTrue(
-                os.path.isfile(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_linux.png')))
+                Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_linux.png').is_file())
 
     @unittest.skipIf(sys.platform == 'win32' or sys.platform == 'cygwin',
                      "The windows runner doens't work with pywin32")
@@ -127,7 +127,7 @@ class TestIntegrationBuildExecutable(TestCommon):
             exe_path = Path(self.tmp_dir.name).joinpath('solution.exe')
         else:
             exe_path = Path(self.tmp_dir.name).joinpath('solution')
-        coord_str = '        run_input = \'album:import_unittest:0.1.0\'\n'
+        coord_str = '    run_input = \'album:import_unittest:0.1.0\'\n'
         counter = 0
         counter_uninstall = 0
 
@@ -140,14 +140,14 @@ class TestIntegrationBuildExecutable(TestCommon):
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
                                            'run_solution_gui.py'), 'r') as file:
                 for line in file:
-                    if line.startswith("        run_input"):
+                    if "run_input =" in line:
                         coord_line = line
                         counter += 1
 
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
                                            'uninstall_solution_gui.py'), 'r') as file:
                 for line in file:
-                    if line.startswith("        run_input"):
+                    if "run_input =" in line:
                         coord_line_uninstall = line
                         counter_uninstall += 1
 
@@ -155,19 +155,19 @@ class TestIntegrationBuildExecutable(TestCommon):
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0',
                                            'run_solution_gui.py'), 'r') as file:
                 for line in file:
-                    if line.startswith("        run_input"):
+                    if "run_input =" in line:
                         coord_line = line
                         counter += 1
 
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0',
                                            'uninstall_solution_gui.py'), 'r') as file:
                 for line in file:
-                    if line.startswith("        run_input"):
+                    if "run_input =" in line:
                         coord_line_uninstall = line
                         counter_uninstall += 1
 
         # assert
-        self.assertTrue(os.path.isfile(exe_path) and os.access(exe_path, os.X_OK),
+        self.assertTrue(Path(exe_path).is_file() and os.access(exe_path, os.X_OK),
                         "No executable created or executable not accessible.")
         self.assertEqual(0, p.returncode, "Executable could not be executed correctly.")
         self.assertEqual(coord_str, coord_line, "The coordinates did not got replaced correctly in the run_solution.py")
@@ -176,13 +176,13 @@ class TestIntegrationBuildExecutable(TestCommon):
         self.assertEqual(1, counter, "The many lies got altered in the template the run_solution.py.")
         self.assertEqual(1, counter_uninstall, "The many lies got altered in the template the uninstall_solution.py.")
         if platform.system() == 'Windows':
-            self.assertTrue(os.path.isfile(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_windows.ico')))
+            self.assertTrue(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_windows.ico').is_file())
         elif platform.system() == 'Darwin':
             self.assertTrue(
-                os.path.isfile(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_macos.icns')))
+                Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_macos.icns').is_file())
         elif platform.system() == 'Linux':
             self.assertTrue(
-                os.path.isfile(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_linux.png')))
+                Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_linux.png').is_file())
 
     def test_output_path(self):
         # test if an output path that didn't exist prior to the test was created
@@ -191,7 +191,7 @@ class TestIntegrationBuildExecutable(TestCommon):
             output_path=Path(self.tmp_dir.name).joinpath('test_output'),
             no_gui=True))
 
-        self.assertTrue(os.path.isdir(Path(self.tmp_dir.name).joinpath('test_output')),
+        self.assertTrue(Path(self.tmp_dir.name).joinpath('test_output').is_dir(),
                         "Output directory was not created.")
 
     def test_no_solution(self):
@@ -221,15 +221,15 @@ class TestIntegrationBuildExecutable(TestCommon):
             solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
             output_path=self.tmp_dir.name))
 
-        self.assertFalse(os.path.isdir(Path(self.tmp_dir.name).joinpath('build')),
+        self.assertFalse(Path(self.tmp_dir.name).joinpath('build').is_dir(),
                          "PyInstallers build directory was not deleted.")
-        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('call_solution.py')),
+        self.assertFalse(Path(self.tmp_dir.name).joinpath('call_solution.py').is_file(),
                          "call_solution.py was not deleted.")
-        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('build_executable.spec')),
+        self.assertFalse(Path(self.tmp_dir.name).joinpath('build_executable.spec').is_file(),
                          "build_executable.spec was not deleted.")
-        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('execution_entrypoint.py')),
+        self.assertFalse(Path(self.tmp_dir.name).joinpath('execution_entrypoint.py').is_file(),
                          "execution_entrypoint.py was not deleted.")
-        self.assertFalse(os.path.isfile(Path(self.tmp_dir.name).joinpath('album.yml')),
+        self.assertFalse(Path(self.tmp_dir.name).joinpath('album.yml').is_file(),
                          "album.yml was not deleted.")
 
 
