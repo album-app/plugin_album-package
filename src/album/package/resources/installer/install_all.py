@@ -234,68 +234,31 @@ def _ask_to_delete_old_album(conda, album, album_env_path, conda_path, installed
 
     while True:
         if answer == 'y' or answer == 'yes':
-            _delete_old_album(conda=conda, album=album, album_env_path=album_env_path, conda_path=conda_path,
-                              album_base_path=album_base_path)
-            deleted = True
-            break
+            print("WARNING!: All your installed solutions will be lost!")
+            while True:
+                answer = input("Are you sure you want to delete the old album environment and all installed solutions? "
+                               "(y/n)")
+                if answer == 'y' or answer == 'yes':
+                    _delete_old_album(conda=conda, album=album, album_env_path=album_env_path, conda_path=conda_path,
+                                      album_base_path=album_base_path)
+                    deleted = True
+                    return
+                elif answer == 'n' or answer == 'no':
+                    if installed_version == '' or int(installed_version.split('.')[1]) < 7 or (
+                            int(installed_version.split('.')[1]) == 7 and int(installed_version.split('.')[2]) < 1):
+                        print(
+                            "Your version seems to be older than 0.7.1. "
+                            "The executable cannot be run with this old album environment.\nAborting...")
+                    deleted = False
+                    sys.exit()
+                    return
+                else:
+                    answer = input("Invalid choise please enter y/yes or n/no.")
         elif answer == 'n' or answer == 'no':
             deleted = False
             break
         else:
             answer = input("Invalid choise please enter y/yes or n/no.")
-
-
-def _ask_to_delete_prefixed_album(conda, album, album_env_path, conda_path, installed_version, exe_version):
-    global deleted
-    global warned_prefix
-    print(
-        "WARNING: The Version of the installed album (%s) differs from the album used to create this executable (%s)." %
-        (installed_version, exe_version))
-    if installed_version == '' or int(installed_version.split('.')[1]) < 7 or (
-            int(installed_version.split('.')[1]) == 7 and int(installed_version.split('.')[2]) < 1):
-        print(
-            "Your version seems to be older than 0.7.1. "
-            "If you want to run album gui and this executable you need to reinstall album.")
-    answer = input(
-        "Do you want to delete the outdated album environment and if needed install a new version of album? (y/n)")
-    while True:
-        if answer == 'y' or answer == 'yes':
-            if conda:
-                if album:
-                    cmd = subprocess.run(["conda", "env", "remove", "-n", "album"], capture_output=True)
-                else:
-                    cmd = subprocess.run(["conda", "env", "remove", "-p", album_env_path],
-                                         capture_output=True)
-                    shutil.rmtree(album_env_path)
-            else:
-                if platform.system() == 'Windows':
-                    if album:
-                        cmd = subprocess.run(
-                            [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "env", "remove", "-n",
-                             "album"], capture_output=True)
-                    else:
-                        cmd = subprocess.run(
-                            [str(Path(conda_path).joinpath('condabin', 'conda.bat')), "env", "remove", "-p",
-                             album_env_path], capture_output=True)
-                        shutil.rmtree(album_env_path)
-                else:
-                    if album:
-                        cmd = subprocess.run(
-                            [str(Path(conda_path).joinpath('condabin', 'conda')), "env", "remove", "-n",
-                             "album"], capture_output=True)
-                    else:
-                        cmd = subprocess.run(
-                            [str(Path(conda_path).joinpath('condabin', 'conda')), "env", "remove", "-p",
-                             album_env_path], capture_output=True)
-                        shutil.rmtree(album_env_path)
-            deleted = True
-            break
-        elif answer == 'n' or answer == 'no':
-            deleted = False
-            break
-        else:
-            answer = input("Invalid choise please enter y/yes or n/no.")
-    warned_prefix = True
 
 
 def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_url, yml_path):
