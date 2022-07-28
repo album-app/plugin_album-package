@@ -428,6 +428,7 @@ def installed_check(conda, album):
 
 
 def create_shortcut_script_no_gui(coordinates, conda):
+    print("HOME IN CALL SOLUTION!!!!!!!!!!! %s"%Path.home())
     if not conda:
         conda_exe = 'str(Path.home().joinpath(\'.album\', \'Miniconda\'))'
     else:
@@ -470,6 +471,7 @@ def create_shortcut_script_no_gui(coordinates, conda):
 
 
 def create_shortcut_script_gui(coordinates):
+    print("HOME IN CALL SOLUTION!!!!!!!!!!! %s"%Path.home())
     # make script which will be called by the shortcut and triggers the solution
     with open(Path(os.path.realpath(__file__)).parent.joinpath('run_solution_gui.template'),
               'r') as file:
