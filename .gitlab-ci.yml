@@ -137,7 +137,7 @@ stages:
 # jobs
 #----------------------------
 
-.prepare release:
+prepare release:
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   tags:
@@ -160,7 +160,7 @@ stages:
       changes:
         - setup.cfg
 
-.gitlab release:
+gitlab release:
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   tags:
@@ -184,7 +184,7 @@ stages:
     ref: '$CI_COMMIT_SHA'
 
 
-.gitlab pypi deploy:
+gitlab pypi deploy:
   image: python:latest
   stage: deploy
   tags:
@@ -206,7 +206,7 @@ stages:
         changes:
           - setup.cfg
 
-.pypi deploy:
+pypi deploy:
   image: python:latest
   stage: deploy
   tags:
