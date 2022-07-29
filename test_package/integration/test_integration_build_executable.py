@@ -23,7 +23,6 @@ class TestIntegrationBuildExecutable(TestCommon):
     #@unittest.skipIf(sys.platform == 'win32' or sys.platform == 'cygwin',
     #                 "The windows runner doens't work with pywin32")
     def test_execute_no_gui(self):
-        print("HOME IN TEST!!!!!!!!!!! %s" % Path.home())
         # build an executable and try running it
         build_executable.run(
             self.album_mock,
@@ -114,7 +113,6 @@ class TestIntegrationBuildExecutable(TestCommon):
     #@unittest.skipIf(sys.platform == 'win32' or sys.platform == 'cygwin',
     #                 "The windows runner doens't work with pywin32")
     def test_execute_gui(self):
-        print("HOME IN CALL SOLUTION!!!!!!!!!!! %s" % Path.home())
         self.maxDiff = None
         # build an executable and see if it was successfully build
         build_executable.run(
@@ -137,6 +135,7 @@ class TestIntegrationBuildExecutable(TestCommon):
         cmd = [str(exe_path)]
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         p1 = p.communicate(b'y')
+        print(p1[0].decode())
 
         if platform.system() == 'Darwin':
             with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
