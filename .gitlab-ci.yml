@@ -275,5 +275,5 @@ integration tests windows:
   stage: test
   script:
     - $cmndP = powershell.exe -command {python -V}
-    - $cmnd = powershell.exe -command {conda create -y --channel=conda-forge -n album python=3.7 pip git 2>&1 | Write-Host; conda activate album 2>&1 | Write-Host; pip install album 2>&1 | Write-Host; pip install --no-cache-dir $env:CI_PROJECT_DIR 2>&1 | Write-Host; python -m unittest test_package\integration\run_all_integration.py 2>&1 | Write-Host; exit(0)}
+    - $cmnd = powershell.exe -command {conda create -y --channel=conda-forge -n album python=3.9 pip git pywin32=228 2>&1 | Write-Host; conda activate album 2>&1 | Write-Host; pip install album 2>&1 | Write-Host; pip install --no-cache-dir $env:CI_PROJECT_DIR 2>&1 | Write-Host; python -m unittest test_package\integration\run_all_integration.py 2>&1 | Write-Host; exit(0)}
     - if ("Success" -in $cmnd[-5..-1]) {exit(0)} else {exit(1)}
