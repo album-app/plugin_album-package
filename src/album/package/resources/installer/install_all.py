@@ -3,6 +3,7 @@ import platform
 import re
 import shutil
 import ssl
+import stat
 import subprocess
 import sys
 from pathlib import Path
@@ -16,6 +17,22 @@ import certifi
 warned_named = False
 warned_prefix = False
 deleted = False
+
+
+def install_ca_certificates():
+    STAT_0o775 = ( stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR
+                 | stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP
+                 | stat.S_IROTH | stat.S_IXOTH )
+
+    openssl_dir, openssl_cafile = os.path.split(ssl.get_default_verify_paths().openssl_cafile)
+    os.chdir(openssl_dir)
+    relpath_to_certifi_cafile = os.path.relpath(certifi.where())
+    try:
+        Path(openssl_cafile).unlink()
+    except FileNotFoundError:
+        pass
+    os.symlink(relpath_to_certifi_cafile, openssl_cafile)
+    os.chmod(openssl_cafile, STAT_0o775)
 
 
 def _install_conda_windows(conda_path):
@@ -59,11 +76,10 @@ def _install_conda_macos(conda_path):
     try:
         urllib.request.urlretrieve(conda_url_macos, conda_installer)
     except Exception as e:
-        print(certifi.where())
-        ssl.create_default_context(purpose=ssl.Purpose.SERVER_AUTH)
-        print(certifi.where())
-        with urlopen(conda_url_macos, cafile=certifi.where()) as in_stream, open(conda_installer, 'wb') as out_file:
-            copyfileobj(in_stream, out_file)
+        install_ca_certificates()
+        urllib.request.urlretrieve(conda_url_macos, conda_installer)
+        #with urlopen(conda_url_macos, cafile=certifi.where()) as in_stream, open(conda_installer, 'wb') as out_file:
+        #    copyfileobj(in_stream, out_file)
 
 
     install_process = subprocess.run(["bash", conda_installer, "-b", "-u", "-p", conda_path, ">", "/dev/null"],
