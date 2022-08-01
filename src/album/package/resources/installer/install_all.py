@@ -2,10 +2,14 @@ import os.path
 import platform
 import re
 import shutil
+import ssl
 import subprocess
 import sys
 from pathlib import Path
 import urllib.request
+from urllib.request import urlopen
+from shutil import copyfileobj
+
 
 warned_named = False
 warned_prefix = False
@@ -50,7 +54,14 @@ def _install_conda_macos(conda_path):
     #conda_installer = Path(os.path.realpath(__file__)).parent.joinpath('Miniconda_installer_macos.sh')
     conda_url_macos = "https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh"
     conda_installer = Path(conda_path).joinpath("Miniconda_install.sh")
-    urllib.request.urlretrieve(conda_url_macos, conda_installer)
+    try:
+        urllib.request.urlretrieve(conda_url_macos, conda_installer)
+    except ssl.SSLCertVerificationError as e:
+        #ssl.create_default_context(purpose=ssl.Purpose.SERVER_AUTH)
+        with urlopen(conda_url_macos) as in_stream, open(conda_installer, 'wb') as out_file:
+            copyfileobj(in_stream, out_file)
+
+
     install_process = subprocess.run(["bash", conda_installer, "-b", "-u", "-p", conda_path, ">", "/dev/null"],
                                      capture_output=True)
     conda_exe = str(Path(conda_path).joinpath("condabin", "conda"))
