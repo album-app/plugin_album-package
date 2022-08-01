@@ -7,6 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 import urllib.request
+import urllib.error
 from urllib.request import urlopen
 from shutil import copyfileobj
 
@@ -56,7 +57,7 @@ def _install_conda_macos(conda_path):
     conda_installer = Path(conda_path).joinpath("Miniconda_install.sh")
     try:
         urllib.request.urlretrieve(conda_url_macos, conda_installer)
-    except ssl.SSLCertVerificationError as e:
+    except ssl.SSLCertVerificationError or urllib.error.URLError as e:
         #ssl.create_default_context(purpose=ssl.Purpose.SERVER_AUTH)
         with urlopen(conda_url_macos) as in_stream, open(conda_installer, 'wb') as out_file:
             copyfileobj(in_stream, out_file)
