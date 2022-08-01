@@ -24,17 +24,15 @@ def create(output_path, solution):
                                             'uninstall_solution_gui.template')))
     if platform.system() == 'Windows':
         icon_path = repr(str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_windows.ico')))
-        installer_path = repr(str(pkg_resources.resource_filename('album.package.resources.installer',
-                                                                  'Miniconda_installer_windows.exe')))
+        cert_path = repr(str(Path(certifi.where())))
+
     elif platform.system() == 'Darwin':
         icon_path = repr(str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_macos.icns')))
-        #installer_path = repr(str(pkg_resources.resource_filename('album.package.resources.installer',
-        #                                                          'Miniconda_installer_macos.sh')))
-        installer_path = repr(str(Path(certifi.where())))
+        cert_path = repr(str(Path(certifi.where())))
+
     elif platform.system() == 'Linux':
         icon_path = repr(str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_linux.png')))
-        installer_path = repr(str(pkg_resources.resource_filename('album.package.resources.installer',
-                                                                  'Miniconda_installer_linux.sh')))
+        cert_path = repr(str(Path(certifi.where())))
     else:
         print("Your OS is currently not supported")
         raise NotImplementedError
@@ -66,8 +64,8 @@ def create(output_path, solution):
     template_str = re.sub("<icon>", tmp, template_str)
     tmp = re.sub(r"\\", r"\\\\", call_sol_path)
     template_str = re.sub("<call_sol_path>", tmp, template_str)
-    tmp = re.sub(r"\\", r"\\\\", installer_path)
-    template_str = re.sub("<conda_installer>", tmp, template_str)
+    tmp = re.sub(r"\\", r"\\\\", cert_path)
+    template_str = re.sub("<cert_path>", tmp, template_str)
 
     with open(spec_path, 'w') as file:
         file.write(template_str)
