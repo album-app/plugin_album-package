@@ -11,6 +11,7 @@ import urllib.error
 from urllib.request import urlopen
 from shutil import copyfileobj
 
+import certifi
 
 warned_named = False
 warned_prefix = False
@@ -58,8 +59,10 @@ def _install_conda_macos(conda_path):
     try:
         urllib.request.urlretrieve(conda_url_macos, conda_installer)
     except Exception as e:
-        #ssl.create_default_context(purpose=ssl.Purpose.SERVER_AUTH)
-        with urlopen(conda_url_macos) as in_stream, open(conda_installer, 'wb') as out_file:
+        print(certifi.where())
+        ssl.create_default_context(purpose=ssl.Purpose.SERVER_AUTH)
+        print(certifi.where())
+        with urlopen(conda_url_macos, cafile=certifi.where()) as in_stream, open(conda_installer, 'wb') as out_file:
             copyfileobj(in_stream, out_file)
 
 
