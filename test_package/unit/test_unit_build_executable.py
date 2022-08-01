@@ -5,6 +5,7 @@ import sys
 import unittest.mock
 from pathlib import Path
 
+import certifi
 import pkg_resources
 
 from album import core
@@ -57,7 +58,7 @@ class TestUnitBuildExecutable(TestCommon):
         self.assertTrue(Path(self.tmp_dir.name).joinpath('call_solution.py').is_file(),
                         "There was no call_solution.py subscript created!")
         self.assertEqual(test_coords, coord_line,
-                        'There was an error inserting the solution coordinates into the call_solution.py!')
+                         'There was an error inserting the solution coordinates into the call_solution.py!')
         self.assertEqual(2, counter, 'The coordinates got inserted more than one time!')
 
     def test_spec_file_single(self):
@@ -78,34 +79,32 @@ class TestUnitBuildExecutable(TestCommon):
         uninstall_sol_path = repr(
             str(pkg_resources.resource_filename('album.package.resources.templates',
                                                 'uninstall_solution.template')))
+        cert_path = repr(str(Path(certifi.where())))
 
         if platform.system() == 'Windows':
             icon_path = repr(
                 str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_windows.ico')))
-            installer_path = repr(str(pkg_resources.resource_filename('album.package.resources.installer',
-                                                                      'Miniconda_installer_windows.exe')))
         elif platform.system() == 'Darwin':
             icon_path = repr(
                 str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_macos.icns')))
-            installer_path = repr(str(pkg_resources.resource_filename('album.package.resources.installer',
-                                                                      'Miniconda_installer_macos.sh')))
         elif platform.system() == 'Linux':
             icon_path = repr(
                 str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_linux.png')))
-            installer_path = repr(str(pkg_resources.resource_filename('album.package.resources.installer',
-                                                                      'Miniconda_installer_linux.sh')))
         else:
             print("Your OS is currently not supported")
             raise NotImplementedError
 
-        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.')],\n" % (yml_path, test_solution_path, run_sol_path, uninstall_sol_path, icon_path, run_sol_gui_path, uninstall_sol_gui_path, call_sol_path, installer_path)
+        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.')],\n" % (
+        yml_path, test_solution_path, run_sol_path, uninstall_sol_path, icon_path, run_sol_gui_path,
+        uninstall_sol_gui_path, call_sol_path, cert_path)
+
         hook_string = "\t\t\t runtime_hooks=[%s],\n" % hook_path
 
         create_specfile.create(self.tmp_dir.name,
-                                    Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('test_package',
-                                                                                                   'resources',
-                                                                                                   'test_solution',
-                                                                                                   'solution.py'))
+                               Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('test_package',
+                                                                                              'resources',
+                                                                                              'test_solution',
+                                                                                              'solution.py'))
         created_spec_gui = Path(self.tmp_dir.name).joinpath('build_executable.spec')
 
         counter = 0
@@ -143,29 +142,28 @@ class TestUnitBuildExecutable(TestCommon):
         uninstall_sol_path = repr(
             str(pkg_resources.resource_filename('album.package.resources.templates',
                                                 'uninstall_solution.template')))
+        cert_path = repr(str(Path(certifi.where())))
+
 
         if platform.system() == 'Windows':
             icon_path = repr(
                 str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_windows.ico')))
-            installer_path = repr(str(pkg_resources.resource_filename('album.package.resources.installer',
-                                                                      'Miniconda_installer_windows.exe')))
+
         elif platform.system() == 'Darwin':
             icon_path = repr(
                 str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_macos.icns')))
-            installer_path = repr(str(pkg_resources.resource_filename('album.package.resources.installer',
-                                                                      'Miniconda_installer_macos.sh')))
+
         elif platform.system() == 'Linux':
             icon_path = repr(
                 str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_linux.png')))
-            installer_path = repr(str(pkg_resources.resource_filename('album.package.resources.installer',
-                                                                      'Miniconda_installer_linux.sh')))
+
         else:
             print("Your OS is currently not supported")
             raise NotImplementedError
 
         datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.')],\n" % (
-        yml_path, test_solution_path, run_sol_path, uninstall_sol_path, icon_path, run_sol_gui_path,
-        uninstall_sol_gui_path, call_sol_path, installer_path)
+            yml_path, test_solution_path, run_sol_path, uninstall_sol_path, icon_path, run_sol_gui_path,
+            uninstall_sol_gui_path, call_sol_path, cert_path)
         hook_string = "\t\t\t runtime_hooks=[%s],\n" % hook_path
 
         create_specfile.create(self.tmp_dir.name,
