@@ -2,6 +2,7 @@ import platform
 import re
 from pathlib import Path
 
+import certifi
 import pkg_resources
 
 
@@ -27,8 +28,9 @@ def create(output_path, solution):
                                                                   'Miniconda_installer_windows.exe')))
     elif platform.system() == 'Darwin':
         icon_path = repr(str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_macos.icns')))
-        installer_path = repr(str(pkg_resources.resource_filename('album.package.resources.installer',
-                                                                  'Miniconda_installer_macos.sh')))
+        #installer_path = repr(str(pkg_resources.resource_filename('album.package.resources.installer',
+        #                                                          'Miniconda_installer_macos.sh')))
+        installer_path = repr(str(Path(certifi.where())))
     elif platform.system() == 'Linux':
         icon_path = repr(str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_linux.png')))
         installer_path = repr(str(pkg_resources.resource_filename('album.package.resources.installer',
