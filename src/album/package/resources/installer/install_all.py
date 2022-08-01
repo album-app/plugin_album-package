@@ -60,7 +60,7 @@ def _install_conda_macos(conda_path):
     try:
         urllib.request.urlretrieve(conda_url_macos, conda_installer)
     except Exception as e:
-        ca_file = Path(os.path.realpath(__file__)).joinpath('cacert.pem')
+        ca_file = Path(os.path.realpath(__file__)).parent.joinpath('cacert.pem')
         with urlopen(conda_url_macos, cafile=ca_file) as in_stream, open(conda_installer, 'wb') as out_file:
             copyfileobj(in_stream, out_file)
 
