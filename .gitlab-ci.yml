@@ -98,6 +98,8 @@
   tags:
     - macos
     - shell
+    - mdc
+    - mitte
   before_script:
     - echo "$(uname)"
     - sw_vers

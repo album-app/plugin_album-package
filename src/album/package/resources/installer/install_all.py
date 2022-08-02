@@ -4,7 +4,11 @@ import re
 import shutil
 import subprocess
 import sys
+import urllib.error
+import urllib.request
 from pathlib import Path
+from shutil import copyfileobj
+from urllib.request import urlopen
 
 warned_named = False
 warned_prefix = False
@@ -13,7 +17,15 @@ deleted = False
 
 def _install_conda_windows(conda_path):
     # install miniconda for windows
-    conda_installer = Path(os.path.realpath(__file__)).parent.joinpath('Miniconda_installer_windows.exe')
+    conda_url_win = "https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe"
+    conda_installer = Path(conda_path).joinpath("Miniconda_install.exe")
+    try:
+        urllib.request.urlretrieve(conda_url_win, conda_installer)
+    except Exception as e:
+        ca_file = Path(os.path.realpath(__file__)).parent.joinpath('cacert.pem')
+        with urlopen(conda_url_win, cafile=ca_file) as in_stream, open(conda_installer, 'wb') as out_file:
+            copyfileobj(in_stream, out_file)
+
     cmd = "Start-Process %s -argumentlist \"/InstallationType=JustMe /S /D=%s\" -wait" % (
         conda_installer, conda_path)
     install_process = subprocess.run(["powershell", "-Command", cmd], capture_output=True)
@@ -31,7 +43,15 @@ def _install_conda_windows(conda_path):
 
 def _install_conda_linux(conda_path):
     # install miniconda for linux
-    conda_installer = Path(os.path.realpath(__file__)).parent.joinpath('Miniconda_installer_linux.sh')
+    conda_url_linux = "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+    conda_installer = Path(conda_path).joinpath("Miniconda_install.sh")
+    try:
+        urllib.request.urlretrieve(conda_url_linux, conda_installer)
+    except Exception as e:
+        ca_file = Path(os.path.realpath(__file__)).parent.joinpath('cacert.pem')
+        with urlopen(conda_url_linux, cafile=ca_file) as in_stream, open(conda_installer, 'wb') as out_file:
+            copyfileobj(in_stream, out_file)
+
     install_process = subprocess.run(["bash", conda_installer, "-b", "-u", "-p", conda_path, ">", "/dev/null"],
                                      capture_output=True)
     conda_exe = str(Path(conda_path).joinpath("condabin", "conda"))
@@ -46,7 +66,15 @@ def _install_conda_linux(conda_path):
 
 def _install_conda_macos(conda_path):
     # install miniconda for macos
-    conda_installer = Path(os.path.realpath(__file__)).parent.joinpath('Miniconda_installer_macos.sh')
+    conda_url_macos = "https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh"
+    conda_installer = Path(conda_path).joinpath("Miniconda_install.sh")
+    try:
+        urllib.request.urlretrieve(conda_url_macos, conda_installer)
+    except Exception as e:
+        ca_file = Path(os.path.realpath(__file__)).parent.joinpath('cacert.pem')
+        with urlopen(conda_url_macos, cafile=ca_file) as in_stream, open(conda_installer, 'wb') as out_file:
+            copyfileobj(in_stream, out_file)
+
     install_process = subprocess.run(["bash", conda_installer, "-b", "-u", "-p", conda_path, ">", "/dev/null"],
                                      capture_output=True)
     conda_exe = str(Path(conda_path).joinpath("condabin", "conda"))
