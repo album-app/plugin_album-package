@@ -9,7 +9,6 @@ import sys
 from pathlib import Path
 
 from album.package.install_conda import install_conda_if_missing
-import solution_info
 
 
 def _install_missing_gui(album_base_path, conda_path, album_env_path, album_gui_url, yml_path, solution):
@@ -122,8 +121,12 @@ def check_for_installed_conda(conda_exe):
 
 def install_solution(conda_exe, album_env_path, solution):
     try:
-        cmd = subprocess.run([conda_exe, "run", "-p", album_env_path, "album", "install", solution],
+        print(solution)
+        print(Path(str(solution)))
+        print(Path(repr(solution)))
+        cmd = subprocess.run([conda_exe, "run", "-p", album_env_path, "album", "install", Path(str(solution))],
                              capture_output=True)
+        print(cmd.stdout)
     except Exception as e:
         print("An error occurred installing the solution: %s" % cmd.stderr)
         sys.exit()
@@ -131,7 +134,7 @@ def install_solution(conda_exe, album_env_path, solution):
 
 def check_for_solution(conda_exe, album_env_path, solution):
     try:
-        cmd = subprocess.run([conda_exe, "run", "-p", album_env_path, "album", "install", solution],
+        cmd = subprocess.run([conda_exe, "run", "-p", album_env_path, "album", "install", Path(solution)],
                              capture_output=True)
         if cmd.returncode == 0:
             return True
@@ -194,9 +197,9 @@ def get_conda_exe(conda_path):
 
 
 def read_solution_info():
-    with open('solution_info.py', 'r') as file:
+    with open('solution_info.txt', 'r') as file:
         sol_info = file.read()
-    return sol_info
+    return str(sol_info)
 
 
 def main():
@@ -206,8 +209,7 @@ def main():
     album_env_path = str(get_album_env_path(album_base_path))
     album_gui_url = "https://gitlab.com/album-app/plugins/album-gui/-/archive/main/album-gui-main.zip"
     yml_path = "https://gitlab.com/album-app/album/-/raw/main/album.yml"
-    solution = solution_info.a  # read_solution_info()
-    print("SOLUTION!!! %s" %solution)
+    solution = read_solution_info()
 
     print("Checking for conda installation...")
     if not Path(conda_exe).is_file():

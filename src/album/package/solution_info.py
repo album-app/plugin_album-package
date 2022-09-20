@@ -1,1 +1,0 @@
-a = "<solution_placeholder>"
