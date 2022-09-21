@@ -10,6 +10,7 @@ from pathlib import Path
 
 from album.package.install_conda import install_conda_if_missing
 
+full_install = False
 
 def _install_missing_gui(album_base_path, conda_path, album_env_path, album_gui_url, yml_path, solution):
     # install album gui and if needed conda
@@ -30,6 +31,8 @@ def _install_missing_gui(album_base_path, conda_path, album_env_path, album_gui_
 
 
 def _install_album_full(album_base_path, conda_path, album_env_path, album_gui_url, yml_path, solution):
+    global full_install
+    full_install = True
     if (solution == "None") and Path(album_env_path).is_dir():
         print("Removing old album environment...")
         force_remove(album_env_path)
@@ -121,12 +124,8 @@ def check_for_installed_conda(conda_exe):
 
 def install_solution(conda_exe, album_env_path, solution):
     try:
-        print(solution)
-        print(Path(str(solution)))
-        print(Path(repr(solution)))
         cmd = subprocess.run([conda_exe, "run", "-p", album_env_path, "album", "install", Path(str(solution))],
                              capture_output=True)
-        print(cmd.stdout)
     except Exception as e:
         print("An error occurred installing the solution: %s" % cmd.stderr)
         sys.exit()
@@ -134,7 +133,7 @@ def install_solution(conda_exe, album_env_path, solution):
 
 def check_for_solution(conda_exe, album_env_path, solution):
     try:
-        cmd = subprocess.run([conda_exe, "run", "-p", album_env_path, "album", "install", Path(solution)],
+        cmd = subprocess.run([conda_exe, "run", "-p", album_env_path, "album", "info", Path(solution)],
                              capture_output=True)
         if cmd.returncode == 0:
             return True
@@ -197,7 +196,7 @@ def get_conda_exe(conda_path):
 
 
 def read_solution_info():
-    with open('solution_info.txt', 'r') as file:
+    with open(Path(os.path.realpath(__file__)).parent.joinpath('solution_info.txt'), 'r') as file:
         sol_info = file.read()
     return str(sol_info)
 
@@ -210,6 +209,7 @@ def main():
     album_gui_url = "https://gitlab.com/album-app/plugins/album-gui/-/archive/main/album-gui-main.zip"
     yml_path = "https://gitlab.com/album-app/album/-/raw/main/album.yml"
     solution = read_solution_info()
+    global full_install
 
     print("Checking for conda installation...")
     if not Path(conda_exe).is_file():
@@ -219,16 +219,19 @@ def main():
     if not check_for_installed_album(album_env_path, conda_exe) or (solution == "None"):
         _install_album_full(album_base_path, conda_path, album_env_path, album_gui_url, yml_path, solution)
 
-    print("Checking for album gui installation...")
-    if not check_for_installed_gui(album_env_path, conda_exe):
-        _install_missing_gui(album_base_path, conda_path, album_env_path, album_gui_url, yml_path, solution)
+    if not full_install:
+        print("Checking for album gui installation...")
+        if not check_for_installed_gui(album_env_path, conda_exe):
+            _install_missing_gui(album_base_path, conda_path, album_env_path, album_gui_url, yml_path, solution)
 
-    if solution != "None":
-        print("Checking if the solution is installed...")
-        if not check_for_solution(conda_exe, album_env_path, solution):
-            install_solution(conda_exe, album_env_path, solution)
+        if solution != "None":
+            print("Checking if the solution is installed...")
+            if not check_for_solution(conda_exe, album_env_path, solution):
+                install_solution(conda_exe, album_env_path, solution)
 
     create_shortcut(conda_exe, album_env_path)
+
+    print("Installation successfully finished.")
 
 
 if __name__ == '__main__':
