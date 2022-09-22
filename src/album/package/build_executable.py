@@ -58,12 +58,12 @@ def run(album_instance: Album, args):
         work_dir = Path(args.output_path).joinpath('build')
         exe_path_param = '--distpath=%s' % str(args.output_path)
         script_path = str(pkg_resources.resource_filename('album.package', 'install_all.py'))
-        install_conda_script = pkg_resources.resource_filename('album.package', 'install_conda.py')
-        install_conda_param = '--add-data=%s%s%s' % (install_conda_script, os.pathsep, '.')
+        install_mamba_script = pkg_resources.resource_filename('album.package', 'install_mamba.py')
+        install_mamba_param = '--add-data=%s%s%s' % (install_mamba_script, os.pathsep, '.')
         solution_info_path = str(Path(args.output_path).joinpath('solution_info.txt'))
         solution_info_param = '--add-data=%s%s%s' % (solution_info_path, os.pathsep, '.')
 
-        pyinstaller_params = [script_path, '--onefile', name_param, exe_path_param, install_conda_param,
+        pyinstaller_params = [script_path, '--onefile', name_param, exe_path_param, install_mamba_param,
                               solution_info_param]
 
         hidden_imports = ["pkg_resources"]
@@ -78,7 +78,8 @@ def run(album_instance: Album, args):
             if Path(work_dir).is_dir():
                 shutil.rmtree(work_dir)
             Path(args.output_path).joinpath('solution_info.txt').unlink()
-            Path(args.output_path).joinpath('%s.spec' % name).unlink()
+            if Path(args.output_path).joinpath('%s.spec' % name).is_file():
+                Path(args.output_path).joinpath('%s.spec' % name).unlink()
 
     except Exception as e:
         get_active_logger().error("Unexpected Error when preparing the executable build %s." % e)
