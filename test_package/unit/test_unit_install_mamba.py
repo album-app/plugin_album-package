@@ -33,9 +33,9 @@ class TestUnitInstallMamba(TestCommon):
     def test_get_mamba_exe(self):
         # prepare
         if platform.system() == 'Windows':
-            mamba_test_exe = Path(self.tmp_dir.name).joinpath('micromamba', 'Library', 'bin', 'micromamba.exe')
+            mamba_test_exe = Path(self.tmp_dir.name).joinpath('Library', 'bin', 'micromamba.exe')
         else:
-            mamba_test_exe = Path(self.tmp_dir.name).joinpath('micromamba', 'bin', 'micromamba')
+            mamba_test_exe = Path(self.tmp_dir.name).joinpath('bin', 'micromamba')
 
         # call
         script_mamba_exe = install_mamba.get_mamba_exe(self.tmp_dir.name)
@@ -44,6 +44,8 @@ class TestUnitInstallMamba(TestCommon):
         self.assertEqual(mamba_test_exe, script_mamba_exe, "Path to mamba executable was not returned correctly.")
 
     def test_download_mamba(self):
+        # debug
+        print("HERE!!!!!: %s" % install_mamba.check_architecture())
         # prepare
         test_mamba_base_path = Path(self.tmp_dir.name).joinpath('micromamba')
 
