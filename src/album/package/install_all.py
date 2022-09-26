@@ -59,7 +59,6 @@ def download_resource(url, path):
         raise AssertionError('Resource "%s" not downloadable!' % url)
 
     r = _request_get(url)
-    print(path)
     with open(path, "wb") as f:
         for chunk in r:
             f.write(chunk)

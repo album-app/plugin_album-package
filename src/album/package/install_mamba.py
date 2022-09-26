@@ -2,6 +2,8 @@ import os
 import platform
 import subprocess
 from pathlib import Path
+import bz2
+import tarfile
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -59,10 +61,11 @@ def download_resource(url, path):
 
 
 def _install_7_zip(mamba_base_path):
-    zip_url = "https://www.7-zip.org/a/7z2201-x64.exe"
-    zip_installer = download_resource(zip_url, Path(mamba_base_path).joinpath('7z_installer.exe'))
-    install_process = subprocess.run([zip_installer, '/S'], capture_output=True)
-    return install_process.returncode
+    #zip_url = "https://www.7-zip.org/a/7z2201-x64.exe"
+    zip_url = "https://www.7-zip.org/a/7zr.exe"
+    zip_installer = download_resource(zip_url, Path(mamba_base_path).joinpath('7zr.exe'))
+    #install_process = subprocess.run([zip_installer, '/S', '/D=\"%s\"' % (Path(mamba_base_path).joinpath('zipper'))], capture_output=True)
+    #return install_process.returncode
 
 
 def check_architecture():
@@ -70,8 +73,9 @@ def check_architecture():
     return check.stdout
 
 
-def get_7z_exe():
-    return Path(os.getenv('ProgramFiles')).joinpath('7-Zip', '7z.exe')
+def get_7z_exe(mamba_base_path):
+    #return Path(os.getenv('ProgramFiles')).joinpath('7-Zip', '7z.exe')
+    return Path(mamba_base_path).joinpath('7zr.exe')
 
 
 def _download_mamba(mamba_base_path):
@@ -110,18 +114,19 @@ def _download_mamba_linux(mamba_installer_path):
 
 
 def _unpack_mamba_win(mamba_installer, mamba_base_path):
-    zip_exe = get_7z_exe()
-    unzip_process_1 = subprocess.run([zip_exe, 'x', mamba_installer, '-aoa', '-o%s' % mamba_base_path],
-                                     capture_output=True)
-    mamba_installer = Path(mamba_base_path).joinpath(Path(mamba_installer).stem)
-    unzip_process_2 = subprocess.run(
-        [zip_exe, 'x', mamba_installer, '-ttar', '-aoa', '-r', 'Library\\bin\\micromamba.exe',
-         '-o%s' % mamba_base_path], capture_output=True)
-    # TODO: Success Check?
+    tar_path = str(Path(mamba_base_path).joinpath('micromamba.tar'))
+    with bz2.open(mamba_installer, "rb") as f:
+        content = f.read()
+    with open(tar_path, 'wb') as file:
+        file.write(content)
+    with tarfile.open(tar_path, 'r') as tar:
+        tar.extractall(mamba_base_path)
+    ## TODO: Success Check?
 
 
 def _unpack_mamba_unix(mamba_installer, mamba_base_path):
-    tar_process = subprocess.run(['tar', '-xvjf', mamba_installer, '-C', mamba_base_path, 'bin/micromamba'])
+    with tarfile.open(mamba_installer, 'r') as tar:
+        tar.extractall(mamba_base_path)
 
 
 def _set_mamba_env_vars(mamba_base_path):
@@ -155,7 +160,6 @@ def get_mamba_exe(mamba_base_path):
 
 
 def _install_mamba_windows(mamba_base_path):
-    _install_7_zip(mamba_base_path)
     mamba_installer = _download_mamba(mamba_base_path)
     _unpack_mamba_win(mamba_installer, mamba_base_path)
     _set_mamba_env_vars(mamba_base_path)
