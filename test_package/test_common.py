@@ -9,6 +9,7 @@ from unittest import mock
 from album.api import Album
 from album.core.api.model.collection_solution import ICollectionSolution
 from album.core.utils.operations.file_operations import force_remove
+from album.runner.core.model.coordinates import Coordinates
 
 
 class TestCommon(unittest.TestCase):
@@ -18,7 +19,7 @@ class TestCommon(unittest.TestCase):
         self.album_mock = mock.create_autospec(Album)
         self.resolve_result = mock.create_autospec(ICollectionSolution)
         self.album_mock.resolve.return_value = self.resolve_result
-        self.resolve_result.coordinates.return_value = "album:import_unittest:0.1.0"
+        self.resolve_result.coordinates.return_value = Coordinates("album", "import_unittest", "0.1.0")
 
     def tearDown(self) -> None:
         if self.album_mock:

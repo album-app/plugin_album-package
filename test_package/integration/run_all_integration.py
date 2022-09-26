@@ -2,6 +2,7 @@ import time
 import unittest
 
 from test_package.integration import test_integration_build_executable
+from test_package.integration import test_integration_install_mamba
 
 
 def main():
@@ -9,6 +10,7 @@ def main():
     suite = unittest.TestSuite()
 
     suite.addTests(loader.loadTestsFromModule(test_integration_build_executable))
+    suite.addTests(loader.loadTestsFromModule(test_integration_install_mamba))
 
     runner = unittest.TextTestRunner(verbosity=3)
     result = runner.run(suite)

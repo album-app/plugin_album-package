@@ -14,18 +14,12 @@ def install():
 
 def run():
     from album.runner.api import setup, get_args , get_package_path
-    from pathlib import Path
-    import sys
-    import os
-    import subprocess
     from meintest import a
-    print(a)
-    print('Hallo ich bin eine als package ausgeführte Solution!!!')
     print("Success!")
 
 def test():
     from album.runner.api import setup, get_args
-    print("Hallo")
+    print("Hello")
 
 def close():
     from album.runner.api import setup, get_args
