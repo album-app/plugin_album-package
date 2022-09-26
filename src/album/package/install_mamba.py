@@ -60,22 +60,9 @@ def download_resource(url, path):
     return path
 
 
-def _install_7_zip(mamba_base_path):
-    #zip_url = "https://www.7-zip.org/a/7z2201-x64.exe"
-    zip_url = "https://www.7-zip.org/a/7zr.exe"
-    zip_installer = download_resource(zip_url, Path(mamba_base_path).joinpath('7zr.exe'))
-    #install_process = subprocess.run([zip_installer, '/S', '/D=\"%s\"' % (Path(mamba_base_path).joinpath('zipper'))], capture_output=True)
-    #return install_process.returncode
-
-
 def check_architecture():
     check = subprocess.run(['uname', '-m'], capture_output=True)
     return check.stdout
-
-
-def get_7z_exe(mamba_base_path):
-    #return Path(os.getenv('ProgramFiles')).joinpath('7-Zip', '7z.exe')
-    return Path(mamba_base_path).joinpath('7zr.exe')
 
 
 def _download_mamba(mamba_base_path):
