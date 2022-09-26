@@ -62,9 +62,9 @@ def run(album_instance: Album, args):
             coordinates = album_instance.resolve(str(args.solution)).coordinates()
             get_active_logger().info(
                 "solution: %s at %s" % (coordinates, args.solution))
-            name = "album_%s_%s_%s_installer" % (coordinates.group(), coordinates.name(),
-                                                 str(coordinates.version()).replace('.', '_'))
-            name_param = "--name=album_%s_%s_%s_installer" % (
+            name = "%s_%s_%s_installer" % (coordinates.group(), coordinates.name(),
+                                           str(coordinates.version()).replace('.', '_'))
+            name_param = "--name=%s_%s_%s_installer" % (
                 coordinates.group(), coordinates.name(), str(coordinates.version()).replace('.', '_'))
         else:
             name = "album_installer"
