@@ -62,7 +62,7 @@ def download_resource(url, path):
 
 def check_architecture():
     check = subprocess.run(['uname', '-m'], capture_output=True)
-    return check.stdout
+    return check.stdout.decode()
 
 
 def _download_mamba(mamba_base_path):
