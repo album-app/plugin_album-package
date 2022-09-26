@@ -51,4 +51,3 @@ class TestIntegrationInstallMamba(TestCommon):
         self.assertEqual(str(mamba_test_path), os.getenv('MAMBA_ROOT_PREFIX'),
                          "Error when setting Mamba_root_prefix env var")
         self.assertEqual(str(mamba_test_exe), os.getenv('MAMBA_EXE'), "Error when setting mamba_exe env var")
-

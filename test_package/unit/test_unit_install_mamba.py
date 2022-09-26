@@ -54,4 +54,3 @@ class TestUnitInstallMamba(TestCommon):
 
         # assert
         self.assertTrue(Path(mamba_installer).is_file(), "The mamba installer was not downloaded.")
-
