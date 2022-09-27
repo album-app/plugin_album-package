@@ -45,7 +45,7 @@ class TestIntegrationBuildExecutable(TestCommon):
     def test_build_album_installer(self):
         try:
             # FIXME: Exceptions that occur here are not caught and the test succeeds anyway
-            build_executable.run(self.album_mock, Namespace(output_path=self.tmp_dir.name))
+            build_executable.run(self.album_mock, Namespace(solution=None, output_path=self.tmp_dir.name))
         except Exception as e:
             raise e
         finally:
