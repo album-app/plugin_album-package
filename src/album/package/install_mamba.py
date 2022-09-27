@@ -52,7 +52,6 @@ def download_resource(url, path):
         raise AssertionError('Resource "%s" not downloadable!' % url)
 
     r = _request_get(url)
-    print(path)
     with open(path, "wb") as f:
         for chunk in r:
             f.write(chunk)
@@ -81,23 +80,20 @@ def _download_mamba_win(mamba_installer_path):
 
 
 def _download_mamba_macos(mamba_installer_path):
-    print("ARCH CHECK!!!!: %s" % repr(check_architecture()))
-    print("Vergleichs arch: x86_64")
     if check_architecture().__eq__('x86_64'):
         return download_resource("https://micro.mamba.pm/api/micromamba/osx-64/latest", mamba_installer_path)
-    elif check_architecture().lower() == 'arm64':
+    elif check_architecture().lower().__eq__('arm64'):
         return download_resource("https://micro.mamba.pm/api/micromamba/osx-arm64/latest", mamba_installer_path)
     else:
         raise NotImplementedError("There is no micromamba version for your processor architecture.")
 
 
 def _download_mamba_linux(mamba_installer_path):
-    print("ARCH CHECK!!!!: %s" % repr(check_architecture()))
     if check_architecture().__eq__('x86_64'):
         return download_resource("https://micro.mamba.pm/api/micromamba/linux-64/latest", mamba_installer_path)
-    elif check_architecture().lower() == 'arm64':
+    elif check_architecture().lower().__eq__('arm64'):
         return download_resource("https://micro.mamba.pm/api/micromamba/linux-aarch64/latest", mamba_installer_path)
-    elif check_architecture().lower() == 'power':
+    elif check_architecture().lower().__eq__('power'):
         return download_resource("https://micro.mamba.pm/api/micromamba/linux-ppc64le/latest", mamba_installer_path)
     else:
         raise NotImplementedError("There is no micromamba version for your processor architecture.")
