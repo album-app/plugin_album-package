@@ -66,7 +66,7 @@ class TestIntegrationBuildExecutable(TestCommon):
             if platform.system() == 'Windows':
                 self.assertTrue(Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer.exe").is_file())
             else:
-                self.assertTrue(Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer.exe").is_file())
+                self.assertTrue(Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer").is_file())
 
 
 if __name__ == '__main__':
