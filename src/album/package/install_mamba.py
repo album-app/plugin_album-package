@@ -81,7 +81,8 @@ def _download_mamba_win(mamba_installer_path):
 
 
 def _download_mamba_macos(mamba_installer_path):
-    print("ARCH CHECK!!!!: %s" % check_architecture())
+    print("ARCH CHECK!!!!: %s" % repr(check_architecture()))
+    print("Vergleichs arch: x86_64")
     if check_architecture().__eq__('x86_64'):
         return download_resource("https://micro.mamba.pm/api/micromamba/osx-64/latest", mamba_installer_path)
     elif check_architecture().lower() == 'arm64':
@@ -91,7 +92,7 @@ def _download_mamba_macos(mamba_installer_path):
 
 
 def _download_mamba_linux(mamba_installer_path):
-    print("ARCH CHECK!!!!: %s" % check_architecture())
+    print("ARCH CHECK!!!!: %s" % repr(check_architecture()))
     if check_architecture().__eq__('x86_64'):
         return download_resource("https://micro.mamba.pm/api/micromamba/linux-64/latest", mamba_installer_path)
     elif check_architecture().lower() == 'arm64':
