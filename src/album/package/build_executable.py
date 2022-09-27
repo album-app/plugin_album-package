@@ -16,17 +16,19 @@ for handler in logging.root.handlers[:]:
     handler.close()
 
 
-def fill_placeholder(output_path, solution):
+def fill_placeholder(output_path, solution_path, coordinates):
     with open(pkg_resources.resource_filename('album.package', 'solution_info.txt'), 'r') as file:
         template_str = file.read()
 
     # make windowspaths readable by escaping backslashes
-    tmp = re.sub(r"\\", r"\\\\", solution)
+    tmp = re.sub(r"\\", r"\\\\", solution_path)
 
     template_str = re.sub("<solution_placeholder>", tmp, template_str)
     template_str = re.sub(r"\\", r"\\\\", template_str)
     with open(Path(output_path).joinpath('solution_info.txt'), 'w') as file:
         file.write(template_str)
+        file.write("\n")
+        file.write(coordinates)
 
 
 def create_pyinstaller_params(args, name_param):
@@ -75,7 +77,7 @@ def run(album_instance: Album, args):
         if not Path(args.output_path).is_dir():
             Path(args.output_path).mkdir()
 
-        fill_placeholder(str(args.output_path), str(args.solution))
+        fill_placeholder(str(args.output_path), str(args.solution), coordinates.__str__())
         pyinstaller_params = create_pyinstaller_params(args, name_param)
 
         try:

@@ -122,20 +122,20 @@ def _set_mamba_env_vars(mamba_base_path):
 
 def _init_pwsh(mamba_base_path):
     mamba_exe = get_mamba_exe(mamba_base_path)
-    init_process = subprocess.run([mamba_exe, 'shell', 'init', '-s', 'powershell', '-p', mamba_base_path],
-                                  capture_output=True)
+    _ = subprocess.run([mamba_exe, 'shell', 'init', '-s', 'powershell', '-p', mamba_base_path],
+                       capture_output=True)
 
 
 def _init_bash(mamba_base_path):
     mamba_exe = get_mamba_exe(mamba_base_path)
-    init_process = subprocess.run([mamba_exe, 'shell', 'init', '-s', 'bash', '-p', mamba_base_path],
-                                  capture_output=True)
+    _ = subprocess.run([mamba_exe, 'shell', 'init', '-s', 'bash', '-p', mamba_base_path],
+                       capture_output=True)
 
 
 def _init_zsh(mamba_base_path):
     mamba_exe = get_mamba_exe(mamba_base_path)
-    init_process = subprocess.run([mamba_exe, 'shell', 'init', '-s', 'bash', '-p', mamba_base_path],
-                                  capture_output=True)
+    _ = subprocess.run([mamba_exe, 'shell', 'init', '-s', 'bash', '-p', mamba_base_path],
+                       capture_output=True)
 
 
 def get_mamba_exe(mamba_base_path):

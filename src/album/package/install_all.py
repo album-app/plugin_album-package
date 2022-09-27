@@ -1,4 +1,5 @@
 import errno
+import json
 import logging
 import os.path
 import platform
@@ -96,8 +97,8 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
         Path(album_base_path).mkdir()
 
     mamba_exe = get_mamba_exe(mamba_base_path)
-    if not Path(mamba_base_path).is_file():
-        print("Conda command not available. Installing Miniconda into " + str(mamba_base_path))
+    if not Path(mamba_exe).is_file():
+        print("Mamba command not available. Installing Micromamba into " + str(mamba_base_path))
         if not Path(mamba_base_path).is_dir():
             Path(mamba_base_path).mkdir()
 
@@ -163,20 +164,59 @@ def install_solution(mamba_exe, album_env_path, solution):
         cmd = subprocess.run([mamba_exe, "run", "-p", album_env_path, "album", "install", Path(str(solution))],
                              capture_output=True)
     except Exception as e:
-        print("An error occurred installing the solution: %s" % cmd.stderr)
-        sys.exit()
+        raise RuntimeError("An error occurred installing the solution") from e
 
 
-def check_for_solution(mamba_exe, album_env_path, solution):
+def check_for_solution(mamba_exe, album_env_path, coordinates):
     try:
-        cmd = subprocess.run([mamba_exe, "run", "-p", album_env_path, "album", "info", Path(solution)],
+        cmd = subprocess.run([mamba_exe, "run", "-p", album_env_path, "album", "index", '--json'],
                              capture_output=True)
-        if cmd.returncode == 0:
-            return True
-        else:
-            return False
+        check_solutions_dict(get_solution_list_json(cmd.stdout), coordinates)
     except Exception:
         return False
+
+
+def get_solution_list_json(json_str):
+    json_str = json.loads(json_str.decode())
+    # list
+    catalog_list = json_str['catalogs']
+    # list of catalogs_list of solution_dicts
+    catalog_list_of_solution_lists = []
+    # list of dict containing dicts as values
+    solution_dicts_list = []
+
+    if isinstance(catalog_list, list):
+        for cat_dict in catalog_list:
+            catalog_list_of_solution_lists.append(cat_dict['solutions'])
+    for solution_list in catalog_list_of_solution_lists:
+        for solution in solution_list:
+            solution_dicts_list.append(solution)
+
+    return solution_dicts_list
+
+
+def check_solutions_dict(solution_dicts, coordinates):
+    group = coordinates.split(':')[0]
+    name = coordinates.split(':')[1]
+    version = coordinates.split(':')[2]
+
+    # Go through the list of dictionaries and checking there setup method for the coordinates and then check the internal
+    # string for the installation status
+    for solution in solution_dicts:
+        internal = solution['internal']
+        setup = solution['setup']
+        installed = internal['installed']
+        tmp_group = setup['group']
+        tmp_name = setup['name']
+        tmp_version = setup['version']
+        if (group == tmp_group) and (name == tmp_name) and (version == tmp_version):
+            if installed == 1:
+                print("solution already installed")
+                return True
+            else:
+                return False
+
+    return False
 
 
 def force_remove(path, warning=True):
@@ -232,19 +272,22 @@ def get_mamba_exe(mamba_base_path):
 def read_solution_info():
     with open(Path(os.path.realpath(__file__)).parent.joinpath('solution_info.txt'), 'r') as file:
         sol_info = file.read()
-    return str(sol_info)
+    return sol_info.split('\n')
 
 
 def main():
     album_base_path = str(get_album_base_path())
-    # conda_path = Path(album_base_path).joinpath("Miniconda")
-    # conda_exe = get_conda_exe(conda_path)
     mamba_base_path = Path(album_base_path).joinpath("micromamba")
     mamba_exe = get_mamba_exe(mamba_base_path)
     album_env_path = str(get_album_env_path(album_base_path))
     album_gui_url = "https://gitlab.com/album-app/plugins/album-gui/-/archive/main/album-gui-main.zip"
     yml_url = "https://gitlab.com/album-app/album/-/raw/main/album.yml"
-    solution = read_solution_info()
+    solution_info = read_solution_info()
+    solution_path = solution_info[0]
+    coordinates = solution_info[1]
+
+    print("HERE: %s: %s" % (solution_path, coordinates))
+
     global full_install
 
     if not Path(album_base_path).is_dir():
@@ -256,18 +299,19 @@ def main():
     if not Path(mamba_exe).is_file():
         install_mamba(album_base_path, mamba_base_path)
 
-    if not check_for_installed_album(album_env_path, mamba_exe) or (solution == "None"):
-        _install_album_full(album_base_path, mamba_base_path, album_env_path, album_gui_url, yml_path, solution)
+    if not check_for_installed_album(album_env_path, mamba_exe) or (solution_path == "None"):
+        _install_album_full(album_base_path, mamba_base_path, album_env_path, album_gui_url, yml_path, solution_path)
 
     if not full_install:
         print("Checking for album gui installation...")
         if not check_for_installed_gui(album_env_path, mamba_exe):
-            _install_missing_gui(album_base_path, mamba_base_path, album_env_path, album_gui_url, yml_path, solution)
+            _install_missing_gui(album_base_path, mamba_base_path, album_env_path, album_gui_url, yml_path, solution_path)
 
-        if solution != "None":
+        if solution_path != "None":
             print("Checking if the solution is installed...")
-            if not check_for_solution(mamba_exe, album_env_path, solution):
-                install_solution(mamba_exe, album_env_path, solution)
+            if not check_for_solution(mamba_exe, album_env_path, solution_path):
+                print("Installing the solution...")
+                install_solution(mamba_exe, album_env_path, solution_path)
 
     create_shortcut(mamba_exe, album_env_path)
 
