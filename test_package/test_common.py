@@ -29,6 +29,10 @@ class TestCommon(unittest.TestCase):
 
     def setup_tmp_resources(self):
         self.tmp_dir = tempfile.TemporaryDirectory()
+        self.album_dir = Path(self.tmp_dir.name).joinpath('.album')
+        self.mamba_dir = Path(self.tmp_dir.name).joinpath('micromamba')
+        Path(self.album_dir).mkdir()
+        Path(self.mamba_dir).mkdir()
         self.closed_tmp_file = tempfile.NamedTemporaryFile(delete=False)
         self.closed_tmp_file.close()
         #os.chmod(self.closed_tmp_file.name, 0o777)
