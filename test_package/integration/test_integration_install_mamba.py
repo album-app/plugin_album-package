@@ -16,7 +16,7 @@ class TestIntegrationInstallMamba(TestCommon):
 
     def test_unpack_mamba(self):
         # prepare
-        mamba_test_path = Path(self.tmp_dir.name).joinpath('micromamba')
+        mamba_test_path = self.mamba_dir
         if platform.system() == 'Windows':
             mamba_test_exe = Path(mamba_test_path).joinpath('Library', 'bin', 'micromamba.exe')
         else:
@@ -36,8 +36,8 @@ class TestIntegrationInstallMamba(TestCommon):
     @patch('album.package.install_mamba._init_zsh')
     def test_install_mamba(self, pwsh_mock, bash_mock, zsh_mock):
         # prepare
-        album_test_path = Path(self.tmp_dir.name).joinpath('.album')
-        mamba_test_path = Path(album_test_path).joinpath('micromamba')
+        album_test_path = self.album_dir
+        mamba_test_path = self.mamba_dir
         if platform.system() == 'Windows':
             mamba_test_exe = Path(mamba_test_path).joinpath('Library', 'bin', 'micromamba.exe')
         else:
