@@ -68,16 +68,16 @@ def run(album_instance: Album, args):
                                            str(coordinates.version()).replace('.', '_'))
             name_param = "--name=%s_%s_%s_installer" % (
                 coordinates.group(), coordinates.name(), str(coordinates.version()).replace('.', '_'))
+            fill_placeholder(str(args.output_path), str(args.solution), coordinates.__str__())
         else:
             name = "album_installer"
             name_param = "--name=album_installer"
+            fill_placeholder(str(args.output_path), str(args.solution), "None")
 
         get_active_logger().info("--output_path: %s" % args.output_path)
-
         if not Path(args.output_path).is_dir():
             Path(args.output_path).mkdir()
 
-        fill_placeholder(str(args.output_path), str(args.solution), coordinates.__str__())
         pyinstaller_params = create_pyinstaller_params(args, name_param)
 
         try:
