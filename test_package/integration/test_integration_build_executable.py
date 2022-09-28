@@ -100,11 +100,11 @@ class TestIntegrationBuildExecutable(TestCommon):
         tmp_env = os.environ.copy()
         album_env_path = Path(self.album_dir).joinpath('envs', 'album')
         if platform.system() == 'Windows':
-            installer = Path(self.tmp_dir.name).joinpath("album_installer.exe")
+            installer = Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer.exe")
             mamba_exe = Path(self.mamba_dir).joinpath('Library', 'bin', 'micromamba.exe')
             tmp_env["USERPROFILE"] = str(self.tmp_dir.name)
         else:
-            installer = Path(self.tmp_dir.name).joinpath("album_installer")
+            installer = Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer")
             mamba_exe = Path(self.mamba_dir).joinpath('bin', 'micromamba')
             tmp_env["HOME"] = str(self.tmp_dir.name)
 
