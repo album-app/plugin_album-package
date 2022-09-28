@@ -57,7 +57,7 @@ def run(album_instance: Album, args):
     try:
         if not Path(args.output_path).is_dir():
             Path(args.output_path).mkdir()
-            
+
         if args.solution is None:
             get_active_logger().info("Build an executable which installs album.")
         if (args.solution is not None) and (not (Path(args.solution).exists())):

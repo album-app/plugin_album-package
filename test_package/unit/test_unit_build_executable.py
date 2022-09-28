@@ -1,5 +1,6 @@
 import inspect
 import os
+import re
 import sys
 import unittest.mock
 from argparse import Namespace
@@ -40,8 +41,9 @@ class TestUnitBuildExecutable(TestCommon):
         # prepare
         output_path = Path(self.tmp_dir.name)
         solution = pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py')
+        solution_double_backslash = re.sub(r'\\', r'\\\\', solution)
         coordinates = "album:import_unittest:0.1.0"
-        test_str = "%s\n%s" % (solution, coordinates)
+        test_str = "%s\n%s" % (solution_double_backslash, coordinates)
 
         # call
         fill_placeholder(output_path, solution, coordinates)
@@ -50,7 +52,7 @@ class TestUnitBuildExecutable(TestCommon):
             solution_info = file.read()
 
         # assert
-        self.assertEqual(Path(solution), Path(solution_info))
+        self.assertEqual(test_str, solution_info)
 
     def test_create_parameter(self):
         # prepare
