@@ -41,6 +41,7 @@ class TestUnitBuildExecutable(TestCommon):
         output_path = Path(self.tmp_dir.name)
         solution = pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py')
         coordinates = "album:import_unittest:0.1.0"
+        test_str = "%s\n%s" % (solution, coordinates)
 
         # call
         fill_placeholder(output_path, solution, coordinates)
