@@ -127,6 +127,10 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
 def check_for_installed_album(album_env_path, mamba_exe):
     try:
         cmd = subprocess.run([mamba_exe, "run", "-p", album_env_path, "album", "-h"], capture_output=True)
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ALBUM CHECK OUT")
+        print(cmd.returncode)
+        print(cmd.stdout)
+        print(cmd.stderr)
         if cmd.returncode == 0:
             return True
         else:
@@ -287,6 +291,7 @@ def main():
     coordinates = solution_info[1]
 
     print("HERE: %s: %s" % (solution_path, coordinates))
+    print("ENV PATH: %S" % album_env_path)
 
     global full_install
 
