@@ -55,6 +55,9 @@ def create_pyinstaller_params(args, name_param):
 
 def run(album_instance: Album, args):
     try:
+        if not Path(args.output_path).is_dir():
+            Path(args.output_path).mkdir()
+            
         if args.solution is None:
             get_active_logger().info("Build an executable which installs album.")
         if (args.solution is not None) and (not (Path(args.solution).exists())):
@@ -75,8 +78,6 @@ def run(album_instance: Album, args):
             fill_placeholder(str(args.output_path), str(args.solution), "None")
 
         get_active_logger().info("--output_path: %s" % args.output_path)
-        if not Path(args.output_path).is_dir():
-            Path(args.output_path).mkdir()
 
         pyinstaller_params = create_pyinstaller_params(args, name_param)
 
