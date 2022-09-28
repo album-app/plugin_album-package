@@ -87,7 +87,7 @@ class TestIntegrationBuildExecutable(TestCommon):
         # call
         build_executable.run(self.album_mock, Namespace(solution=None, output_path=self.tmp_dir.name))
         cmd = subprocess.run([installer], env=tmp_env)
-        album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'])
+        album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], env=tmp_env)
 
         # assert
         self.assertFalse(cmd.returncode, "Installationprocess exited with returncode != 0")
@@ -113,12 +113,9 @@ class TestIntegrationBuildExecutable(TestCommon):
             solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
             output_path=self.tmp_dir.name))
         cmd = subprocess.run([installer], env=tmp_env)
-        album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'])
+        album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], env=tmp_env)
         solution_test_cmd = subprocess.run(
-            [mamba_exe, 'run', '-p', album_env_path, 'album', 'info', 'album:import_unittest:0.1.0'])
-
-
-        time.sleep(600)
+            [mamba_exe, 'run', '-p', album_env_path, 'album', 'info', 'album:import_unittest:0.1.0'], env=tmp_env)
 
         # assert
         self.assertFalse(cmd.returncode, "Installationprocess exited with returncode != 0")
