@@ -82,6 +82,8 @@ class TestIntegrationBuildExecutable(TestCommon):
             installer = Path(self.tmp_dir.name).joinpath("album_installer")
             mamba_exe = Path(self.mamba_dir).joinpath('bin', 'micromamba')
             tmp_env["HOME"] = str(self.tmp_dir.name)
+
+        print("MAMBA EXE IN INSTALLER TEST: %s" % mamba_exe)
         # call
         build_executable.run(self.album_mock, Namespace(solution=None, output_path=self.tmp_dir.name))
         cmd = subprocess.run([installer], env=tmp_env)
