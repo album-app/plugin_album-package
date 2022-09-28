@@ -85,12 +85,15 @@ class TestIntegrationBuildExecutable(TestCommon):
             tmp_env["HOME"] = str(self.tmp_dir.name)
 
         print("MAMBA EXE IN INSTALLER TEST: %s" % mamba_exe)
+        print(Path(mamba_exe).is_file())
+        print("ALbum env paTH INSTALLER TEST: %s" % album_env_path)
+        print(Path(album_env_path).is_dir())
+
         # call
         build_executable.run(self.album_mock, Namespace(solution=None, output_path=self.tmp_dir.name))
         cmd = subprocess.run([installer], env=tmp_env)
         album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'])
-        print("WAITING HERE!!!!!!!!!")
-        time.sleep(60)
+
 
         # assert
         self.assertFalse(cmd.returncode, "Installationprocess exited with returncode != 0")

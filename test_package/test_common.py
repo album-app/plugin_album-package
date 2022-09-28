@@ -30,7 +30,7 @@ class TestCommon(unittest.TestCase):
     def setup_tmp_resources(self):
         self.tmp_dir = tempfile.TemporaryDirectory()
         self.album_dir = Path(self.tmp_dir.name).joinpath('.album')
-        self.mamba_dir = Path(self.tmp_dir.name).joinpath('micromamba')
+        self.mamba_dir = Path(self.album_dir).joinpath('micromamba')
         self.desktop_dir = Path(self.tmp_dir.name).joinpath('Desktop')
         Path(self.album_dir).mkdir()
         Path(self.mamba_dir).mkdir()
