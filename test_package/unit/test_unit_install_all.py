@@ -54,9 +54,10 @@ class TestUnitInstallAll(TestCommon):
 
     # TODO: Find better way of testing, than creating an extra solution_info.txt and simply test if this fct reads a solution_info file in the same dir
     # it should read the solution_info from the core part of package and not a copy
+    # patch os.realpath
     def test_read_solution_info(self):
         # prepare
-        solution_info = "<solution_placeholder>"
+        solution_info = ["<solution_placeholder>"]  # "<solution_placeholder>\nalbum:import_unittest:0.1.0"
 
         # call
         script_solution_info = install_all.read_solution_info()

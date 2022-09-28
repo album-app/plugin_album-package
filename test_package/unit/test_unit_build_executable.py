@@ -40,9 +40,10 @@ class TestUnitBuildExecutable(TestCommon):
         # prepare
         output_path = Path(self.tmp_dir.name)
         solution = pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py')
+        coordinates = "album:import_unittest:0.1.0"
 
         # call
-        fill_placeholder(output_path, solution)
+        fill_placeholder(output_path, solution, coordinates)
 
         with open(Path(output_path).joinpath('solution_info.txt'), 'r') as file:
             solution_info = file.read()
