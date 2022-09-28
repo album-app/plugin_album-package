@@ -291,7 +291,7 @@ def main():
     coordinates = solution_info[1]
 
     print("HERE: %s: %s" % (solution_path, coordinates))
-    print("ENV PATH: %S" % album_env_path)
+    print("ENV PATH: %s" % album_env_path)
 
     global full_install
 
