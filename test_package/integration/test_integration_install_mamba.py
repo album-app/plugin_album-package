@@ -46,8 +46,6 @@ class TestIntegrationInstallMamba(TestCommon):
         # call
         install_mamba.install_mamba(album_test_path, mamba_test_path)
 
-        print("MAMBA EXE IN MAMBA INSTALL TEST: %s" % mamba_test_exe)
-
         # assert
         self.assertTrue(Path(mamba_test_exe).is_file(), "No mamba executable found!")
         self.assertEqual(str(mamba_test_path), os.getenv('MAMBA_ROOT_PREFIX'),

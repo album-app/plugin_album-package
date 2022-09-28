@@ -84,16 +84,10 @@ class TestIntegrationBuildExecutable(TestCommon):
             mamba_exe = Path(self.mamba_dir).joinpath('bin', 'micromamba')
             tmp_env["HOME"] = str(self.tmp_dir.name)
 
-        print("MAMBA EXE IN INSTALLER TEST: %s" % mamba_exe)
-        print(Path(mamba_exe).is_file())
-        print("ALbum env paTH INSTALLER TEST: %s" % album_env_path)
-        print(Path(album_env_path).is_dir())
-
         # call
         build_executable.run(self.album_mock, Namespace(solution=None, output_path=self.tmp_dir.name))
         cmd = subprocess.run([installer], env=tmp_env)
         album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'])
-
 
         # assert
         self.assertFalse(cmd.returncode, "Installationprocess exited with returncode != 0")
@@ -101,11 +95,34 @@ class TestIntegrationBuildExecutable(TestCommon):
         self.assertTrue(Path(album_env_path).is_dir(), "Album environmanet not found!")
         self.assertFalse(album_test_cmd.returncode, "Album environment not functional(version call threw error)")
 
+    def test_solution_installation(self):
+        # prepare
+        tmp_env = os.environ.copy()
+        album_env_path = Path(self.album_dir).joinpath('envs', 'album')
+        if platform.system() == 'Windows':
+            installer = Path(self.tmp_dir.name).joinpath("album_installer.exe")
+            mamba_exe = Path(self.mamba_dir).joinpath('Library', 'bin', 'micromamba.exe')
+            tmp_env["USERPROFILE"] = str(self.tmp_dir.name)
+        else:
+            installer = Path(self.tmp_dir.name).joinpath("album_installer")
+            mamba_exe = Path(self.mamba_dir).joinpath('bin', 'micromamba')
+            tmp_env["HOME"] = str(self.tmp_dir.name)
 
+        # call
+        build_executable.run(self.album_mock, Namespace(
+            solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
+            output_path=self.tmp_dir.name))
+        cmd = subprocess.run([installer], env=tmp_env)
+        album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'])
+        solution_test_cmd = subprocess.run(
+            [mamba_exe, 'run', '-p', album_env_path, 'album', 'info', 'album:import_unittest:0.1.0'])
 
-
-
-
+        # assert
+        self.assertFalse(cmd.returncode, "Installationprocess exited with returncode != 0")
+        self.assertTrue(Path(mamba_exe).is_file(), "micromamba executable not found!")
+        self.assertTrue(Path(album_env_path).is_dir(), "Album environmanet not found!")
+        self.assertFalse(album_test_cmd.returncode, "Album environment not functional(version call threw error)")
+        self.assertFalse(solution_test_cmd.returncode, "Solution seems not to be installed.(info solution threw error)")
 
 
 if __name__ == '__main__':
