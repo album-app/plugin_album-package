@@ -1,4 +1,6 @@
+import os
 import platform
+import subprocess
 import unittest
 from argparse import Namespace
 from pathlib import Path
@@ -32,7 +34,7 @@ class TestIntegrationBuildExecutable(TestCommon):
                 solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
                 output_path=self.tmp_dir.name))
         except Exception as e:
-            raise e
+            raise RuntimeError("Error in executable building") from e
         finally:
             self.assertFalse(Path(self.tmp_dir.name).joinpath('build').is_dir(),
                              "PyInstallers build directory was not deleted.")
@@ -47,7 +49,7 @@ class TestIntegrationBuildExecutable(TestCommon):
             # FIXME: Exceptions that occur here are not caught and the test succeeds anyway
             build_executable.run(self.album_mock, Namespace(solution=None, output_path=self.tmp_dir.name))
         except Exception as e:
-            raise e
+            raise RuntimeError("Error in executable building") from e
         finally:
             if platform.system() == 'Windows':
                 self.assertTrue(Path(self.tmp_dir.name).joinpath("album_installer.exe").is_file())
@@ -61,12 +63,41 @@ class TestIntegrationBuildExecutable(TestCommon):
                 solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
                 output_path=self.tmp_dir.name))
         except Exception as e:
-            raise e
+            raise RuntimeError("Error in executable building") from e
         finally:
             if platform.system() == 'Windows':
                 self.assertTrue(Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer.exe").is_file())
             else:
                 self.assertTrue(Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer").is_file())
+
+    def test_album_installation(self):
+        # prepare
+        tmp_env = os.environ.copy()
+        album_env_path = Path(self.album_dir).joinpath('envs', 'album')
+        if platform.system() == 'Windows':
+            installer = Path(self.tmp_dir.name).joinpath("album_installer.exe")
+            mamba_exe = Path(self.mamba_dir).joinpath('Library', 'bin', 'micromamba.exe')
+            tmp_env["USERPROFILE"] = str(self.tmp_dir.name)
+        else:
+            installer = Path(self.tmp_dir.name).joinpath("album_installer")
+            mamba_exe = Path(self.mamba_dir).joinpath('bin', 'micromamba')
+            tmp_env["HOME"] = str(self.tmp_dir.name)
+        # call
+        build_executable.run(self.album_mock, Namespace(solution=None, output_path=self.tmp_dir.name))
+        cmd = subprocess.run([installer], env=tmp_env)
+        album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'])
+
+        # assert
+        self.assertFalse(cmd.returncode, "Installationprocess exited with returncode != 0")
+        self.assertTrue(Path(mamba_exe).is_file(), "micromamba executable not found!")
+        self.assertTrue(Path(album_env_path).is_dir(), "Album environmanet not found!")
+        self.assertFalse(album_test_cmd.returncode, "Album environment not functional(version call threw error)")
+
+
+
+
+
+
 
 
 if __name__ == '__main__':

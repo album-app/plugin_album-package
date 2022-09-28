@@ -13,10 +13,11 @@ class TestUnitInstallAll(TestCommon):
     def tearDown(self) -> None:
         super().tearDown()
 
-    # @unittest.patch("pathlib.Path.home")
-    # def test_get_album_base_path(self, mock_home_call):
-    #    # prepare
-    #    mock_home_call.return_value = self.tmp_dir
+    #@unittest.patch("pathlib.Path.home")
+    #"album.package.install_all.os.path.realpath"
+    #def test_get_album_base_path(self, mock_home_call):
+    #   # prepare
+    #   mock_home_call.return_value = self.tmp_dir
 
     def test_get_album_base_path(self):
         # prepare
