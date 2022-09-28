@@ -1,6 +1,7 @@
 import os
 import platform
 import subprocess
+import time
 import unittest
 from argparse import Namespace
 from pathlib import Path
@@ -88,6 +89,8 @@ class TestIntegrationBuildExecutable(TestCommon):
         build_executable.run(self.album_mock, Namespace(solution=None, output_path=self.tmp_dir.name))
         cmd = subprocess.run([installer], env=tmp_env)
         album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'])
+        print("WAITING HERE!!!!!!!!!")
+        time.sleep(60)
 
         # assert
         self.assertFalse(cmd.returncode, "Installationprocess exited with returncode != 0")
