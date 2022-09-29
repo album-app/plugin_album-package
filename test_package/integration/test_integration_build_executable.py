@@ -116,6 +116,8 @@ class TestIntegrationBuildExecutable(TestCommon):
         album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], env=tmp_env)
         solution_test_cmd = subprocess.run(
             [mamba_exe, 'run', '-p', album_env_path, 'album', 'info', 'album:import_unittest:0.1.0'], env=tmp_env)
+        solution_test_2_cmd = subprocess.run(
+            [mamba_exe, 'run', '-p', album_env_path, 'album', 'run', 'album:import_unittest:0.1.0'], env=tmp_env)
 
         # assert
         self.assertFalse(cmd.returncode, "Installationprocess exited with returncode != 0")
