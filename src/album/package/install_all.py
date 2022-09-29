@@ -126,7 +126,7 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
 
 def check_for_installed_album(album_env_path, mamba_exe):
     try:
-        cmd = subprocess.run([mamba_exe, "run", "-p", album_env_path, "album", "-h"], capture_output=True)
+        cmd = subprocess.run([mamba_exe, "run", "-p", album_env_path, "album", "index"], capture_output=True)
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ALBUM CHECK OUT")
         print(cmd.returncode)
         print(cmd.stdout)
