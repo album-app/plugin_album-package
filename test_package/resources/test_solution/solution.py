@@ -1,3 +1,5 @@
+import time
+
 from album.runner.api import setup, get_args
 
 env_file = """name: import_unittest
@@ -18,6 +20,7 @@ def run():
     #from meintest import a
     print("Success!")
     print(os.path.realpath(__file__))
+    time.sleep(300)
 
 def test():
     from album.runner.api import setup, get_args
