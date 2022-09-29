@@ -17,6 +17,8 @@ for handler in logging.root.handlers[:]:
 
 
 def fill_placeholder(output_path, solution_path, coordinates):
+    """Fills the path and the coordinates of the passed solution into a cache file which gets copied into the executable
+    so the information is availabe in the executable without destroying pyinstallers import structure"""
     with open(pkg_resources.resource_filename('album.package', 'solution_info.txt'), 'r') as file:
         template_str = file.read()
 
@@ -32,6 +34,7 @@ def fill_placeholder(output_path, solution_path, coordinates):
 
 
 def create_pyinstaller_params(args, name_param):
+    """creates the parameter for the pyinstaller call"""
     work_dir = Path(args.output_path).joinpath('build')
     workpath_param = '--workpath=%s' % str(work_dir)
     exe_path_param = '--distpath=%s' % str(args.output_path)
@@ -54,6 +57,7 @@ def create_pyinstaller_params(args, name_param):
 
 
 def run(album_instance: Album, args):
+    """builds an executable which installs album and inf wanted an album solution"""
     try:
         if not Path(args.output_path).is_dir():
             Path(args.output_path).mkdir()

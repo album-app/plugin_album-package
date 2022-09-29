@@ -68,6 +68,7 @@ def download_resource(url, path):
 
 
 def _install_missing_gui(album_base_path, mamba_base_path, album_env_path, album_gui_url, yml_path, solution):
+    """Function to install album gui if only the album env is present"""
     # install album gui and if needed mamba
     print("Found album, but not album gui. Installing album gui...")
     # check for mamba
@@ -86,6 +87,9 @@ def _install_missing_gui(album_base_path, mamba_base_path, album_env_path, album
 
 
 def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_gui_url, yml_path, solution):
+    """
+        Function to install album, album gui, a solution if passed and micromamba if it is not already installed
+    """
     global full_install
     full_install = True
     if (solution == "None") and Path(album_env_path).is_dir():
@@ -125,6 +129,7 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
 
 
 def check_for_installed_album(album_env_path, mamba_exe):
+    """Function to check if there is already an album environment in a specific directory"""
     try:
         cmd = subprocess.run([mamba_exe, "run", "-p", album_env_path, "album", "index"], capture_output=True)
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ALBUM CHECK OUT")
@@ -147,12 +152,12 @@ def check_for_installed_album(album_env_path, mamba_exe):
                 elif answer == 'n' or answer == 'no':
                     break
                 else:
-                    answer = input("Invalid choise please enter y/yes or n/no.")
+                    answer = input("Invalid choice please enter y/yes or n/no.")
         return False
 
 
 def check_for_installed_gui(album_env_path, mamba_exe):
-    # check if album gui is installed in the album environment installed via this script
+    """check if album gui is installed in the album environment"""
     try:
         cmd = subprocess.run([mamba_exe, "run", "-p", album_env_path, "album", "gui", "-h"], capture_output=True)
         if cmd.returncode == 0:
@@ -164,6 +169,7 @@ def check_for_installed_gui(album_env_path, mamba_exe):
 
 
 def install_solution(mamba_exe, album_env_path, solution):
+    """Function to install an album solution"""
     try:
         cmd = subprocess.run([mamba_exe, "run", "-p", album_env_path, "album", "install", Path(str(solution))],
                              capture_output=True)
@@ -172,6 +178,7 @@ def install_solution(mamba_exe, album_env_path, solution):
 
 
 def check_for_solution(mamba_exe, album_env_path, coordinates):
+    """Function to check if the passed solution is installed in the album collection"""
     try:
         cmd = subprocess.run([mamba_exe, "run", "-p", album_env_path, "album", "index", '--json'],
                              capture_output=True)
@@ -181,6 +188,7 @@ def check_for_solution(mamba_exe, album_env_path, coordinates):
 
 
 def get_solution_list_json(json_str):
+    """Function extracts a list of solution dictionaries from the output of an album index --json call"""
     json_str = json.loads(json_str.decode())
     # list
     catalog_list = json_str['catalogs']
@@ -200,6 +208,7 @@ def get_solution_list_json(json_str):
 
 
 def check_solutions_dict(solution_dicts, coordinates):
+    """Checks for a specific solution if it is installed, via the output of album index --json"""
     group = coordinates.split(':')[0]
     name = coordinates.split(':')[1]
     version = coordinates.split(':')[2]
@@ -224,6 +233,7 @@ def check_solutions_dict(solution_dicts, coordinates):
 
 
 def force_remove(path, warning=True):
+    """Function to force remove a specific file/directory"""
     path = Path(path)
     if path.exists():
         try:
@@ -253,20 +263,24 @@ def handle_remove_readonly(func, path, exc):
 
 
 def create_shortcut(mamba_exe, album_env_path):
+    """Creates a shortcut for the album gui on the users desktop"""
     p = subprocess.Popen([mamba_exe, 'run', '-p', album_env_path, 'album', 'add-shortcut'], stdout=sys.stdout,
                          stderr=sys.stderr)
     p.communicate()
 
 
 def get_album_base_path():
+    """returns the base directory of the album collection"""
     return Path.home().joinpath('.album')
 
 
 def get_album_env_path(album_base_path):
+    """returns the path to the album environment"""
     return Path(album_base_path).joinpath("envs", "album")
 
 
 def get_mamba_exe(mamba_base_path):
+    """returns the path to the micromamba executable"""
     if platform.system() == 'Windows':
         return Path(mamba_base_path).joinpath('Library', 'bin', 'micromamba.exe')
     else:
@@ -274,6 +288,9 @@ def get_mamba_exe(mamba_base_path):
 
 
 def read_solution_info():
+    """Function to read the information of the solution which should be installed.
+    Returns path to the solution and it's coordinates. solution_info.txt is used to pass the information about
+    the solution into the executable without destroying the import structure ob pyinstaller"""
     with open(Path(os.path.realpath(__file__)).parent.joinpath('solution_info.txt'), 'r') as file:
         sol_info = file.read()
     return sol_info.split('\n')
@@ -310,7 +327,8 @@ def main():
     if not full_install:
         print("Checking for album gui installation...")
         if not check_for_installed_gui(album_env_path, mamba_exe):
-            _install_missing_gui(album_base_path, mamba_base_path, album_env_path, album_gui_url, yml_path, solution_path)
+            _install_missing_gui(album_base_path, mamba_base_path, album_env_path, album_gui_url, yml_path,
+                                 solution_path)
 
         if solution_path != "None":
             print("Checking if the solution is installed...")
