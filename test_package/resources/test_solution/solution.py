@@ -1,3 +1,4 @@
+import sys
 import time
 
 from album.runner.api import setup, get_args
@@ -19,7 +20,7 @@ def run():
     import os
     #from meintest import a
     print("Success!")
-    print(os.path.realpath(__file__))
+    print(sys.path)
     time.sleep(300)
 
 def test():
