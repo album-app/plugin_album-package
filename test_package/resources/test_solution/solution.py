@@ -15,7 +15,7 @@ def install():
 def run():
     from album.runner.api import setup, get_args , get_package_path
     import os
-    from meintest import a
+    #from meintest import a
     print("Success!")
     print(os.path.realpath(__file__))
 
