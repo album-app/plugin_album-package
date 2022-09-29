@@ -86,7 +86,7 @@ class TestIntegrationBuildExecutable(TestCommon):
 
         # call
         build_executable.run(self.album_mock, Namespace(solution=None, output_path=self.tmp_dir.name))
-        cmd = subprocess.run([installer])  # , env=tmp_env)
+        cmd = subprocess.run([installer], env=tmp_env)
         album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], env=tmp_env)
 
         # assert

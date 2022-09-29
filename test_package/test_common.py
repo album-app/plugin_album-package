@@ -1,4 +1,5 @@
 import gc
+import shutil
 import sys
 import os
 import tempfile
@@ -16,6 +17,7 @@ class TestCommon(unittest.TestCase):
     def setUp(self) -> None:
         super().setUp()
         self.setup_tmp_resources()
+        self.setup_clear_album_base_dir()
         self.album_mock = mock.create_autospec(Album)
         self.resolve_result = mock.create_autospec(ICollectionSolution)
         self.album_mock.resolve.return_value = self.resolve_result
@@ -54,3 +56,7 @@ class TestCommon(unittest.TestCase):
                     pass
                 else:
                     raise
+
+    def setup_clear_album_base_dir(self):
+        if Path.home().joinpath('.album').is_dir():
+            force_remove(Path.home().joinpath('.album'))
