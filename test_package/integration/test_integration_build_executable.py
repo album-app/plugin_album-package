@@ -119,6 +119,8 @@ class TestIntegrationBuildExecutable(TestCommon):
         solution_test_2_cmd = subprocess.run(
             [mamba_exe, 'run', '-p', album_env_path, 'album', 'run', 'album:import_unittest:0.1.0'], env=tmp_env)
 
+        time.sleep(300)
+
         # assert
         self.assertFalse(cmd.returncode, "Installationprocess exited with returncode != 0")
         self.assertTrue(Path(mamba_exe).is_file(), "micromamba executable not found!")
