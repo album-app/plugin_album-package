@@ -21,7 +21,6 @@ def run():
     #from meintest import a
     print("Success!")
     print(sys.path)
-    time.sleep(300)
 
 def test():
     from album.runner.api import setup, get_args
