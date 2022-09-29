@@ -113,11 +113,17 @@ class TestIntegrationBuildExecutable(TestCommon):
             solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
             output_path=self.tmp_dir.name))
         cmd = subprocess.run([installer], env=tmp_env)
-        album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], env=tmp_env)
+        #album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], env=tmp_env)
+        album_test_cmd = subprocess.run([mamba_exe, 'run', '-n', 'album', 'album', '--version'], env=tmp_env)
         solution_test_cmd = subprocess.run(
-            [mamba_exe, 'run', '-p', album_env_path, 'album', 'info', 'album:import_unittest:0.1.0'], env=tmp_env)
+            [mamba_exe, 'run', '-n', 'album', 'album', 'info', 'album:import_unittest:0.1.0'], env=tmp_env)
         solution_test_2_cmd = subprocess.run(
-            [mamba_exe, 'run', '-p', album_env_path, 'album', 'run', 'album:import_unittest:0.1.0'], env=tmp_env)
+            [mamba_exe, 'run', '-n', 'album', 'album', 'run', 'album:import_unittest:0.1.0'], env=tmp_env)
+        activate_test = subprocess.run([mamba_exe, 'activate', '-p', Path(self.album_dir).joinpath('lnk', 'env', '0')], env=tmp_env)
+        #solution_test_cmd = subprocess.run(
+        #    [mamba_exe, 'run', '-p', album_env_path, 'album', 'info', 'album:import_unittest:0.1.0'], env=tmp_env)
+        #solution_test_2_cmd = subprocess.run(
+        #    [mamba_exe, 'run', '-p', album_env_path, 'album', 'run', 'album:import_unittest:0.1.0'], env=tmp_env)
 
         time.sleep(300)
 
