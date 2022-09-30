@@ -67,8 +67,7 @@
     - source ~/.bashrc
     - conda install -y mamba -c conda-forge
     - conda activate album
-#    - pip install album
-#    - album index
+    - pip install album
     - pip install --no-cache-dir $CI_PROJECT_DIR
     - apt-get update && apt-get install -y binutils
     - which python
@@ -111,12 +110,11 @@
     - bash $tmpdir/miniconda.sh -b -p $tmpdir/miniconda
     - export PATH=$PATH:$tmpdir/miniconda/bin/
     - echo $PATH
-    - album index
     - conda create -y --channel=conda-forge -n album python=3.7 pip git
     - source $tmpdir/miniconda/bin/activate
-#    - conda install -y mamba -c conda-forge
-#    - conda activate album
-#    - pip install album
+    - conda install -y mamba -c conda-forge
+    - conda activate album
+    - pip install album
     - pip install --no-cache-dir $CI_PROJECT_DIR
     - python -V
   after_script:
