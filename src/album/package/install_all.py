@@ -341,6 +341,7 @@ def main():
     create_shortcut(mamba_exe, album_env_path)
 
     print("Installation successfully finished.")
+    print(os.environ)
 
 
 if __name__ == '__main__':
