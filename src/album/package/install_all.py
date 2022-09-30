@@ -136,7 +136,8 @@ def check_for_installed_album(album_env_path, mamba_exe):
         print(cmd.returncode)
         print(cmd.stdout)
         print(cmd.stderr)
-        if cmd.returncode == 0:
+        #if cmd.returncode == 0:
+        if cmd.stderr == '':
             return True
         else:
             return False
@@ -160,7 +161,8 @@ def check_for_installed_gui(album_env_path, mamba_exe):
     """check if album gui is installed in the album environment"""
     try:
         cmd = subprocess.run([mamba_exe, "run", "-p", album_env_path, "album", "gui", "-h"], capture_output=True)
-        if cmd.returncode == 0:
+        #if cmd.returncode == 0:
+        if cmd.stderr == '':
             return True
         else:
             return False
