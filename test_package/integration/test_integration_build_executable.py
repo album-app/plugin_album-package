@@ -89,7 +89,7 @@ class TestIntegrationBuildExecutable(TestCommon):
         cmd = subprocess.run([installer], env=tmp_env)
         print("POST INSTALLER CALL!!!!!!!!!")
         print(os.environ)
-        album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], env=tmp_env)
+        album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', 'index'])
         print("POST Version CALL!!!!!!!!!")
         print(os.environ)
         # assert
