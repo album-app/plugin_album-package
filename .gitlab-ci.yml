@@ -115,7 +115,7 @@
 #    - conda install -y mamba -c conda-forge
 #    - conda activate album
 #    - pip install album
-    - pip install --no-cache-dir $CI_PROJECT_DIR
+#    - pip install --no-cache-dir $CI_PROJECT_DIR
     - python -V
     - album index
   after_script:
