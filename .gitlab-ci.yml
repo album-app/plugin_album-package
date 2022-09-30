@@ -101,22 +101,22 @@
     - mdc
     - mitte
   before_script:
-#    - echo "$(uname)"
-#    - sw_vers
-#    - tmpdir=$(mktemp -d /tmp/$CI_PROJECT_NAME-test.XXXXXX)
-#    - echo $tmpdir
-#    - echo $tmpdir > /tmp/tmpdir
-#    - curl https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh --output $tmpdir/miniconda.sh
-#    - bash $tmpdir/miniconda.sh -b -p $tmpdir/miniconda
-#    - export PATH=$PATH:$tmpdir/miniconda/bin/
-#    - echo $PATH
-#    - conda create -y --channel=conda-forge -n album python=3.7 pip git
-#    - source $tmpdir/miniconda/bin/activate
+    - echo "$(uname)"
+    - sw_vers
+    - tmpdir=$(mktemp -d /tmp/$CI_PROJECT_NAME-test.XXXXXX)
+    - echo $tmpdir
+    - echo $tmpdir > /tmp/tmpdir
+    - curl https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh --output $tmpdir/miniconda.sh
+    - bash $tmpdir/miniconda.sh -b -p $tmpdir/miniconda
+    - export PATH=$PATH:$tmpdir/miniconda/bin/
+    - echo $PATH
+    - conda create -y --channel=conda-forge -n album python=3.7 pip git
+    - source $tmpdir/miniconda/bin/activate
 #    - conda install -y mamba -c conda-forge
 #    - conda activate album
 #    - pip install album
-#    - pip install --no-cache-dir $CI_PROJECT_DIR
-#    - python -V
+    - pip install --no-cache-dir $CI_PROJECT_DIR
+    - python -V
   after_script:
     - tmpdir=$(</tmp/tmpdir)
     - echo $tmpdir
