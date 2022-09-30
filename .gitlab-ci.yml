@@ -117,6 +117,7 @@
 #    - pip install album
     - pip install --no-cache-dir $CI_PROJECT_DIR
     - python -V
+    - album index
   after_script:
     - tmpdir=$(</tmp/tmpdir)
     - echo $tmpdir
