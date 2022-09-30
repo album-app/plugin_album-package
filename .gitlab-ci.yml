@@ -68,7 +68,7 @@
     - conda install -y mamba -c conda-forge
     - conda activate album
 #    - pip install album
-    - album index
+#    - album index
     - pip install --no-cache-dir $CI_PROJECT_DIR
     - album index
     - apt-get update && apt-get install -y binutils
