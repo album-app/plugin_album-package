@@ -17,7 +17,7 @@ class TestCommon(unittest.TestCase):
     def setUp(self) -> None:
         super().setUp()
         self.setup_tmp_resources()
-        self.setup_clear_album_base_dir()
+        #self.setup_clear_album_base_dir()
         self.album_mock = mock.create_autospec(Album)
         self.resolve_result = mock.create_autospec(ICollectionSolution)
         self.album_mock.resolve.return_value = self.resolve_result
