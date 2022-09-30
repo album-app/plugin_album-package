@@ -40,6 +40,7 @@ def create_pyinstaller_params(args, name_param):
     exe_path_param = '--distpath=%s' % str(args.output_path)
     spec_path = Path(args.output_path)
     spec_path_param = '--specpath=%s' % str(args.output_path)
+    log_level_param = '--log-level=ERROR'
     script_path = str(pkg_resources.resource_filename('album.package', 'install_all.py'))
     install_mamba_script = pkg_resources.resource_filename('album.package', 'install_mamba.py')
     install_mamba_param = '--add-data=%s%s%s' % (install_mamba_script, os.pathsep, '.')
@@ -47,7 +48,7 @@ def create_pyinstaller_params(args, name_param):
     solution_info_param = '--add-data=%s%s%s' % (solution_info_path, os.pathsep, '.')
 
     pyinstaller_params = [script_path, '--onefile', name_param, exe_path_param, install_mamba_param,
-                          solution_info_param, workpath_param, spec_path_param]
+                          solution_info_param, workpath_param, spec_path_param, log_level_param]
 
     hidden_imports = ["pkg_resources"]
     for hidden_import in hidden_imports:
