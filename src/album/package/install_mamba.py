@@ -135,6 +135,13 @@ def _init_pwsh(mamba_base_path):
                        capture_output=True)
 
 
+def _init_cmd_exe(mamba_base_path):
+    """initializes the windows command promt for the usage of micromamba"""
+    mamba_exe = get_mamba_exe(mamba_base_path)
+    _ = subprocess.run([mamba_exe, 'shell', 'init', '-s', 'cmd.exe', '-p', mamba_base_path],
+                       capture_output=True)
+
+
 def _init_bash(mamba_base_path):
     """initializes the bash shell for the usage of micromamba"""
     mamba_exe = get_mamba_exe(mamba_base_path)
@@ -163,6 +170,7 @@ def _install_mamba_windows(mamba_base_path):
     _unpack_mamba_win(mamba_installer, mamba_base_path)
     _set_mamba_env_vars(mamba_base_path)
     _init_pwsh(mamba_base_path)
+    _init_cmd_exe(mamba_base_path)
 
 
 def _install_mamba_linux(mamba_base_path):
