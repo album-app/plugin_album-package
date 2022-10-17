@@ -77,7 +77,7 @@ def _install_missing_gui(album_base_path, mamba_base_path, album_env_path, album
         mamba_exe = install_mamba(album_base_path, mamba_base_path)
 
     if check_for_installed_album(album_env_path, mamba_exe):
-        cmd = subprocess.run([mamba_exe, "run", "-p", album_env_path, "pip", "install", album_gui_url])
+        cmd = subprocess.run([mamba_exe, "run", "-p", album_env_path, "pip", "install", album_gui_url], capture_output=True)
         if cmd.returncode == 0:
             print("Successfully installed album gui.")
         else:
@@ -115,7 +115,7 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
     if a.returncode == 0:
         print("Successfully installed album.")
         print("Installing album gui...")
-        g = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'pip', 'install', album_gui_url])
+        g = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'pip', 'install', album_gui_url], capture_output=True)
         if g.returncode == 0:
             print("Successfully installed album gui.")
         else:
