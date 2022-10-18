@@ -119,7 +119,7 @@ class TestIntegrationBuildExecutable(TestCommon):
             output_path=self.tmp_dir.name))
         cmd = subprocess.run([installer], env=tmp_env)
 
-        tmp_env["MAMBA_ROOT_PREFIX"] = str(Path(self.mamba_dir))
+        #tmp_env["MAMBA_ROOT_PREFIX"] = str(Path(self.mamba_dir))
         if platform.system() == "Windows":
             pwsh_str = "%s run -p %s album --version" % (mamba_exe, album_env_path)
             album_test_cmd = subprocess.run(["powershell", "-Command", pwsh_str], env=tmp_env, capture_output=True)
@@ -128,11 +128,11 @@ class TestIntegrationBuildExecutable(TestCommon):
             print(solution_test_cmd.returncode)
             print(solution_test_cmd.stdout.decode())
             print(solution_test_cmd.stderr.decode())
-            #uninstall_str = "%s run -p %s album uninstall album:import_unittest:0.1.0" % (mamba_exe, album_env_path)
-            #uninstall_cmd = subprocess.run(["powershell", "-Command", uninstall_str], env=tmp_env, capture_output=True)
-            #print(uninstall_cmd.returncode)
-            #print(uninstall_cmd.stdout.decode())
-            #print(uninstall_cmd.stderr.decode())
+            uninstall_str = "%s run -p %s album uninstall album:import_unittest:0.1.0" % (mamba_exe, album_env_path)
+            uninstall_cmd = subprocess.run(["powershell", "-Command", uninstall_str], env=tmp_env, capture_output=True)
+            print(uninstall_cmd.returncode)
+            print(uninstall_cmd.stdout.decode())
+            print(uninstall_cmd.stderr.decode())
 
         else:
             album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], capture_output=True)
