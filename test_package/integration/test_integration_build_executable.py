@@ -128,14 +128,14 @@ class TestIntegrationBuildExecutable(TestCommon):
             pwsh_str = "%s run -p %s album --version" % (mamba_exe, album_env_path)
             album_test_cmd = subprocess.run(["powershell", "-Command", pwsh_str], capture_output=True)
             pwsh_sol_str = "%s run -p %s album index" % (mamba_exe, album_env_path) # info album:import_unittest:0.1.0" % (mamba_exe, album_env_path)
-            solution_test_cmd = subprocess.run(["powershell", "-Command", pwsh_sol_str], capture_output=True)
+            solution_test_cmd = subprocess.run(["powershell", "-Command", pwsh_sol_str], env=tmp_env, capture_output=True)
             print(solution_test_cmd.returncode)
             print(solution_test_cmd.stdout)
             print(solution_test_cmd.stderr)
         else:
             album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], capture_output=True)
             solution_test_cmd = subprocess.run(
-                [mamba_exe, 'run', '-p', album_env_path, 'album', 'index'], capture_output=True) # 'info', 'album:import_unittest:0.1.0'], capture_output=True)
+                [mamba_exe, 'run', '-p', album_env_path, 'album', 'index'], env=tmp_env, capture_output=True) # 'info', 'album:import_unittest:0.1.0'], capture_output=True)
             print(solution_test_cmd.returncode)
             print(solution_test_cmd.stdout)
             print(solution_test_cmd.stderr)

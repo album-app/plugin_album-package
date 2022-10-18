@@ -132,10 +132,6 @@ def check_for_installed_album(album_env_path, mamba_exe):
     """Function to check if there is already an album environment in a specific directory"""
     try:
         cmd = subprocess.run([mamba_exe, "run", "-p", album_env_path, "album", "index"], capture_output=True)
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ALBUM CHECK OUT")
-        print(cmd.returncode)
-        print(cmd.stdout)
-        print(cmd.stderr)
         #if cmd.returncode == 0:
         if cmd.stderr == '':
             return True

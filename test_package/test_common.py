@@ -44,7 +44,6 @@ class TestCommon(unittest.TestCase):
     def teardown_tmp_resources(self):
         # garbage collector
         gc.collect()
-
         try:
             Path(self.closed_tmp_file.name).unlink()
             self.tmp_dir.cleanup()
