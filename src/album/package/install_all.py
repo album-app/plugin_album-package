@@ -77,7 +77,8 @@ def _install_missing_gui(album_base_path, mamba_base_path, album_env_path, album
         mamba_exe = install_mamba(album_base_path, mamba_base_path)
 
     if check_for_installed_album(album_env_path, mamba_exe):
-        cmd = subprocess.run([mamba_exe, "run", "-p", album_env_path, "pip", "install", album_gui_url], capture_output=True)
+        cmd = subprocess.run([mamba_exe, "run", "-p", album_env_path, "pip", "install", album_gui_url],
+                             capture_output=True)
         if cmd.returncode == 0:
             print("Successfully installed album gui.")
         else:
@@ -115,7 +116,8 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
     if a.returncode == 0:
         print("Successfully installed album.")
         print("Installing album gui...")
-        g = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'pip', 'install', album_gui_url], capture_output=True)
+        g = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'pip', 'install', album_gui_url],
+                           capture_output=True)
         if g.returncode == 0:
             print("Successfully installed album gui.")
         else:
@@ -132,7 +134,6 @@ def check_for_installed_album(album_env_path, mamba_exe):
     """Function to check if there is already an album environment in a specific directory"""
     try:
         cmd = subprocess.run([mamba_exe, "run", "-p", album_env_path, "album", "index"], capture_output=True)
-        #if cmd.returncode == 0:
         if cmd.stderr == '':
             return True
         else:
@@ -157,7 +158,6 @@ def check_for_installed_gui(album_env_path, mamba_exe):
     """check if album gui is installed in the album environment"""
     try:
         cmd = subprocess.run([mamba_exe, "run", "-p", album_env_path, "album", "gui", "-h"], capture_output=True)
-        #if cmd.returncode == 0:
         if cmd.stderr == '':
             return True
         else:
@@ -169,8 +169,8 @@ def check_for_installed_gui(album_env_path, mamba_exe):
 def install_solution(mamba_exe, album_env_path, solution):
     """Function to install an album solution"""
     try:
-        cmd = subprocess.run([mamba_exe, "run", "-p", album_env_path, "album", "install", Path(str(solution))],
-                             capture_output=True)
+        _ = subprocess.run([mamba_exe, "run", "-p", album_env_path, "album", "install", Path(str(solution))],
+                           capture_output=True)
     except Exception as e:
         raise RuntimeError("An error occurred installing the solution") from e
 
@@ -337,7 +337,6 @@ def main():
     create_shortcut(mamba_exe, album_env_path)
 
     print("Installation successfully finished.")
-    #print(os.environ)
 
 
 if __name__ == '__main__':
