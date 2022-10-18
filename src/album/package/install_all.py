@@ -114,9 +114,6 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
 
     if a.returncode == 0:
         print("Successfully installed album.")
-        print(a.returncode)
-        print(a.stdout)
-        print(a.stderr)
         print("Installing album gui...")
         g = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'pip', 'install', album_gui_url], capture_output=True)
         if g.returncode == 0:
