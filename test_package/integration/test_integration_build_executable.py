@@ -87,18 +87,22 @@ class TestIntegrationBuildExecutable(TestCommon):
         # call
         build_executable.run(self.album_mock, Namespace(solution=None, output_path=self.tmp_dir.name))
         cmd = subprocess.run([installer], env=tmp_env)
-        print("POST INSTALLER CALL!!!!!!!!!")
-        print(os.environ)
-        pwsh_str = "%s run -p %s album index" % (mamba_exe, album_env_path)
-        pwsh_cmd = subprocess.run(["powershell", "-Command", pwsh_str], capture_output=True)
-        #album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', 'index'])
-        print("POST Version CALL!!!!!!!!!")
-        print(os.environ)
+        #print("POST INSTALLER CALL!!!!!!!!!")
+        #print(os.environ)
+        if platform.system() == "Windows":
+            pwsh_str = "%s run -p %s album --version" % (mamba_exe, album_env_path)
+            album_test_cmd = subprocess.run(["powershell", "-Command", pwsh_str], capture_output=True)
+        else:
+            album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], capture_output=True)
+        #print("POST Version CALL!!!!!!!!!")
+        #print(os.environ)
+
         # assert
         self.assertFalse(cmd.returncode, "Installationprocess exited with returncode != 0")
         self.assertTrue(Path(mamba_exe).is_file(), "micromamba executable not found!")
         self.assertTrue(Path(album_env_path).is_dir(), "Album environmanet not found!")
-        #self.assertFalse(album_test_cmd.returncode, "Album environment not functional(version call threw error)")
+        self.assertFalse(album_test_cmd.returncode, "Album environment not functional(version call threw error)")
+
 
     def test_solution_installation(self):
         # prepare
@@ -118,13 +122,20 @@ class TestIntegrationBuildExecutable(TestCommon):
             solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
             output_path=self.tmp_dir.name))
         cmd = subprocess.run([installer], env=tmp_env)
-        print("POST INSTALLER CALL!!!!!!!!!")
-        print(os.environ)
-        album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], env=tmp_env)
-        print("POST VERSION CALL!!!!")
-        print(os.environ)
-        solution_test_cmd = subprocess.run(
-            [mamba_exe, 'run', '-p', album_env_path, 'album', 'info', 'album:import_unittest:0.1.0'], env=tmp_env)
+        #print("POST INSTALLER CALL!!!!!!!!!")
+        #print(os.environ)
+        if platform.system() == "Windows":
+            pwsh_str = "%s run -p %s album --version" % (mamba_exe, album_env_path)
+            album_test_cmd = subprocess.run(["powershell", "-Command", pwsh_str], capture_output=True)
+            pwsh_sol_str = "%s run -p %s album info album:import_unittest:0.1.0" % (mamba_exe, album_env_path)
+            solution_test_cmd = subprocess.run(["powershell", "-Command", pwsh_sol_str], capture_output=True)
+        else:
+            album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], capture_output=True)
+            solution_test_cmd = subprocess.run(
+                [mamba_exe, 'run', '-p', album_env_path, 'album', 'info', 'album:import_unittest:0.1.0'], capture_output=True)
+        #print("POST VERSION CALL!!!!")
+        #print(os.environ)
+
         #activate_test = subprocess.run([mamba_exe, 'activate', '-p', Path(self.album_dir).joinpath('lnk', 'env', '0')],
         #                               env=tmp_env)
         #solution_test_2_cmd = subprocess.run(
@@ -134,8 +145,6 @@ class TestIntegrationBuildExecutable(TestCommon):
         #    [mamba_exe, 'run', '-p', album_env_path, 'album', 'info', 'album:import_unittest:0.1.0'], env=tmp_env)
         #solution_test_2_cmd = subprocess.run(
         #    [mamba_exe, 'run', '-p', album_env_path, 'album', 'run', 'album:import_unittest:0.1.0'], env=tmp_env)
-
-        time.sleep(300)
 
         # assert
         self.assertFalse(cmd.returncode, "Installationprocess exited with returncode != 0")
