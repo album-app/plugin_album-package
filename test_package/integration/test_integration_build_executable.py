@@ -129,10 +129,16 @@ class TestIntegrationBuildExecutable(TestCommon):
             album_test_cmd = subprocess.run(["powershell", "-Command", pwsh_str], capture_output=True)
             pwsh_sol_str = "%s run -p %s album info album:import_unittest:0.1.0" % (mamba_exe, album_env_path)
             solution_test_cmd = subprocess.run(["powershell", "-Command", pwsh_sol_str], capture_output=True)
+            print(solution_test_cmd.returncode)
+            print(solution_test_cmd.stdout)
+            print(solution_test_cmd.stderr)
         else:
             album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], capture_output=True)
             solution_test_cmd = subprocess.run(
                 [mamba_exe, 'run', '-p', album_env_path, 'album', 'info', 'album:import_unittest:0.1.0'], capture_output=True)
+            print(solution_test_cmd.returncode)
+            print(solution_test_cmd.stdout)
+            print(solution_test_cmd.stderr)
         #print("POST VERSION CALL!!!!")
         #print(os.environ)
 
