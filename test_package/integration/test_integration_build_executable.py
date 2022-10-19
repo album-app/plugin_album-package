@@ -138,7 +138,8 @@ class TestIntegrationBuildExecutable(TestCommon):
             #print(uninstall_cmd.returncode)
             #print(uninstall_cmd.stdout.decode())
             #print(uninstall_cmd.stderr.decode())
-
+            #time.sleep(300)
+            #Path(self.album_dir.joinpath('lnk', 'env', '0', 'DLLs', 'pyexpat.pyd')).unlink()
 
         else:
             album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], capture_output=True)

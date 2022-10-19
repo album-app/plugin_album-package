@@ -1,4 +1,5 @@
 import gc
+import platform
 import shutil
 import sys
 import os
@@ -46,16 +47,18 @@ class TestCommon(unittest.TestCase):
         # garbage collector
         gc.collect()
         try:
-            time.sleep(300)
             Path(self.closed_tmp_file.name).unlink()
             self.tmp_dir.cleanup()
-        except PermissionError:
+        except PermissionError or NotADirectoryError:
             try:
+                print("First!!!!:")
                 force_remove(self.tmp_dir.name)
-            except PermissionError:
-                if sys.platform == 'win32' or sys.platform == 'cygwin':
+            except Exception as c:  # PermissionError or NotADirectoryError:
+                if platform.system() == "Windows":
+                    print("Second!!!: %s" % c)
                     pass
                 else:
+                    print("THIRD!!!")
                     raise
 
     def setup_clear_album_base_dir(self):
