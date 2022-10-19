@@ -49,16 +49,16 @@ class TestCommon(unittest.TestCase):
         try:
             Path(self.closed_tmp_file.name).unlink()
             self.tmp_dir.cleanup()
-        except PermissionError or NotADirectoryError:
+            # NotADirectoryError is needed since on windows systems an installed solution environment
+            # contains DLLs which are in use by the testing python interpreter and raising NotADirectoryErrors
+            # when shutil tries to remove them
+        except (PermissionError, NotADirectoryError):
             try:
-                print("First!!!!:")
                 force_remove(self.tmp_dir.name)
-            except Exception as c:  # PermissionError or NotADirectoryError:
+            except PermissionError:
                 if platform.system() == "Windows":
-                    print("Second!!!: %s" % c)
                     pass
                 else:
-                    print("THIRD!!!")
                     raise
 
     def setup_clear_album_base_dir(self):

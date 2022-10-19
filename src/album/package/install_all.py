@@ -305,9 +305,6 @@ def main():
     solution_path = solution_info[0]
     coordinates = solution_info[1]
 
-    print("HERE: %s: %s" % (solution_path, coordinates))
-    print("ENV PATH: %s" % album_env_path)
-
     global full_install
 
     if not Path(album_base_path).is_dir():

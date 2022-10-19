@@ -119,7 +119,6 @@ class TestIntegrationBuildExecutable(TestCommon):
         build_executable.run(self.album_mock, Namespace(
             solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
             output_path=self.tmp_dir.name))
-
         if platform.system() == "Windows":
             cmd = subprocess.run(["powershell", "-Command", installer], env=tmp_env, capture_output=True)
         else:
@@ -130,16 +129,6 @@ class TestIntegrationBuildExecutable(TestCommon):
             album_test_cmd = subprocess.run(["powershell", "-Command", pwsh_str], env=tmp_env, capture_output=True)
             pwsh_sol_str = "%s run -p %s album info album:import_unittest:0.1.0" % (mamba_exe, album_env_path)
             solution_test_cmd = subprocess.run(["powershell", "-Command", pwsh_sol_str], env=tmp_env, capture_output=True)
-            print(solution_test_cmd.returncode)
-            print(solution_test_cmd.stdout.decode())
-            print(solution_test_cmd.stderr.decode())
-            #uninstall_str = "%s run -p %s album uninstall album:import_unittest:0.1.0" % (mamba_exe, album_env_path)
-            #uninstall_cmd = subprocess.run(["powershell", "-Command", uninstall_str], env=tmp_env, capture_output=True)
-            #print(uninstall_cmd.returncode)
-            #print(uninstall_cmd.stdout.decode())
-            #print(uninstall_cmd.stderr.decode())
-            #time.sleep(300)
-            #Path(self.album_dir.joinpath('lnk', 'env', '0', 'DLLs', 'pyexpat.pyd')).unlink()
 
         else:
             album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], capture_output=True)
