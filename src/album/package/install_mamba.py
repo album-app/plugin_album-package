@@ -145,7 +145,7 @@ def _init_bash(mamba_base_path):
 def _init_zsh(mamba_base_path):
     """initializes the zsh shell for the usage of micromamba"""
     mamba_exe = get_mamba_exe(mamba_base_path)
-    _ = subprocess.run([mamba_exe, 'shell', 'init', '-s', 'bash', '-p', mamba_base_path],
+    _ = subprocess.run([mamba_exe, 'shell', 'init', '-s', 'zsh', '-p', mamba_base_path],
                        capture_output=True)
 
 
