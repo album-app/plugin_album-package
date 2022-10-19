@@ -3,6 +3,7 @@ import shutil
 import sys
 import os
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -45,6 +46,7 @@ class TestCommon(unittest.TestCase):
         # garbage collector
         gc.collect()
         try:
+            time.sleep(300)
             Path(self.closed_tmp_file.name).unlink()
             self.tmp_dir.cleanup()
         except PermissionError:
