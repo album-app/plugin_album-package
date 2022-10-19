@@ -1,7 +1,6 @@
 import os
 import platform
 import subprocess
-import time
 import unittest
 from argparse import Namespace
 from pathlib import Path

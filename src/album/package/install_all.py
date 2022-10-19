@@ -169,7 +169,7 @@ def check_for_installed_gui(album_env_path, mamba_exe):
 def install_solution(mamba_exe, album_env_path, solution):
     """Function to install an album solution"""
     try:
-        _ = subprocess.run([mamba_exe, "run", "-p", album_env_path, "album", "install", Path(str(solution))],
+        _ = subprocess.run([mamba_exe, "run", "-p", album_env_path, "album", "install", str(solution)],
                            capture_output=True)
     except Exception as e:
         raise RuntimeError("An error occurred installing the solution") from e
@@ -280,9 +280,9 @@ def get_album_env_path(album_base_path):
 def get_mamba_exe(mamba_base_path):
     """returns the path to the micromamba executable"""
     if platform.system() == 'Windows':
-        return Path(mamba_base_path).joinpath('Library', 'bin', 'micromamba.exe')
+        return str(Path(mamba_base_path).joinpath('Library', 'bin', 'micromamba.exe'))
     else:
-        return Path(mamba_base_path).joinpath('bin', 'micromamba')
+        return str(Path(mamba_base_path).joinpath('bin', 'micromamba'))
 
 
 def read_solution_info():
@@ -296,7 +296,7 @@ def read_solution_info():
 
 def main():
     album_base_path = str(get_album_base_path())
-    mamba_base_path = Path(album_base_path).joinpath("micromamba")
+    mamba_base_path = str(Path(album_base_path).joinpath("micromamba"))
     mamba_exe = get_mamba_exe(mamba_base_path)
     album_env_path = str(get_album_env_path(album_base_path))
     album_gui_url = "https://gitlab.com/album-app/plugins/album-gui/-/archive/main/album-gui-main.zip"
@@ -310,10 +310,11 @@ def main():
     if not Path(album_base_path).is_dir():
         Path(album_base_path).mkdir()
 
-    yml_path = download_resource(yml_url, Path(album_base_path).joinpath('album.yml'))
+    yml_path = str(download_resource(yml_url, Path(album_base_path).joinpath('album.yml')))
 
     print("Checking for micromamba installation...")
     if not Path(mamba_exe).is_file():
+        print("Installing micromamba into %s" % mamba_base_path)
         install_mamba(album_base_path, mamba_base_path)
 
     if not check_for_installed_album(album_env_path, mamba_exe) or (solution_path == "None"):

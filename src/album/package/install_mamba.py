@@ -152,9 +152,9 @@ def _init_zsh(mamba_base_path):
 def get_mamba_exe(mamba_base_path):
     """returns the path to the micromamba executable"""
     if platform.system() == 'Windows':
-        return Path(mamba_base_path).joinpath('Library', 'bin', 'micromamba.exe')
+        return str(Path(mamba_base_path).joinpath('Library', 'bin', 'micromamba.exe'))
     else:
-        return Path(mamba_base_path).joinpath('bin', 'micromamba')
+        return str(Path(mamba_base_path).joinpath('bin', 'micromamba'))
 
 
 def _install_mamba_windows(mamba_base_path):
