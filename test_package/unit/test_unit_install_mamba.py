@@ -33,9 +33,9 @@ class TestUnitInstallMamba(TestCommon):
     def test_get_mamba_exe(self):
         # prepare
         if platform.system() == 'Windows':
-            mamba_test_exe = Path(self.mamba_dir).joinpath('Library', 'bin', 'micromamba.exe')
+            mamba_test_exe = str(Path(self.mamba_dir).joinpath('Library', 'bin', 'micromamba.exe'))
         else:
-            mamba_test_exe = Path(self.mamba_dir).joinpath('bin', 'micromamba')
+            mamba_test_exe = str(Path(self.mamba_dir).joinpath('bin', 'micromamba'))
 
         # call
         script_mamba_exe = install_mamba.get_mamba_exe(self.mamba_dir)
