@@ -57,9 +57,16 @@ def create_pyinstaller_params(args, name_param):
     return pyinstaller_params
 
 
+def clean_up(output_path, name):
+    force_remove(Path(output_path).joinpath('build'))
+    force_remove(Path(output_path).joinpath('solution_info.txt'))
+    force_remove(Path(output_path).joinpath('%s.spec' % name))
+
+
 def run(album_instance: Album, args):
     """builds an executable which installs album and inf wanted an album solution"""
     try:
+        name = ""
         if not Path(args.output_path).is_dir():
             Path(args.output_path).mkdir()
 
@@ -86,14 +93,15 @@ def run(album_instance: Album, args):
 
         pyinstaller_params = create_pyinstaller_params(args, name_param)
 
-        try:
-            PyInstaller.__main__.run(pyinstaller_params)
-        except Exception as e:
-            raise RuntimeError("PyInstaller exited with an unexpected error! %s" % e) from e
-        finally:
-            force_remove(Path(args.output_path).joinpath('build'))
-            force_remove(Path(args.output_path).joinpath('solution_info.txt'))
-            force_remove(Path(args.output_path).joinpath('%s.spec' % name))
-
     except Exception as e:
-        get_active_logger().error("Unexpected Error when preparing the executable build %s." % e)
+        clean_up(args.output_path, name)
+        raise RuntimeError("Unexpected Error when preparing the executable build %s." % e) from e
+
+    try:
+        PyInstaller.__main__.run(pyinstaller_params)
+    except Exception as e:
+        raise RuntimeError("PyInstaller exited with an unexpected error! %s" % e) from e
+    finally:
+        clean_up(args.output_path, name)
+
+
