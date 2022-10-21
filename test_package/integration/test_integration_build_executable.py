@@ -4,6 +4,7 @@ import subprocess
 import unittest
 from argparse import Namespace
 from pathlib import Path
+from unittest.mock import patch
 
 import pkg_resources
 
@@ -28,47 +29,62 @@ class TestIntegrationBuildExecutable(TestCommon):
                         "Output directory was not created.")
 
     def test_clean_up(self):
+        # call
+        build_executable.run(self.album_mock, Namespace(
+            solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
+            output_path=self.tmp_dir.name))
+
+        # assert
+        self.assertFalse(Path(self.tmp_dir.name).joinpath('build').is_dir(),
+                         "PyInstallers build directory was not deleted.")
+        self.assertFalse(
+            Path(self.tmp_dir.name).joinpath('album_album_import_unittest_0_1_0_installer.spec').is_file(),
+            "build_executable.spec was not deleted.")
+        self.assertFalse(Path(self.tmp_dir.name).joinpath('solution_info.txt').is_file(),
+                         "solution_info.txt was not deleted.")
+
+    def test_clean_up_failing_resolve(self):
         try:
-            # FIXME: Exceptions that occur here are not caught and the test succeeds anyway
+            # prepare
+            self.album_mock.resolve.return_value = "Murks"
+
+            # call
             build_executable.run(self.album_mock, Namespace(
-                solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
+                solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'bla.py'),
                 output_path=self.tmp_dir.name))
-        except Exception as e:
-            raise RuntimeError("Error in executable building") from e
+        except Exception:
+            pass
         finally:
+            # assert
             self.assertFalse(Path(self.tmp_dir.name).joinpath('build').is_dir(),
                              "PyInstallers build directory was not deleted.")
             self.assertFalse(
                 Path(self.tmp_dir.name).joinpath('album_album_import_unittest_0_1_0_installer.spec').is_file(),
                 "build_executable.spec was not deleted.")
             self.assertFalse(Path(self.tmp_dir.name).joinpath('solution_info.txt').is_file(),
-                             "solution_info.txt was not deleted.")
+                         "solution_info.txt was not deleted.")
 
     def test_build_album_installer(self):
-        try:
-            # FIXME: Exceptions that occur here are not caught and the test succeeds anyway
-            build_executable.run(self.album_mock, Namespace(solution=None, output_path=self.tmp_dir.name))
-        except Exception as e:
-            raise RuntimeError("Error in executable building") from e
-        finally:
-            if platform.system() == 'Windows':
-                self.assertTrue(Path(self.tmp_dir.name).joinpath("album_installer.exe").is_file())
-            else:
-                self.assertTrue(Path(self.tmp_dir.name).joinpath("album_installer").is_file())
+        # call
+        build_executable.run(self.album_mock, Namespace(solution=None, output_path=self.tmp_dir.name))
+
+        # assert
+        if platform.system() == 'Windows':
+            self.assertTrue(Path(self.tmp_dir.name).joinpath("album_installer.exe").is_file())
+        else:
+            self.assertTrue(Path(self.tmp_dir.name).joinpath("album_installer").is_file())
 
     def test_build_solution_installer(self):
-        try:
-            # FIXME: Exceptions that occur here are not caught and the test succeeds anyway
-            build_executable.run(self.album_mock, Namespace(
-                solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
-                output_path=self.tmp_dir.name))
-        except Exception as e:
-            raise RuntimeError("Error in executable building") from e
-        finally:
-            if platform.system() == 'Windows':
-                self.assertTrue(Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer.exe").is_file())
-            else:
-                self.assertTrue(Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer").is_file())
+        # call
+        build_executable.run(self.album_mock, Namespace(
+            solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
+            output_path=self.tmp_dir.name))
+
+        # assert
+        if platform.system() == 'Windows':
+            self.assertTrue(Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer.exe").is_file())
+        else:
+            self.assertTrue(Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer").is_file())
 
     def test_album_installation(self):
         # prepare
@@ -92,7 +108,6 @@ class TestIntegrationBuildExecutable(TestCommon):
             album_test_cmd = subprocess.run(["powershell", "-Command", pwsh_str], capture_output=True)
         else:
             album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], capture_output=True)
-
 
         # assert
         self.assertFalse(cmd.returncode, "Installationprocess exited with returncode != 0")
@@ -134,9 +149,8 @@ class TestIntegrationBuildExecutable(TestCommon):
             solution_test_cmd = subprocess.run(
                 [mamba_exe, 'run', '-p', album_env_path, 'album', 'info', 'album:import_unittest:0.1.0'], env=tmp_env, capture_output=True)
 
-
         # assert
-        self.assertFalse(cmd.returncode, "Installationprocess exited with returncode != 0")
+        self.assertFalse(cmd.returncode, "Installationsprocess exited with returncode != 0")
         self.assertTrue(Path(mamba_exe).is_file(), "micromamba executable not found!")
         self.assertTrue(Path(album_env_path).is_dir(), "Album environmanet not found!")
         self.assertFalse(album_test_cmd.returncode, "Album environment not functional(version call threw error)")

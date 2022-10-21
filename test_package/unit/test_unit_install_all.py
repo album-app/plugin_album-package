@@ -19,12 +19,6 @@ class TestUnitInstallAll(TestCommon):
     def tearDown(self) -> None:
         super().tearDown()
 
-    #@unittest.patch("pathlib.Path.home")
-    #"album.package.install_all.os.path.realpath"
-    #def test_get_album_base_path(self, mock_home_call):
-    #   # prepare
-    #   mock_home_call.return_value = self.tmp_dir
-
     def test_get_album_base_path(self):
         # prepare
         album_base_path = Path.home().joinpath('.album')
@@ -92,7 +86,6 @@ class TestUnitInstallAll(TestCommon):
         self.assertTrue(Path(downloaded_file).is_file(), "The download_ressource function didn't download a file.")
 
     def test_force_remove(self):
-        # FIXME. Probably an Integration test since it test handle_read_only in the same run
         # prepare
         del_dir = Path(self.tmp_dir.name).joinpath("del_test")
         del_dir_read = Path(self.tmp_dir.name).joinpath("del_test_read")
