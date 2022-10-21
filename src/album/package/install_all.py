@@ -103,7 +103,7 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
 
     mamba_exe = get_mamba_exe(mamba_base_path)
     if not Path(mamba_exe).is_file():
-        print("Mamba command not available. Installing Micromamba into " + str(mamba_base_path))
+        print("Mamba command not available. Installing Micromamba into %s..." % str(mamba_base_path))
         if not Path(mamba_base_path).is_dir():
             Path(mamba_base_path).mkdir()
 
@@ -314,7 +314,7 @@ def main():
 
     print("Checking for micromamba installation...")
     if not Path(mamba_exe).is_file():
-        print("Installing micromamba into %s" % mamba_base_path)
+        print("Mamba command not available. Installing micromamba into %s..." % mamba_base_path)
         install_mamba(album_base_path, mamba_base_path)
 
     if not check_for_installed_album(album_env_path, mamba_exe) or (solution_path == "None"):
