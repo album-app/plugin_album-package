@@ -111,7 +111,7 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
 
     print("Installing album into %s..." % album_env_path)
 
-    a = subprocess.run([mamba_exe, 'create', '-p', album_env_path, '-f', yml_path], capture_output=True)
+    a = subprocess.run([mamba_exe, 'create', '-p', album_env_path, '-f', yml_path, '--yes'], capture_output=True)
 
     if a.returncode == 0:
         print("Successfully installed album.")
