@@ -15,8 +15,6 @@ from urllib3.util import Retry
 
 from album.package.install_mamba import install_mamba
 
-full_install = False
-
 
 def is_downloadable(url):
     """Shows if url is a downloadable resource."""
@@ -91,8 +89,7 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
     """
         Function to install album, album gui, a solution if passed and micromamba if it is not already installed
     """
-    global full_install
-    full_install = True
+
     if (solution == "None") and Path(album_env_path).is_dir():
         print("Removing old album environment...")
         force_remove(album_env_path)
@@ -128,6 +125,7 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
     else:
         print("An error occurred installing album: %s" % a.stderr)
         sys.exit()
+    return True
 
 
 def check_for_installed_album(album_env_path, mamba_exe):
@@ -304,8 +302,7 @@ def main():
     solution_info = read_solution_info()
     solution_path = solution_info[0]
     coordinates = solution_info[1]
-
-    global full_install
+    full_install = False
 
     if not Path(album_base_path).is_dir():
         Path(album_base_path).mkdir()
@@ -318,7 +315,7 @@ def main():
         install_mamba(album_base_path, mamba_base_path)
 
     if not check_for_installed_album(album_env_path, mamba_exe) or (solution_path == "None"):
-        _install_album_full(album_base_path, mamba_base_path, album_env_path, album_gui_url, yml_path, solution_path)
+        full_install = _install_album_full(album_base_path, mamba_base_path, album_env_path, album_gui_url, yml_path, solution_path)
 
     if not full_install:
         print("Checking for album gui installation...")
