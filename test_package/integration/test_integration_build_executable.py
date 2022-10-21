@@ -1,15 +1,14 @@
 import os
 import platform
 import subprocess
-import sys
 import unittest
 from argparse import Namespace
 from pathlib import Path
+from unittest.mock import patch
 
 import pkg_resources
 
 from album.package import build_executable
-from album.runner.album_logging import get_active_logger
 from test_package.test_common import TestCommon
 
 
@@ -19,219 +18,143 @@ class TestIntegrationBuildExecutable(TestCommon):
 
     def tearDown(self) -> None:
         super().tearDown()
-        
-    #@unittest.skipIf(sys.platform == 'win32' or sys.platform == 'cygwin',
-    #                 "The windows runner doens't work with pywin32")
-    def test_execute_no_gui(self):
-        # build an executable and try running it
-        build_executable.run(
-            self.album_mock,
-            Namespace(
-                solution=Path(os.path.realpath(__file__)).parent.parent.parent.joinpath(
-                    'test_package',
-                    'resources',
-                    'test_solution'
-                ),
-                output_path=self.tmp_dir.name
-            )
-        )
-
-        if platform.system() == 'Windows':
-            exe_path = Path(self.tmp_dir.name).joinpath('solution.exe')
-        else:
-            exe_path = Path(self.tmp_dir.name).joinpath('solution')
-
-        coord_str = 'coords = \'album:import_unittest:0.1.0\'\n'
-        conda_str = 'os.environ["ALBUM_CONDA_PATH"] = \'conda\'\n'
-        counter = 0
-        coord_str_uninstall = 'album.uninstall(\'album:import_unittest:0.1.0\')\n'
-        conda_str_uninstall = 'os.environ["ALBUM_CONDA_PATH"] = \'conda\'\n'
-        counter_uninstall = 0
-
-        cmd = [str(exe_path)]
-        p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-        p1 = p.communicate(b'n')
-
-        if platform.system() == 'Darwin':
-            with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
-                                           'run_solution.py'), 'r') as file:
-                for line in file:
-                    if "coords =" in line:
-                        coord_line = line
-                        counter += 1
-                    if "os.environ[" in line:
-                        conda_line = line
-                        counter += 1
-
-            with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
-                                           'uninstall_solution.py'), 'r') as file:
-                for line in file:
-                    if "album.uninstall(" in line:
-                        coord_line_uninstall = line
-                        counter_uninstall += 1
-                    if "os.environ[" in line:
-                        conda_line_uninstall = line
-                        counter_uninstall += 1
-        else:
-            with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0', 'run_solution.py'), 'r') as file:
-                for line in file:
-                    if "coords =" in line:
-                        coord_line = line
-                        counter += 1
-                    if "os.environ[" in line:
-                        conda_line = line
-                        counter += 1
-
-            with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0', 'uninstall_solution.py'), 'r') as file:
-                for line in file:
-                    if "album.uninstall(" in line:
-                        coord_line_uninstall = line
-                        counter_uninstall += 1
-                    if "os.environ[" in line:
-                        conda_line_uninstall = line
-                        counter_uninstall += 1
-
-        self.assertTrue(Path(exe_path).is_file() and os.access(exe_path, os.X_OK),
-                        "No executable created or executable not accessible.")
-        self.assertEqual(0, p.returncode, "Executable could not be executed correctly.")
-        self.assertEqual(coord_str, coord_line, "The coordinates did not got replaced correctly in the run_solution.py")
-        self.assertEqual(conda_str, conda_line, "The path of the conda executable did not got replaced correctly in the run_solution.py")
-        self.assertEqual(2, counter, "The many lies got altered in the template the run_solution.py.")
-        self.assertEqual(coord_str_uninstall, coord_line_uninstall, "The coordinates did not got replaced correctly in the uninstall_solution.py")
-        self.assertEqual(conda_str_uninstall, conda_line_uninstall, "The path of the conda executable did not got replaced correctly in the uninstall_solution.py")
-        self.assertEqual(2, counter_uninstall, "The many lines got altered in the uninstall_solution template.")
-
-        if platform.system() == 'Windows':
-            self.assertTrue(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_windows.ico').is_file())
-        elif platform.system() == 'Darwin':
-            self.assertTrue(
-                Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_macos.icns').is_file())
-        elif platform.system() == 'Linux':
-            self.assertTrue(
-                Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_linux.png').is_file())
-
-    #@unittest.skipIf(sys.platform == 'win32' or sys.platform == 'cygwin',
-    #                 "The windows runner doens't work with pywin32")
-    def test_execute_gui(self):
-        self.maxDiff = None
-        # build an executable and see if it was successfully build
-        build_executable.run(
-            self.album_mock,
-            Namespace(
-                solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
-                output_path=self.tmp_dir.name
-            )
-        )
-        # create correct output
-        if platform.system() == 'Windows':
-            exe_path = Path(self.tmp_dir.name).joinpath('solution.exe')
-        else:
-            exe_path = Path(self.tmp_dir.name).joinpath('solution')
-        coord_str = '    run_input = \'album:import_unittest:0.1.0\'\n'
-        counter = 0
-        counter_uninstall = 0
-
-        # call
-        cmd = [str(exe_path)]
-        p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-        p1 = p.communicate(b'y')
-        print(p1[0].decode())
-
-        if platform.system() == 'Darwin':
-            with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
-                                           'run_solution_gui.py'), 'r') as file:
-                for line in file:
-                    if "run_input =" in line:
-                        coord_line = line
-                        counter += 1
-
-            with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0_1_0',
-                                           'uninstall_solution_gui.py'), 'r') as file:
-                for line in file:
-                    if "run_input =" in line:
-                        coord_line_uninstall = line
-                        counter_uninstall += 1
-
-        else:
-            with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0',
-                                           'run_solution_gui.py'), 'r') as file:
-                for line in file:
-                    if "run_input =" in line:
-                        coord_line = line
-                        counter += 1
-
-            with open(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_import_unittest_0.1.0',
-                                           'uninstall_solution_gui.py'), 'r') as file:
-                for line in file:
-                    if "run_input =" in line:
-                        coord_line_uninstall = line
-                        counter_uninstall += 1
-
-        # assert
-        self.assertTrue(Path(exe_path).is_file() and os.access(exe_path, os.X_OK),
-                        "No executable created or executable not accessible.")
-        self.assertEqual(0, p.returncode, "Executable could not be executed correctly.")
-        self.assertEqual(coord_str, coord_line, "The coordinates did not got replaced correctly in the run_solution.py")
-        self.assertEqual(coord_str, coord_line_uninstall,
-                         "The coordinates did not got replaced correctly in the uninstall _solution.py")
-        self.assertEqual(1, counter, "The many lies got altered in the template the run_solution.py.")
-        self.assertEqual(1, counter_uninstall, "The many lies got altered in the template the uninstall_solution.py.")
-        if platform.system() == 'Windows':
-            self.assertTrue(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_windows.ico').is_file())
-        elif platform.system() == 'Darwin':
-            self.assertTrue(
-                Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_macos.icns').is_file())
-        elif platform.system() == 'Linux':
-            self.assertTrue(
-                Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_linux.png').is_file())
 
     def test_output_path(self):
         # test if an output path that didn't exist prior to the test was created
         build_executable.run(self.album_mock, Namespace(
             solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
-            output_path=Path(self.tmp_dir.name).joinpath('test_output'),
-            no_gui=True))
+            output_path=Path(self.tmp_dir.name).joinpath('test_output')))
 
         self.assertTrue(Path(self.tmp_dir.name).joinpath('test_output').is_dir(),
                         "Output directory was not created.")
 
-    def test_no_solution(self):
-        # test if the plugin aborts if the solution is missing
-        self.album_mock.resolve.return_value = "BOOLSHIT"
-        with self.assertLogs(get_active_logger(), level='ERROR') as cm:
-            build_executable.run(self.album_mock, Namespace(solution=
-            Path(os.path.realpath(__file__)).parent.parent.parent.joinpath(
-                'test_package',
-                'resources',
-                'test_solution',
-                'murks.py'),
-                output_path=Path(self.tmp_dir.name).joinpath('test_output'),
-                no_gui=True))
-
-        error_str = "ERROR:root:album command failed: Cannot find solution %s! " \
-                    "Try <doi>:<prefix>/<suffix> or <prefix>/<suffix> or <group>:<name>:<version> or " \
-                    "<catalog>:<group>:<name>:<version> or point to a valid file! Aborting..." % Path(
-            os.path.realpath(__file__)).parent.parent.parent.joinpath('test_package', 'resources', 'test_solution',
-                                                                      'murks.py')
-
-        self.assertEqual(error_str, cm.output[0],
-                         "Missing solution was not caught.")
-
     def test_clean_up(self):
+        # call
         build_executable.run(self.album_mock, Namespace(
             solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
             output_path=self.tmp_dir.name))
 
+        # assert
         self.assertFalse(Path(self.tmp_dir.name).joinpath('build').is_dir(),
                          "PyInstallers build directory was not deleted.")
-        self.assertFalse(Path(self.tmp_dir.name).joinpath('call_solution.py').is_file(),
-                         "call_solution.py was not deleted.")
-        self.assertFalse(Path(self.tmp_dir.name).joinpath('build_executable.spec').is_file(),
-                         "build_executable.spec was not deleted.")
-        self.assertFalse(Path(self.tmp_dir.name).joinpath('execution_entrypoint.py').is_file(),
-                         "execution_entrypoint.py was not deleted.")
-        self.assertFalse(Path(self.tmp_dir.name).joinpath('album.yml').is_file(),
-                         "album.yml was not deleted.")
+        self.assertFalse(
+            Path(self.tmp_dir.name).joinpath('album_album_import_unittest_0_1_0_installer.spec').is_file(),
+            "build_executable.spec was not deleted.")
+        self.assertFalse(Path(self.tmp_dir.name).joinpath('solution_info.txt').is_file(),
+                         "solution_info.txt was not deleted.")
+
+    def test_clean_up_failing_resolve(self):
+        try:
+            # prepare
+            self.album_mock.resolve.return_value = "Murks"
+
+            # call
+            build_executable.run(self.album_mock, Namespace(
+                solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'bla.py'),
+                output_path=self.tmp_dir.name))
+        except Exception:
+            pass
+        finally:
+            # assert
+            self.assertFalse(Path(self.tmp_dir.name).joinpath('build').is_dir(),
+                             "PyInstallers build directory was not deleted.")
+            self.assertFalse(
+                Path(self.tmp_dir.name).joinpath('album_album_import_unittest_0_1_0_installer.spec').is_file(),
+                "build_executable.spec was not deleted.")
+            self.assertFalse(Path(self.tmp_dir.name).joinpath('solution_info.txt').is_file(),
+                         "solution_info.txt was not deleted.")
+
+    def test_build_album_installer(self):
+        # call
+        build_executable.run(self.album_mock, Namespace(solution=None, output_path=self.tmp_dir.name))
+
+        # assert
+        if platform.system() == 'Windows':
+            self.assertTrue(Path(self.tmp_dir.name).joinpath("album_installer.exe").is_file())
+        else:
+            self.assertTrue(Path(self.tmp_dir.name).joinpath("album_installer").is_file())
+
+    def test_build_solution_installer(self):
+        # call
+        build_executable.run(self.album_mock, Namespace(
+            solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
+            output_path=self.tmp_dir.name))
+
+        # assert
+        if platform.system() == 'Windows':
+            self.assertTrue(Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer.exe").is_file())
+        else:
+            self.assertTrue(Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer").is_file())
+
+    def test_album_installation(self):
+        # prepare
+        tmp_env = os.environ.copy()
+        album_env_path = Path(self.album_dir).joinpath('envs', 'album')
+        tmp_env["MAMBA_ROOT_PREFIX"] = str(Path(self.mamba_dir))
+        if platform.system() == 'Windows':
+            installer = Path(self.tmp_dir.name).joinpath("album_installer.exe")
+            mamba_exe = Path(self.mamba_dir).joinpath('Library', 'bin', 'micromamba.exe')
+            tmp_env["USERPROFILE"] = str(self.tmp_dir.name)
+        else:
+            installer = Path(self.tmp_dir.name).joinpath("album_installer")
+            mamba_exe = Path(self.mamba_dir).joinpath('bin', 'micromamba')
+            tmp_env["HOME"] = str(self.tmp_dir.name)
+
+        # call
+        build_executable.run(self.album_mock, Namespace(solution=None, output_path=self.tmp_dir.name))
+        cmd = subprocess.run([installer], env=tmp_env)
+        if platform.system() == "Windows":
+            pwsh_str = "%s run -p %s album --version" % (mamba_exe, album_env_path)
+            album_test_cmd = subprocess.run(["powershell", "-Command", pwsh_str], capture_output=True)
+        else:
+            album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], capture_output=True)
+
+        # assert
+        self.assertFalse(cmd.returncode, "Installationprocess exited with returncode != 0")
+        self.assertTrue(Path(mamba_exe).is_file(), "micromamba executable not found!")
+        self.assertTrue(Path(album_env_path).is_dir(), "Album environmanet not found!")
+        self.assertFalse(album_test_cmd.returncode, "Album environment not functional(version call threw error)")
+
+    def test_solution_installation(self):
+        # prepare
+        tmp_env = os.environ.copy()
+        album_env_path = Path(self.album_dir).joinpath('envs', 'album')
+        tmp_env["MAMBA_ROOT_PREFIX"] = str(Path(self.mamba_dir))
+        if platform.system() == 'Windows':
+            installer = Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer.exe")
+            mamba_exe = Path(self.mamba_dir).joinpath('Library', 'bin', 'micromamba.exe')
+            tmp_env["USERPROFILE"] = str(self.tmp_dir.name)
+        else:
+            installer = Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer")
+            mamba_exe = Path(self.mamba_dir).joinpath('bin', 'micromamba')
+            tmp_env["HOME"] = str(self.tmp_dir.name)
+
+        # call
+        build_executable.run(self.album_mock, Namespace(
+            solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
+            output_path=self.tmp_dir.name))
+        if platform.system() == "Windows":
+            cmd = subprocess.run(["powershell", "-Command", installer], env=tmp_env, capture_output=True)
+        else:
+            cmd = subprocess.run([installer], env=tmp_env)
+
+        if platform.system() == "Windows":
+            pwsh_str = "%s run -p %s album --version" % (mamba_exe, album_env_path)
+            album_test_cmd = subprocess.run(["powershell", "-Command", pwsh_str], env=tmp_env, capture_output=True)
+            pwsh_sol_str = "%s run -p %s album info album:import_unittest:0.1.0" % (mamba_exe, album_env_path)
+            solution_test_cmd = subprocess.run(["powershell", "-Command", pwsh_sol_str], env=tmp_env, capture_output=True)
+
+        else:
+            album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], capture_output=True)
+            solution_test_cmd = subprocess.run(
+                [mamba_exe, 'run', '-p', album_env_path, 'album', 'info', 'album:import_unittest:0.1.0'], env=tmp_env, capture_output=True)
+
+        # assert
+        self.assertFalse(cmd.returncode, "Installationsprocess exited with returncode != 0")
+        self.assertTrue(Path(mamba_exe).is_file(), "micromamba executable not found!")
+        self.assertTrue(Path(album_env_path).is_dir(), "Album environmanet not found!")
+        self.assertFalse(album_test_cmd.returncode, "Album environment not functional(version call threw error)")
+        self.assertFalse(solution_test_cmd.returncode, "Solution seems not to be installed.(info solution threw error)")
 
 
 if __name__ == '__main__':

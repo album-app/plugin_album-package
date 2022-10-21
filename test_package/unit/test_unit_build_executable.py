@@ -1,17 +1,16 @@
 import inspect
 import os
-import platform
+import re
 import sys
 import unittest.mock
+from argparse import Namespace
 from pathlib import Path
 
-import certifi
 import pkg_resources
 
-from album import core
 from album.argument_parsing import create_parser
-from album.package import create_specfile, create_subscripts
 from album.package.argument_parsing import album_package
+from album.package.build_executable import fill_placeholder, create_pyinstaller_params
 from test_package.test_common import TestCommon
 
 
@@ -24,187 +23,57 @@ class TestUnitBuildExecutable(TestCommon):
         super().tearDown()
 
     def test_create_parser(self):
-        # test the argument pasring
+        # test the argument parsing
         parser = create_parser()
-        sys.argv = ["", "package", "1234", "An_example_path"]
+        sys.argv = ["", "package", "--solution", "1234", "--output_path", "An_example_path"]
         args = parser.parse_known_args()
         self.assertEqual("1234", args[0].solution)
         self.assertEqual("An_example_path", args[0].output_path)
         self.assertEqual(inspect.getsource(album_package), inspect.getsource(args[0].func))
 
-        sys.argv = ["", "package", "1234", "An_example_path"]
+        sys.argv = ["", "package", "--output_path", "An_example_path"]
         args = parser.parse_known_args()
-        self.assertEqual("1234", args[0].solution)
+        self.assertEqual(None, args[0].solution)
         self.assertEqual("An_example_path", args[0].output_path)
         self.assertEqual(inspect.getsource(album_package), inspect.getsource(args[0].func))
 
-    def test_entrypoint(self):
-        create_subscripts.create_execution_entrypoint(self.tmp_dir.name)
-        self.assertTrue(Path(self.tmp_dir.name).joinpath('execution_entrypoint.py').is_file())
+    def test_fill_placeholder(self):
+        # prepare
+        output_path = Path(self.tmp_dir.name)
+        solution = pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py')
+        solution_double_backslash = re.sub(r'\\', r'\\\\', solution)
+        coordinates = "album:import_unittest:0.1.0"
+        test_str = "%s\n%s" % (solution_double_backslash, coordinates)
 
-    def test_call_solution_gui(self):
-        # test if the call_solution_gui_template was successfully created
-        test_coords = '    coordinates = \'album:import_unittest:0.1.0\'\n'
-        create_subscripts.create_call_solution(self.tmp_dir.name, 'album:import_unittest:0.1.0')
-        created_call_solution = Path(self.tmp_dir.name).joinpath('call_solution.py')
+        # call
+        fill_placeholder(output_path, solution, coordinates)
 
-        counter = 0
-        with open(created_call_solution, 'r') as file:
-            for line in file:
-                if line.startswith("    coordinates ="):
-                    coord_line = line
-                    counter += 1
+        with open(Path(output_path).joinpath('solution_info.txt'), 'r') as file:
+            solution_info = file.read()
 
-        self.assertTrue(Path(self.tmp_dir.name).joinpath('call_solution.py').is_file(),
-                        "There was no call_solution.py subscript created!")
-        self.assertEqual(test_coords, coord_line,
-                         'There was an error inserting the solution coordinates into the call_solution.py!')
-        self.assertEqual(2, counter, 'The coordinates got inserted more than one time!')
+        # assert
+        self.assertEqual(test_str, solution_info)
 
-    def test_spec_file_single(self):
-        yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
-        test_solution_path = repr(
-            str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', 'solution.py')))
-        hook_path = repr(str(pkg_resources.resource_filename('album.package.resources.installer', 'install_all.py')))
-        call_sol_path = repr(str(Path(self.tmp_dir.name).joinpath('call_solution.py')))
-        run_sol_gui_path = repr(
-            str(pkg_resources.resource_filename('album.package.resources.templates',
-                                                'run_solution_gui.template')))
-        uninstall_sol_gui_path = repr(
-            str(pkg_resources.resource_filename('album.package.resources.templates',
-                                                'uninstall_solution_gui.template')))
-        run_sol_path = repr(
-            str(pkg_resources.resource_filename('album.package.resources.templates',
-                                                'run_solution.template')))
-        uninstall_sol_path = repr(
-            str(pkg_resources.resource_filename('album.package.resources.templates',
-                                                'uninstall_solution.template')))
-        cert_path = repr(str(Path(certifi.where())))
+    def test_create_parameter(self):
+        # prepare
+        ns = Namespace(
+            solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
+            output_path=self.tmp_dir.name)
+        install_mamba_script = pkg_resources.resource_filename('album.package', 'install_mamba.py')
+        solution_info_path = str(Path(self.tmp_dir.name).joinpath('solution_info.txt'))
+        pyinstaller_params = [str(pkg_resources.resource_filename('album.package', 'install_all.py')),
+                              '--onefile', '--name=album_installer', '--distpath=%s' % str(self.tmp_dir.name),
+                              '--add-data=%s%s%s' % (install_mamba_script, os.pathsep, '.'),
+                              '--add-data=%s%s%s' % (solution_info_path, os.pathsep, '.'),
+                              '--workpath=%s' % str(Path(self.tmp_dir.name).joinpath('build')),
+                              '--specpath=%s' % str(self.tmp_dir.name), '--log-level=ERROR',
+                              "--hidden-import=pkg_resources"]
 
-        if platform.system() == 'Windows':
-            icon_path = repr(
-                str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_windows.ico')))
-        elif platform.system() == 'Darwin':
-            icon_path = repr(
-                str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_macos.icns')))
-        elif platform.system() == 'Linux':
-            icon_path = repr(
-                str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_linux.png')))
-        else:
-            print("Your OS is currently not supported")
-            raise NotImplementedError
+        # call
+        script_pyinstaller_params = create_pyinstaller_params(ns, '--name=album_installer')
 
-        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.')],\n" % (
-        yml_path, test_solution_path, run_sol_path, uninstall_sol_path, icon_path, run_sol_gui_path,
-        uninstall_sol_gui_path, call_sol_path, cert_path)
-
-        hook_string = "\t\t\t runtime_hooks=[%s],\n" % hook_path
-
-        create_specfile.create(self.tmp_dir.name,
-                               Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('test_package',
-                                                                                              'resources',
-                                                                                              'test_solution',
-                                                                                              'solution.py'))
-        created_spec_gui = Path(self.tmp_dir.name).joinpath('build_executable.spec')
-
-        counter = 0
-        with open(created_spec_gui, 'r') as file:
-            for line in file:
-                if line.startswith("\t\t\t datas="):
-                    data_line = line
-                    counter += 1
-                if line.startswith("\t\t\t runtime_hooks="):
-                    hook_line = line
-                    counter += 1
-
-        self.assertTrue(Path(created_spec_gui).is_file(), "There was no spec file created!")
-        self.assertEqual(datas_string, data_line,
-                         "There was an error creating the string for additional data in the spec file.")
-        self.assertEqual(hook_string, hook_line,
-                         "There was an error creating the string for the install script in the spec file.")
-        self.assertEqual(2, counter, "There were to many lines replaced! Error in the spec file creation")
-
-    def test_spec_file_dir(self):
-        yml_path = repr(str(Path(self.tmp_dir.name).joinpath('album.yml')))
-        test_solution_path = repr(
-            str(Path(os.path.realpath(__file__)).parent.parent.joinpath('resources', 'test_solution', '*')))
-        hook_path = repr(str(pkg_resources.resource_filename('album.package.resources.installer', 'install_all.py')))
-        call_sol_path = repr(str(Path(self.tmp_dir.name).joinpath('call_solution.py')))
-        run_sol_gui_path = repr(
-            str(pkg_resources.resource_filename('album.package.resources.templates',
-                                                'run_solution_gui.template')))
-        uninstall_sol_gui_path = repr(
-            str(pkg_resources.resource_filename('album.package.resources.templates',
-                                                'uninstall_solution_gui.template')))
-        run_sol_path = repr(
-            str(pkg_resources.resource_filename('album.package.resources.templates',
-                                                'run_solution.template')))
-        uninstall_sol_path = repr(
-            str(pkg_resources.resource_filename('album.package.resources.templates',
-                                                'uninstall_solution.template')))
-        cert_path = repr(str(Path(certifi.where())))
-
-
-        if platform.system() == 'Windows':
-            icon_path = repr(
-                str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_windows.ico')))
-
-        elif platform.system() == 'Darwin':
-            icon_path = repr(
-                str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_macos.icns')))
-
-        elif platform.system() == 'Linux':
-            icon_path = repr(
-                str(pkg_resources.resource_filename('album.package.resources.icons', 'album_icon_linux.png')))
-
-        else:
-            print("Your OS is currently not supported")
-            raise NotImplementedError
-
-        datas_string = "\t\t\t datas=[(%s, '.'),(%s, 'solution_files'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.'),(%s, '.')],\n" % (
-            yml_path, test_solution_path, run_sol_path, uninstall_sol_path, icon_path, run_sol_gui_path,
-            uninstall_sol_gui_path, call_sol_path, cert_path)
-        hook_string = "\t\t\t runtime_hooks=[%s],\n" % hook_path
-
-        create_specfile.create(self.tmp_dir.name,
-                               Path(os.path.realpath(__file__)).parent.parent.parent.joinpath('test_package',
-                                                                                              'resources',
-                                                                                              'test_solution'))
-        created_spec_gui = Path(self.tmp_dir.name).joinpath('build_executable.spec')
-
-        counter = 0
-        with open(created_spec_gui, 'r') as file:
-            for line in file:
-                if line.startswith("\t\t\t datas="):
-                    data_line = line
-                    counter += 1
-                if line.startswith("\t\t\t runtime_hooks="):
-                    hook_line = line
-                    counter += 1
-
-        self.assertTrue(Path(created_spec_gui).is_file(), "There was no spec file created!")
-        self.assertEqual(datas_string, data_line,
-                         "There was an error creating the string for additional data in the spec file.")
-        self.assertEqual(hook_string, hook_line,
-                         "There was an error creating the string for the install script in the spec file.")
-        self.assertEqual(counter, 2, "There were to many lines replaced! Error in the spec file creation")
-
-    def test_yml(self):
-        # test if the yml file was correctly created
-        ver_str = "      - album==%s\n" % core.__version__
-
-        create_subscripts.create_yml(self.tmp_dir.name)
-        yml_path = Path(self.tmp_dir.name).joinpath('album.yml')
-        counter = 0
-        with open(yml_path, 'r') as file:
-            for line in file:
-                if line.startswith("      - album=="):
-                    ver_line = line
-                    counter += 1
-
-        self.assertTrue(Path(yml_path).is_file(), "There was no album.yml file created!")
-        self.assertEqual(ver_str, ver_line, "An error occured when inserting the current album version!")
-        self.assertEqual(counter, 1, "There were to many lines replaced! Error in the album.yml creation")
+        # assert
+        self.assertEqual(pyinstaller_params, script_pyinstaller_params)
 
 
 if __name__ == '__main__':
