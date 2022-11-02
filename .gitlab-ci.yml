@@ -278,3 +278,31 @@ integration tests windows:
     - $cmndP = powershell.exe -command {python -V}
     - $cmnd = powershell.exe -command {conda create -y --channel=conda-forge -n album python=3.9 pip git pywin32=228 2>&1 | Write-Host; conda activate album 2>&1 | Write-Host; pip install album 2>&1 | Write-Host; pip install --no-cache-dir $env:CI_PROJECT_DIR 2>&1 | Write-Host; python -m unittest test_package\integration\run_all_integration.py 2>&1 | Write-Host; exit(0)}
     - if ("Success" -in $cmnd[-5..-1]) {exit(0)} else {exit(1)}
+
+linux_installer_build:
+  extends: .linux_base_template
+  stage: build
+  script:
+    - album package --output_path $CI_PROJECT_DIR/installer
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR/installer/album_installer
+
+macos_installer_build:
+  extends: .macos_base_template
+  stage: build
+  script:
+    - album package --output_path $CI_PROJECT_DIR/installer
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR/installer/album_installer
+
+windows_installer_build:
+  extends: .windows_base_template
+  stage: build
+  script:
+    - $cmnd = powershell.exe -command {conda create -y -n album-package python=3.9 2>&1 | Write-Host; conda activate album-package 2>&1 | Write-Host; pip install --no-cache-dir $env:CI_PROJECT_DIR 2>&1 | Write-Host; album package --output_path $env:CI_PROJECT_DIR/installer  2>&1 | Write-Host; exit(0)}
+    - if (Test-Path $env:CI_PROJECT_DIR\installer\album_installer.exe -PathType Leaf) {exit(0)} else {exit(1)}
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR\installer\album_installer.exe
