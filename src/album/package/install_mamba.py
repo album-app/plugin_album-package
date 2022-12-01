@@ -9,6 +9,15 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
+MAMBA_LINK_LINUX_X86_64 = "https://micro.mamba.pm/api/micromamba/linux-64/1.0.0"
+MAMBA_LINK_LINUX_ARM64 = "https://micro.mamba.pm/api/micromamba/linux-aarch64/1.0.0"
+MAMBA_LINK_LINUX_POWER = "https://micro.mamba.pm/api/micromamba/linux-ppc64le/1.0.0"
+
+MAMBA_LINK_MACOS_X86_64 = "https://micro.mamba.pm/api/micromamba/osx-64/1.0.0"
+MAMBA_LINK_MACOS_ARM64 = "https://micro.mamba.pm/api/micromamba/osx-arm64/1.0.0"
+
+MAMBA_LINK_WINDOWS = "https://micro.mamba.pm/api/micromamba/win-64/1.0.0"
+
 
 def is_downloadable(url):
     """Shows if url is a downloadable resource."""
@@ -79,15 +88,15 @@ def _download_mamba(mamba_base_path):
 
 def _download_mamba_win(mamba_installer_path):
     """downloads micromamba for windows"""
-    return download_resource("https://micro.mamba.pm/api/micromamba/win-64/latest", mamba_installer_path)
+    return download_resource(MAMBA_LINK_WINDOWS, mamba_installer_path)
 
 
 def _download_mamba_macos(mamba_installer_path):
     """downloads micromamba for macOS depending on the processor architecture"""
     if check_architecture().__eq__('x86_64'):
-        return download_resource("https://micro.mamba.pm/api/micromamba/osx-64/latest", mamba_installer_path)
+        return download_resource(MAMBA_LINK_MACOS_X86_64, mamba_installer_path)
     elif check_architecture().lower().__eq__('arm64'):
-        return download_resource("https://micro.mamba.pm/api/micromamba/osx-arm64/latest", mamba_installer_path)
+        return download_resource(MAMBA_LINK_MACOS_ARM64, mamba_installer_path)
     else:
         raise NotImplementedError("There is no micromamba version for your processor architecture.")
 
@@ -95,11 +104,11 @@ def _download_mamba_macos(mamba_installer_path):
 def _download_mamba_linux(mamba_installer_path):
     """downloads micromamba for linux depending on the processor architecture"""
     if check_architecture().__eq__('x86_64'):
-        return download_resource("https://micro.mamba.pm/api/micromamba/linux-64/latest", mamba_installer_path)
+        return download_resource(MAMBA_LINK_LINUX_X86_64, mamba_installer_path)
     elif check_architecture().lower().__eq__('arm64'):
-        return download_resource("https://micro.mamba.pm/api/micromamba/linux-aarch64/latest", mamba_installer_path)
+        return download_resource(MAMBA_LINK_LINUX_ARM64, mamba_installer_path)
     elif check_architecture().lower().__eq__('power'):
-        return download_resource("https://micro.mamba.pm/api/micromamba/linux-ppc64le/latest", mamba_installer_path)
+        return download_resource(MAMBA_LINK_LINUX_POWER, mamba_installer_path)
     else:
         raise NotImplementedError("There is no micromamba version for your processor architecture.")
 
