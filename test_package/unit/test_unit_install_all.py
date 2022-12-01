@@ -1,8 +1,5 @@
-import os.path
 import platform
 from pathlib import Path
-
-import unittest
 from unittest.mock import patch
 
 import pkg_resources
@@ -72,7 +69,7 @@ class TestUnitInstallAll(TestCommon):
         self.assertTrue(install_all.is_downloadable(working_download_link),
                         "The downloadable check for a working link didn't return True.")
         self.assertFalse(install_all.is_downloadable(wrong_download_link),
-                        "The downloadable check for a wrong link didn't return False.")
+                         "The downloadable check for a wrong link didn't return False.")
 
     def test_download_ressource(self):
         # prepare
@@ -100,4 +97,3 @@ class TestUnitInstallAll(TestCommon):
         # assert
         self.assertFalse(Path(del_dir).is_dir(), 'The directory to be deleted was NOT deleted!')
         self.assertFalse(Path(del_dir_read).is_dir(), 'The read_only directory to be deleted was NOT deleted!')
-
