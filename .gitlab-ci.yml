@@ -565,7 +565,7 @@ integration tests windows conda:
 
 
 linux_installer_build:
-  extends: .linux_base_template
+  extends: .linux_base_template_micromamba
   stage: build
   script:
     - album package --output_path $CI_PROJECT_DIR/installer
@@ -574,7 +574,7 @@ linux_installer_build:
       - $CI_PROJECT_DIR/installer/album_installer
 
 macos_installer_build:
-  extends: .macos_base_template
+  extends: .macos_base_template_micromamba
   stage: build
   script:
     - album package --output_path $CI_PROJECT_DIR/installer
@@ -583,7 +583,7 @@ macos_installer_build:
       - $CI_PROJECT_DIR/installer/album_installer
 
 windows_installer_build:
-  extends: .windows_base_template
+  extends: .windows_base_template_micromamba
   stage: build
   script:
     - $cmnd = powershell.exe -command {conda create -y -n album-package python=3.9 2>&1 | Write-Host; conda activate album-package 2>&1 | Write-Host; pip install --no-cache-dir $env:CI_PROJECT_DIR 2>&1 | Write-Host; album package --output_path $env:CI_PROJECT_DIR/installer  2>&1 | Write-Host; exit(0)}
