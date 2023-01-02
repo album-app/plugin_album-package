@@ -437,7 +437,7 @@ pypi deploy:
           - setup.cfg
 
 cmdline linux:
-  extends: .linux_base_template
+  extends: .linux_base_template_micromamba
   stage: build
   script:
     # album commands
