@@ -1,0 +1,115 @@
+import os
+import platform
+import subprocess
+import unittest
+from argparse import Namespace
+from pathlib import Path
+
+import pkg_resources
+
+from album.package import build_executable
+from test_package.test_common import TestCommon
+
+
+class TestIntegrationBuildExecutable(TestCommon):
+    def setUp(self) -> None:
+        super().setUp()
+
+    def tearDown(self) -> None:
+        super().tearDown()
+
+    def test_build_album_installer(self):
+        # call
+        build_executable.run(self.album_mock, Namespace(solution=None, output_path=self.tmp_dir.name))
+
+        # assert
+        if platform.system() == 'Windows':
+            self.assertTrue(Path(self.tmp_dir.name).joinpath("album_installer.exe").is_file())
+        else:
+            self.assertTrue(Path(self.tmp_dir.name).joinpath("album_installer").is_file())
+
+    def test_build_solution_installer(self):
+        # call
+        build_executable.run(self.album_mock, Namespace(
+            solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
+            output_path=self.tmp_dir.name))
+
+        # assert
+        if platform.system() == 'Windows':
+            self.assertTrue(Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer.exe").is_file())
+        else:
+            self.assertTrue(Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer").is_file())
+
+    def test_album_installation(self):
+        # prepare
+        tmp_env = os.environ.copy()
+        album_env_path = Path(self.album_dir).joinpath('envs', 'album')
+        tmp_env["MAMBA_ROOT_PREFIX"] = str(Path(self.mamba_dir))
+        if platform.system() == 'Windows':
+            installer = Path(self.tmp_dir.name).joinpath("album_installer.exe")
+            mamba_exe = Path(self.mamba_dir).joinpath('Library', 'bin', 'micromamba.exe')
+            tmp_env["USERPROFILE"] = str(self.tmp_dir.name)
+        else:
+            installer = Path(self.tmp_dir.name).joinpath("album_installer")
+            mamba_exe = Path(self.mamba_dir).joinpath('bin', 'micromamba')
+            tmp_env["HOME"] = str(self.tmp_dir.name)
+
+        # call
+        build_executable.run(self.album_mock, Namespace(solution=None, output_path=self.tmp_dir.name))
+        cmd = subprocess.run([installer], env=tmp_env)
+        if platform.system() == "Windows":
+            pwsh_str = "%s run -p %s album --version" % (mamba_exe, album_env_path)
+            album_test_cmd = subprocess.run(["powershell", "-Command", pwsh_str], capture_output=True)
+        else:
+            album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], capture_output=True)
+
+        # assert
+        self.assertFalse(cmd.returncode, "Installationprocess exited with returncode != 0")
+        self.assertTrue(Path(mamba_exe).is_file(), "micromamba executable not found!")
+        self.assertTrue(Path(album_env_path).is_dir(), "Album environmanet not found!")
+        self.assertFalse(album_test_cmd.returncode, "Album environment not functional(version call threw error)")
+
+    def test_solution_installation(self):
+        # prepare
+        tmp_env = os.environ.copy()
+        album_env_path = Path(self.album_dir).joinpath('envs', 'album')
+        tmp_env["MAMBA_ROOT_PREFIX"] = str(Path(self.mamba_dir))
+        if platform.system() == 'Windows':
+            installer = Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer.exe")
+            mamba_exe = Path(self.mamba_dir).joinpath('Library', 'bin', 'micromamba.exe')
+            tmp_env["USERPROFILE"] = str(self.tmp_dir.name)
+        else:
+            installer = Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer")
+            mamba_exe = Path(self.mamba_dir).joinpath('bin', 'micromamba')
+            tmp_env["HOME"] = str(self.tmp_dir.name)
+
+        # call
+        build_executable.run(self.album_mock, Namespace(
+            solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
+            output_path=self.tmp_dir.name))
+        if platform.system() == "Windows":
+            cmd = subprocess.run(["powershell", "-Command", installer], env=tmp_env, capture_output=True)
+        else:
+            cmd = subprocess.run([installer], env=tmp_env)
+
+        if platform.system() == "Windows":
+            pwsh_str = "%s run -p %s album --version" % (mamba_exe, album_env_path)
+            album_test_cmd = subprocess.run(["powershell", "-Command", pwsh_str], env=tmp_env, capture_output=True)
+            pwsh_sol_str = "%s run -p %s album info album:import_unittest:0.1.0" % (mamba_exe, album_env_path)
+            solution_test_cmd = subprocess.run(["powershell", "-Command", pwsh_sol_str], env=tmp_env, capture_output=True)
+
+        else:
+            album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], capture_output=True)
+            solution_test_cmd = subprocess.run(
+                [mamba_exe, 'run', '-p', album_env_path, 'album', 'info', 'album:import_unittest:0.1.0'], env=tmp_env, capture_output=True)
+
+        # assert
+        self.assertFalse(cmd.returncode, "Installationsprocess exited with returncode != 0")
+        self.assertTrue(Path(mamba_exe).is_file(), "micromamba executable not found!")
+        self.assertTrue(Path(album_env_path).is_dir(), "Album environmanet not found!")
+        self.assertFalse(album_test_cmd.returncode, "Album environment not functional(version call threw error)")
+        self.assertFalse(solution_test_cmd.returncode, "Solution seems not to be installed.(info solution threw error)")
+
+
+if __name__ == '__main__':
+    unittest.main()
