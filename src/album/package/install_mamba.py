@@ -2,7 +2,7 @@ import os
 import platform
 import subprocess
 from pathlib import Path
-import bz2
+import zipfile
 import tarfile
 
 import requests
@@ -16,7 +16,7 @@ MAMBA_LINK_LINUX_POWER = "https://gitlab.com/album-app/plugins/album-package/-/r
 MAMBA_LINK_MACOS_X86_64 = "https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/micromamba-1.0.0_MACOS_X86_64.tar.bz2?inline=false"
 MAMBA_LINK_MACOS_ARM64 = "https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/micromamba-1.0.0_MACOS_ARM64.tar.bz2?inline=false"
 
-MAMBA_LINK_WINDOWS = "https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/micromamba-1.0.0_WINDOWS.tar.bz2?inline=false"
+MAMBA_LINK_WINDOWS = "https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/micromamba-1.0.0_WINDOWS.zip?inline=false"
 
 
 def is_downloadable(url):
@@ -77,7 +77,7 @@ def check_architecture():
 def _download_mamba(mamba_base_path):
     """downloads micromamba"""
     if platform.system() == 'Windows':
-        return _download_mamba_win(Path(mamba_base_path).joinpath('micromamba.tar.bz2'))
+        return _download_mamba_win(Path(mamba_base_path).joinpath('micromamba.zip'))
     elif platform.system() == 'Darwin':
         return _download_mamba_macos(Path(mamba_base_path).joinpath('micromamba.tar'))
     elif platform.system() == 'Linux':
@@ -115,14 +115,8 @@ def _download_mamba_linux(mamba_installer_path):
 
 def _unpack_mamba_win(mamba_installer, mamba_base_path):
     """unpacks the windows version of the micromamba archive"""
-    tar_path = str(Path(mamba_base_path).joinpath('micromamba.tar'))
-    with bz2.open(mamba_installer, "rb") as f:
-        content = f.read()
-    with open(tar_path, 'wb') as file:
-        file.write(content)
-    with tarfile.open(tar_path, 'r') as tar:
-        tar.extractall(mamba_base_path)
-    ## TODO: Success Check?
+    with zipfile.ZipFile(Path(mamba_installer)) as zip:
+        zip.extractall(Path(mamba_base_path))
 
 
 def _unpack_mamba_unix(mamba_installer, mamba_base_path):
