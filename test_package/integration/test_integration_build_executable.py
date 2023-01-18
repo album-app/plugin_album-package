@@ -4,7 +4,6 @@ import subprocess
 import unittest
 from argparse import Namespace
 from pathlib import Path
-from unittest.mock import patch
 
 import pkg_resources
 

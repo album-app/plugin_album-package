@@ -2,12 +2,21 @@ import os
 import platform
 import subprocess
 from pathlib import Path
-import bz2
+import zipfile
 import tarfile
 
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
+
+MAMBA_LINK_LINUX_X86_64 = "https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/micromamba-1.0.0_LINUX_X86_64.tar.bz2?inline=false"
+MAMBA_LINK_LINUX_ARM64 = "https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/micromamba-1.0.0_LINUX_ARM64.tar.bz2?inline=false"
+MAMBA_LINK_LINUX_POWER = "https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/micromamba-1.0.0_LINUX_POWER.tar.bz2?inline=false"
+
+MAMBA_LINK_MACOS_X86_64 = "https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/micromamba-1.0.0_MACOS_X86_64.tar.bz2?inline=false"
+MAMBA_LINK_MACOS_ARM64 = "https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/micromamba-1.0.0_MACOS_ARM64.tar.bz2?inline=false"
+
+MAMBA_LINK_WINDOWS = "https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/micromamba-1.0.0_WINDOWS.zip?inline=false"
 
 
 def is_downloadable(url):
@@ -68,7 +77,7 @@ def check_architecture():
 def _download_mamba(mamba_base_path):
     """downloads micromamba"""
     if platform.system() == 'Windows':
-        return _download_mamba_win(Path(mamba_base_path).joinpath('micromamba.tar.bz2'))
+        return _download_mamba_win(Path(mamba_base_path).joinpath('micromamba.zip'))
     elif platform.system() == 'Darwin':
         return _download_mamba_macos(Path(mamba_base_path).joinpath('micromamba.tar'))
     elif platform.system() == 'Linux':
@@ -79,15 +88,15 @@ def _download_mamba(mamba_base_path):
 
 def _download_mamba_win(mamba_installer_path):
     """downloads micromamba for windows"""
-    return download_resource("https://micro.mamba.pm/api/micromamba/win-64/latest", mamba_installer_path)
+    return download_resource(MAMBA_LINK_WINDOWS, mamba_installer_path)
 
 
 def _download_mamba_macos(mamba_installer_path):
     """downloads micromamba for macOS depending on the processor architecture"""
     if check_architecture().__eq__('x86_64'):
-        return download_resource("https://micro.mamba.pm/api/micromamba/osx-64/latest", mamba_installer_path)
+        return download_resource(MAMBA_LINK_MACOS_X86_64, mamba_installer_path)
     elif check_architecture().lower().__eq__('arm64'):
-        return download_resource("https://micro.mamba.pm/api/micromamba/osx-arm64/latest", mamba_installer_path)
+        return download_resource(MAMBA_LINK_MACOS_ARM64, mamba_installer_path)
     else:
         raise NotImplementedError("There is no micromamba version for your processor architecture.")
 
@@ -95,25 +104,19 @@ def _download_mamba_macos(mamba_installer_path):
 def _download_mamba_linux(mamba_installer_path):
     """downloads micromamba for linux depending on the processor architecture"""
     if check_architecture().__eq__('x86_64'):
-        return download_resource("https://micro.mamba.pm/api/micromamba/linux-64/latest", mamba_installer_path)
+        return download_resource(MAMBA_LINK_LINUX_X86_64, mamba_installer_path)
     elif check_architecture().lower().__eq__('arm64'):
-        return download_resource("https://micro.mamba.pm/api/micromamba/linux-aarch64/latest", mamba_installer_path)
+        return download_resource(MAMBA_LINK_LINUX_ARM64, mamba_installer_path)
     elif check_architecture().lower().__eq__('power'):
-        return download_resource("https://micro.mamba.pm/api/micromamba/linux-ppc64le/latest", mamba_installer_path)
+        return download_resource(MAMBA_LINK_LINUX_POWER, mamba_installer_path)
     else:
         raise NotImplementedError("There is no micromamba version for your processor architecture.")
 
 
 def _unpack_mamba_win(mamba_installer, mamba_base_path):
     """unpacks the windows version of the micromamba archive"""
-    tar_path = str(Path(mamba_base_path).joinpath('micromamba.tar'))
-    with bz2.open(mamba_installer, "rb") as f:
-        content = f.read()
-    with open(tar_path, 'wb') as file:
-        file.write(content)
-    with tarfile.open(tar_path, 'r') as tar:
-        tar.extractall(mamba_base_path)
-    ## TODO: Success Check?
+    with zipfile.ZipFile(Path(mamba_installer)) as zip:
+        zip.extractall(Path(mamba_base_path))
 
 
 def _unpack_mamba_unix(mamba_installer, mamba_base_path):
