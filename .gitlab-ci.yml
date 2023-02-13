@@ -454,6 +454,8 @@ cmdline linux:
   script:
     # album commands
     - album package -h
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
 
 
 unit tests linux micromamba:
