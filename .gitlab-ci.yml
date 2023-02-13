@@ -635,8 +635,6 @@ linux_installer_build:
   artifacts:
     paths:
       - $CI_PROJECT_DIR/installer/album_installer
-    rules:
-      - if: $CI_PIPELINE_SOURCE == "pipeline"
 
 macos_installer_build:
   extends: .macos_base_template_micromamba
