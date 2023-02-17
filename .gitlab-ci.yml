@@ -363,6 +363,8 @@ prepare release:
     reports:
       dotenv: variables.env
   rules:
+    - if: $CI_PIPELINE_SOURCE == "pipeline"
+      when: never
     - if: $CI_COMMIT_TAG
       when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
@@ -381,6 +383,8 @@ gitlab release:
   script:
     - echo "running release_job for version $VERSION and tag $TAG"
   rules:
+      - if: $CI_PIPELINE_SOURCE == "pipeline"
+        when: never
       - if: $CI_COMMIT_TAG
         when: never
       - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
@@ -394,6 +398,7 @@ gitlab release:
 
 
 gitlab pypi deploy:
+
   image: python:latest
   stage: deploy
   tags:
@@ -409,6 +414,8 @@ gitlab pypi deploy:
     - python setup.py sdist bdist_wheel
     - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi dist/*
   rules:
+      - if: $CI_PIPELINE_SOURCE == "pipeline"
+        when: never
       - if: $CI_COMMIT_TAG
         when: never
       - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
@@ -433,6 +440,8 @@ pypi deploy:
     - python setup.py sdist bdist_wheel
     - TWINE_PASSWORD=$PYPI_DEPLOY_TOKEN TWINE_USERNAME=$PYPI_DEPLOY_USER python -m twine upload --repository-url https://upload.pypi.org/legacy/  dist/*
   rules:
+      - if: $CI_PIPELINE_SOURCE == "pipeline"
+        when: never
       - if: $CI_COMMIT_TAG
         when: never
       - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
@@ -445,6 +454,8 @@ cmdline linux:
   script:
     # album commands
     - album package -h
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
 
 
 unit tests linux micromamba:
@@ -452,36 +463,48 @@ unit tests linux micromamba:
   stage: test
   script:
     - ALBUM_CONDA_PATH=$CI_PROJECT_DIR/bin/micromamba python -m unittest test_package/unit/run_all_unit.py
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
 
 unit tests linux conda:
   extends: .linux_base_template_conda
   stage: test
   script:
     - python -m unittest test_package/unit/run_all_unit.py
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
 
 unit tests linux conda with mamba:
   extends: .linux_base_template_conda_with_mamba
   stage: test
   script:
     - python -m unittest test_package/unit/run_all_unit.py
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
 
 integration tests linux micromamba:
   extends: .linux_base_template_micromamba
   stage: test
   script:
     - python -m unittest test_package/integration/run_all_integration_micromamba.py
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
 
 integration tests linux conda:
   extends: .linux_base_template_conda
   stage: test
   script:
     - python -m unittest test_package/integration/run_all_integration_conda.py
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
 
 integration tests linux conda with mamba:
   extends: .linux_base_template_conda_with_mamba
   stage: test
   script:
     - python -m unittest test_package/integration/run_all_integration_conda.py
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
 
 # MacOs Tests
 
@@ -490,18 +513,24 @@ unit tests macos micromamba:
   stage: test
   script:
     - python -m unittest test_package/unit/run_all_unit.py
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
 
 unit tests macos conda:
   extends: .macos_base_template_conda
   stage: test
   script:
     - python -m unittest test_package/unit/run_all_unit.py
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
 
 unit tests macos conda with mamba:
   extends: .macos_base_template_conda_with_mamba
   stage: test
   script:
     - python -m unittest test_package/unit/run_all_unit.py
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
 
 
 integration tests macos micromamba:
@@ -509,12 +538,16 @@ integration tests macos micromamba:
   stage: test
   script:
     - python -m unittest test_package/integration/run_all_integration_micromamba.py
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
 
 integration tests macos conda:
   extends: .macos_base_template_conda
   stage: test
   script:
     - python -m unittest test_package/integration/run_all_integration_conda.py
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
 
 
 integration tests macos conda with mamba:
@@ -522,6 +555,8 @@ integration tests macos conda with mamba:
   stage: test
   script:
     - python -m unittest test_package/integration/run_all_integration_conda.py
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
 
 # Windows Tests
 
@@ -530,6 +565,8 @@ unit tests windows micromamba:
   stage: test
   script:
     - $cmnd = powershell.exe -command {micromamba activate album 2>&1 | Write-Host; python -m unittest test_package\unit\run_all_unit.py 2>&1 | Write-Host; exit($lastexitcode)}
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
 
 
 unit tests windows conda:
@@ -537,20 +574,24 @@ unit tests windows conda:
   stage: test
   script:
     - $cmnd = powershell.exe -command {conda create -y --channel=conda-forge -n album python=3.9 pip git 2>&1 | Write-Host; conda activate album 2>&1 | Write-Host; pip install --no-cache-dir $env:CI_PROJECT_DIR 2>&1 | Write-Host; python -m unittest test_package\unit\run_all_unit.py 2>&1 | Write-Host; exit($lastexitcode)}
-
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
 
 unit tests windows conda with mamba:
   extends: .windows_base_template_conda_with_mamba
   stage: test
   script:
     - $cmnd = powershell.exe -command {conda create -y --channel=conda-forge -n album python=3.9 pip git 2>&1 | Write-Host; conda activate album 2>&1 | Write-Host; pip install --no-cache-dir $env:CI_PROJECT_DIR 2>&1 | Write-Host; python -m unittest test_package\unit\run_all_unit.py 2>&1 | Write-Host; exit($lastexitcode)}
-
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
 
 integration tests windows conda with mamba:
   extends: .windows_base_template_conda_with_mamba
   stage: test
   script:
     - $cmnd = powershell.exe -command {conda create -y --channel=conda-forge -n album python=3.9 pip git 2>&1 | Write-Host; conda activate album 2>&1 | Write-Host; pip install --no-cache-dir $env:CI_PROJECT_DIR 2>&1 | Write-Host; python -m unittest test_package\integration\run_all_integration_conda.py 2>&1 | Write-Host; exit($lastexitcode)}
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
 
 
 integration tests windows micromamba:
@@ -558,6 +599,8 @@ integration tests windows micromamba:
   stage: test
   script:
     - $cmnd = powershell.exe -command {micromamba activate album 2>&1 | Write-Host; python -m unittest test_package\integration\run_all_integration_micromamba.py 2>&1 | Write-Host; exit($lastexitcode)}
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
 
 
 integration tests windows conda:
@@ -565,13 +608,16 @@ integration tests windows conda:
   stage: test
   script:
     - $cmnd = powershell.exe -command {conda create -y --channel=conda-forge -n album python=3.9 pip git 2>&1 | Write-Host; conda activate album 2>&1 | Write-Host; pip install --no-cache-dir $env:CI_PROJECT_DIR 2>&1 | Write-Host; python -m unittest test_package\integration\run_all_integration_conda.py 2>&1 | Write-Host; exit($lastexitcode)}
-
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
 
 linux_installer_build:
   extends: .linux_base_template_micromamba
   stage: build
   script:
     - album package --output_path $CI_PROJECT_DIR/installer
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "pipeline"
   artifacts:
     paths:
       - $CI_PROJECT_DIR/installer/album_installer
@@ -581,9 +627,12 @@ macos_installer_build:
   stage: build
   script:
     - album package --output_path $CI_PROJECT_DIR/installer
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "pipeline"
   artifacts:
     paths:
       - $CI_PROJECT_DIR/installer/album_installer
+
 
 windows_installer_build:
   extends: .windows_base_template_micromamba
@@ -591,6 +640,9 @@ windows_installer_build:
   script:
     - $cmnd = powershell.exe -command {micromamba activate album 2>&1 | Write-Host; album package --output_path $env:CI_PROJECT_DIR/installer  2>&1 | Write-Host; exit($lastexitcode)}
     - if (Test-Path $env:CI_PROJECT_DIR\installer\album_installer.exe -PathType Leaf) {exit(0)} else {exit(1)}
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "pipeline"
   artifacts:
     paths:
       - $CI_PROJECT_DIR\installer\album_installer.exe
+
