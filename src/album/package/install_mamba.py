@@ -173,6 +173,7 @@ def _install_mamba_windows(mamba_base_path):
     _unpack_mamba_win(mamba_installer, mamba_base_path)
     _set_mamba_env_vars(mamba_base_path)
     _init_pwsh(mamba_base_path)
+    _init_cmd_exe(mamba_base_path)
 
 
 def _install_mamba_linux(mamba_base_path):
