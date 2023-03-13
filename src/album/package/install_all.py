@@ -65,7 +65,7 @@ def download_resource(url, path):
     return path
 
 
-def _install_missing_gui(album_base_path, mamba_base_path, album_env_path, album_gui_url, yml_path, solution):
+def _install_missing_gui(album_base_path, mamba_base_path, album_env_path, album_gui_url, solution):
     """Function to install album gui if only the album env is present"""
     # install album gui and if needed mamba
     print("Found album, but not album gui. Installing album gui...")
@@ -82,10 +82,10 @@ def _install_missing_gui(album_base_path, mamba_base_path, album_env_path, album
         else:
             print("There was an error installing album gui: %s" % cmd.stderr)
     else:
-        _install_album_full(album_base_path, mamba_base_path, album_env_path, album_gui_url, yml_path, solution)
+        _install_album_full(album_base_path, mamba_base_path, album_env_path, album_gui_url, solution)
 
 
-def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_gui_url, yml_path, solution):
+def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_gui_url, solution):
     """
         Function to install album, album gui, a solution if passed and micromamba if it is not already installed
     """
@@ -108,7 +108,7 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
 
     print("Installing album into %s..." % album_env_path)
 
-    a = subprocess.run([mamba_exe, 'create', '-p', album_env_path, '-f', yml_path, '--yes'], capture_output=True)
+    a = subprocess.run([mamba_exe, 'create', '--yes', '-p', album_env_path, '-c', 'conda-forge', 'album'], capture_output=True)
 
     if a.returncode == 0:
         print("Successfully installed album.")
@@ -298,7 +298,6 @@ def main():
     mamba_exe = get_mamba_exe(mamba_base_path)
     album_env_path = str(get_album_env_path(album_base_path))
     album_gui_url = "https://gitlab.com/album-app/plugins/album-gui/-/archive/main/album-gui-main.zip"
-    yml_url = "https://gitlab.com/album-app/album/-/raw/main/album.yml"
     solution_info = read_solution_info()
     solution_path = solution_info[0]
     coordinates = solution_info[1]
@@ -307,21 +306,18 @@ def main():
     if not Path(album_base_path).is_dir():
         Path(album_base_path).mkdir()
 
-    yml_path = str(download_resource(yml_url, Path(album_base_path).joinpath('album.yml')))
-
     print("Checking for micromamba installation...")
     if not Path(mamba_exe).is_file():
         print("Mamba command not available. Installing micromamba into %s..." % mamba_base_path)
         install_mamba(album_base_path, mamba_base_path)
 
     if not check_for_installed_album(album_env_path, mamba_exe) or (solution_path == "None"):
-        full_install = _install_album_full(album_base_path, mamba_base_path, album_env_path, album_gui_url, yml_path, solution_path)
+        full_install = _install_album_full(album_base_path, mamba_base_path, album_env_path, album_gui_url, solution_path)
 
     if not full_install:
         print("Checking for album gui installation...")
         if not check_for_installed_gui(album_env_path, mamba_exe):
-            _install_missing_gui(album_base_path, mamba_base_path, album_env_path, album_gui_url, yml_path,
-                                 solution_path)
+            _install_missing_gui(album_base_path, mamba_base_path, album_env_path, album_gui_url, solution_path)
 
         if solution_path != "None":
             print("Checking if the solution is installed...")

@@ -134,8 +134,15 @@ def _set_mamba_env_vars(mamba_base_path):
 def _init_pwsh(mamba_base_path):
     """initializes the windows powershell for the usage of micromamba"""
     mamba_exe = get_mamba_exe(mamba_base_path)
-    _ = subprocess.run([mamba_exe, 'shell', 'init', '-s', 'powershell', '-p', mamba_base_path],
+    _ = subprocess.run([mamba_exe, 'shell', 'init', '-s', 'powershell', '-p', mamba_base_path, '-y'],
                        capture_output=True)
+
+# Cmd.exe will not be initialised since it will break existing conda installations
+#def _init_cmd_exe(mamba_base_path):
+#    """initializes the windows cmd.exe for the usage of micromamba"""
+#    mamba_exe = get_mamba_exe(mamba_base_path)
+#    _ = subprocess.run([mamba_exe, 'shell', 'init', '-s', 'cmd.exe', '-p', mamba_base_path, '-y'],
+#                       capture_output=True)
 
 
 def _init_bash(mamba_base_path):
