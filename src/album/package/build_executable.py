@@ -80,10 +80,14 @@ def run(album_instance: Album, args):
             coordinates = album_instance.resolve(str(args.solution)).coordinates()
             get_active_logger().info(
                 "solution: %s at %s" % (coordinates, args.solution))
-            name = "%s_%s_%s_installer" % (coordinates.group(), coordinates.name(),
-                                           str(coordinates.version()).replace('.', '_'))
-            name_param = "--name=%s_%s_%s_installer" % (
-                coordinates.group(), coordinates.name(), str(coordinates.version()).replace('.', '_'))
+            if platform.system() == "Darwin":
+                name = "%s_%s_%s_installer.app"
+                name_param = "--name=%s_%s_%s_installer.app"
+            else:
+                name = "%s_%s_%s_installer" % (coordinates.group(), coordinates.name(),
+                                               str(coordinates.version()).replace('.', '_'))
+                name_param = "--name=%s_%s_%s_installer" % (
+                    coordinates.group(), coordinates.name(), str(coordinates.version()).replace('.', '_'))
             fill_placeholder(str(args.output_path), str(args.solution), coordinates.__str__())
         else:
             if platform.system() == "Darwin":

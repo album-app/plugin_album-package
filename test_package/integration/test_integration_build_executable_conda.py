@@ -25,6 +25,8 @@ class TestIntegrationBuildExecutable(TestCommon):
         # assert
         if platform.system() == 'Windows':
             self.assertTrue(Path(self.tmp_dir.name).joinpath("album_installer.exe").is_file())
+        elif platform.system() == 'Darwin':
+            self.assertTrue(Path(self.tmp_dir.name).joinpath("album_installer.app").is_file())
         else:
             self.assertTrue(Path(self.tmp_dir.name).joinpath("album_installer").is_file())
 
@@ -37,6 +39,8 @@ class TestIntegrationBuildExecutable(TestCommon):
         # assert
         if platform.system() == 'Windows':
             self.assertTrue(Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer.exe").is_file())
+        elif platform.system() == 'Darwin':
+            self.assertTrue(Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer.app").is_file())
         else:
             self.assertTrue(Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer").is_file())
 
@@ -49,6 +53,10 @@ class TestIntegrationBuildExecutable(TestCommon):
             installer = Path(self.tmp_dir.name).joinpath("album_installer.exe")
             mamba_exe = Path(self.mamba_dir).joinpath('Library', 'bin', 'micromamba.exe')
             tmp_env["USERPROFILE"] = str(self.tmp_dir.name)
+        elif platform.system() == 'Darwin':
+            installer = Path(self.tmp_dir.name).joinpath("album_installer.app")
+            mamba_exe = Path(self.mamba_dir).joinpath('bin', 'micromamba')
+            tmp_env["HOME"] = str(self.tmp_dir.name)
         else:
             installer = Path(self.tmp_dir.name).joinpath("album_installer")
             mamba_exe = Path(self.mamba_dir).joinpath('bin', 'micromamba')
@@ -78,6 +86,10 @@ class TestIntegrationBuildExecutable(TestCommon):
             installer = Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer.exe")
             mamba_exe = Path(self.mamba_dir).joinpath('Library', 'bin', 'micromamba.exe')
             tmp_env["USERPROFILE"] = str(self.tmp_dir.name)
+        elif platform.system() == 'Darwin':
+            installer = Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer.app")
+            mamba_exe = Path(self.mamba_dir).joinpath('bin', 'micromamba')
+            tmp_env["HOME"] = str(self.tmp_dir.name)
         else:
             installer = Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer")
             mamba_exe = Path(self.mamba_dir).joinpath('bin', 'micromamba')
