@@ -1,5 +1,6 @@
 import logging
 import os
+import platform
 import re
 from pathlib import Path
 
@@ -85,8 +86,12 @@ def run(album_instance: Album, args):
                 coordinates.group(), coordinates.name(), str(coordinates.version()).replace('.', '_'))
             fill_placeholder(str(args.output_path), str(args.solution), coordinates.__str__())
         else:
-            name = "album_installer"
-            name_param = "--name=album_installer"
+            if platform.system() == "Darwin":
+                name = "album_installer.app"
+                name_param = "--name=album_installer.app"
+            else:
+                name = "album_installer"
+                name_param = "--name=album_installer"
             fill_placeholder(str(args.output_path), str(args.solution), "None")
 
         get_active_logger().info("--output_path: %s" % args.output_path)
