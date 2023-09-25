@@ -676,7 +676,7 @@ macos_installer_build:
   artifacts:
     expire_in: never
     paths:
-      - $CI_PROJECT_DIR/installer/album_installer
+      - $CI_PROJECT_DIR/installer/album_installer.app
 
 windows_installer_build:
   extends: .windows_base_template_micromamba
