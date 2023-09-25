@@ -297,7 +297,7 @@ def main():
     mamba_base_path = str(Path(album_base_path).joinpath("micromamba"))
     mamba_exe = get_mamba_exe(mamba_base_path)
     album_env_path = str(get_album_env_path(album_base_path))
-    album_gui_url = "https://gitlab.com/album-app/plugins/album-gui/-/archive/main/album-gui-main.zip"
+    album_gui_url = "album-gui~=0.3.0"
     solution_info = read_solution_info()
     solution_path = solution_info[0]
     coordinates = solution_info[1]
