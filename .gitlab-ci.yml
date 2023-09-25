@@ -625,6 +625,7 @@ linux_installer_build:
       changes:
         - setup.cfg
   artifacts:
+    expire_in: never
     paths:
       - $CI_PROJECT_DIR/installer/album_installer
 
@@ -639,6 +640,7 @@ macos_installer_build:
       changes:
         - setup.cfg
   artifacts:
+    expire_in: never
     paths:
       - $CI_PROJECT_DIR/installer/album_installer
 
@@ -654,6 +656,7 @@ windows_installer_build:
       changes:
         - setup.cfg
   artifacts:
+    expire_in: never
     paths:
       - $CI_PROJECT_DIR\installer\album_installer.exe
 
