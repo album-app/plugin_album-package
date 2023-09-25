@@ -683,7 +683,8 @@ windows_installer_build:
   stage: build
   script:
     - $cmnd = powershell.exe -command {micromamba activate album 2>&1 | Write-Host; album package --output_path $env:CI_PROJECT_DIR/installer 2>&1 | Write-Host; exit($lastexitcode)}
-    - if (Test-Path $env:CI_PROJECT_DIR\installer\album_installer.exe -PathType Leaf) {exit(0)} else {exit(1)}
+    - |
+      if (-Not (Test-Path $env:CI_PROJECT_DIR\installer\album_installer.exe -PathType Leaf)) { exit(1) }
     - |
       if ($env:CI_COMMIT_BRANCH -ne $null -and $env:CI_COMMIT_BRANCH -ne "") {
         $TagName = "installer_windows_$($env:CI_COMMIT_BRANCH)"
