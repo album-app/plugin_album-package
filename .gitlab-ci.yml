@@ -625,12 +625,12 @@ linux_installer_build:
 
         # Attempt to delete the existing tag
         curl --request DELETE \
-             --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
+             --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
              "https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/repository/tags/$TAG_NAME" || true # Ignore failures
 
         # Create the new tag
         curl --request POST \
-             --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
+             --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
              --data "id=$CI_PROJECT_ID&ref=$CI_COMMIT_SHA&tag_name=$TAG_NAME&message=Auto-tagged by CI" \
              "https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/repository/tags"
       fi
@@ -657,12 +657,12 @@ macos_installer_build:
 
         # Attempt to delete the existing tag
         curl --request DELETE \
-             --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
+             --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
              "https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/repository/tags/$TAG_NAME" || true # Ignore failures
 
         # Create the new tag
         curl --request POST \
-             --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
+             --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
              --data "id=$CI_PROJECT_ID&ref=$CI_COMMIT_SHA&tag_name=$TAG_NAME&message=Auto-tagged by CI" \
              "https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/repository/tags"
       fi
@@ -689,7 +689,7 @@ windows_installer_build:
         $TagName = "installer_windows_$($env:CI_COMMIT_BRANCH)"
 
         # Attempt to delete the existing tag
-        Invoke-RestMethod -Uri "https://gitlab.com/api/v4/projects/$($env:CI_PROJECT_ID)/repository/tags/$TagName" -Method Delete -Headers @{"PRIVATE-TOKEN"="$($env:CI_JOB_TOKEN)"} -ErrorAction SilentlyContinue
+        Invoke-RestMethod -Uri "https://gitlab.com/api/v4/projects/$($env:CI_PROJECT_ID)/repository/tags/$TagName" -Method Delete -Headers @{"PRIVATE-TOKEN"="$($env:GITLAB_API_TOKEN)"} -ErrorAction SilentlyContinue
 
         # Create the new tag
         $body = @{
@@ -699,7 +699,7 @@ windows_installer_build:
           message = "Auto-tagged by CI"
         }
 
-        Invoke-RestMethod -Uri "https://gitlab.com/api/v4/projects/$($env:CI_PROJECT_ID)/repository/tags" -Method Post -Body $body -Headers @{"PRIVATE-TOKEN"="$($env:CI_JOB_TOKEN)"}
+        Invoke-RestMethod -Uri "https://gitlab.com/api/v4/projects/$($env:CI_PROJECT_ID)/repository/tags" -Method Post -Body $body -Headers @{"PRIVATE-TOKEN"="$($env:GITLAB_API_TOKEN)"}
       }
   rules:
     - if: $CI_PIPELINE_SOURCE == "pipeline"
