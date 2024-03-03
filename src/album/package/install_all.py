@@ -108,7 +108,7 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
 
     print("Installing album into %s..." % album_env_path)
 
-    a = subprocess.run([mamba_exe, 'create', '--yes', '-p', album_env_path, '-c', 'conda-forge', album_gui_url], capture_output=True)
+    a = subprocess.run([mamba_exe, 'create', '--yes', '-p', album_env_path, '-c', 'conda-forge', album_gui_url], check=True)
 
     if a.returncode == 0:
         print("Successfully installed album.")
@@ -253,9 +253,7 @@ def handle_remove_readonly(func, path, exc):
 
 def create_shortcut(mamba_exe, album_env_path):
     """Creates a shortcut for the album gui on the users desktop"""
-    p = subprocess.Popen([mamba_exe, 'run', '-p', album_env_path, 'album', 'add-shortcut'], stdout=sys.stdout,
-                         stderr=sys.stderr)
-    p.communicate()
+    subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', 'add-shortcut'], check=True)
 
 
 def get_album_base_path():
