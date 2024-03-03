@@ -9,14 +9,14 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
-MAMBA_LINK_LINUX_X86_64 = "https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/micromamba-1.0.0_LINUX_X86_64.tar.bz2?inline=false"
-MAMBA_LINK_LINUX_ARM64 = "https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/micromamba-1.0.0_LINUX_ARM64.tar.bz2?inline=false"
-MAMBA_LINK_LINUX_POWER = "https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/micromamba-1.0.0_LINUX_POWER.tar.bz2?inline=false"
+MAMBA_LINK_LINUX_X86_64 = "https://micro.mamba.pm/api/micromamba/linux-64/1.5.6"
+MAMBA_LINK_LINUX_ARM64 = "https://micro.mamba.pm/api/micromamba/linux-aarch64/1.5.6"
+MAMBA_LINK_LINUX_POWER = "https://micro.mamba.pm/api/micromamba/linux-ppc64le/1.5.6"
 
-MAMBA_LINK_MACOS_X86_64 = "https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/micromamba-1.0.0_MACOS_X86_64.tar.bz2?inline=false"
-MAMBA_LINK_MACOS_ARM64 = "https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/micromamba-1.0.0_MACOS_ARM64.tar.bz2?inline=false"
+MAMBA_LINK_MACOS_X86_64 = "https://micro.mamba.pm/api/micromamba/osx-64/1.5.6"
+MAMBA_LINK_MACOS_ARM64 = "https://micro.mamba.pm/api/micromamba/osx-arm64/1.5.6"
 
-MAMBA_LINK_WINDOWS = "https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/micromamba-1.0.0_WINDOWS.zip?inline=false"
+MAMBA_LINK_WINDOWS = "https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/win-64_micromamba-1.5.6-0.zip?ref_type=heads&inline=false"
 
 
 def is_downloadable(url):
