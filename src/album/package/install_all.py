@@ -108,7 +108,9 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
 
     print("Installing album into %s..." % album_env_path)
 
-    a = subprocess.run([mamba_exe, 'create', '--yes', '-p', album_env_path, '-c', 'conda-forge', album_gui_url], check=True)
+    album_env_install_call = [mamba_exe, 'create', '--yes', '-p', album_env_path, '-c', 'conda-forge', album_gui_url]
+    print("installing album via %s.." % " ".join(album_env_install_call))
+    a = subprocess.run(album_env_install_call, check=True)
 
     if a.returncode == 0:
         print("Successfully installed album.")
@@ -316,6 +318,7 @@ def main():
                 print("Installing the solution...")
                 install_solution(mamba_exe, album_env_path, solution_path)
 
+    print("Creating shortcut..")
     create_shortcut(mamba_exe, album_env_path)
 
     print("Installation successfully finished.")

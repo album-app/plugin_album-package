@@ -109,7 +109,7 @@ class TestIntegrationBuildExecutable(TestCommon):
 
         # call
         build_executable.run(self.album_mock, Namespace(solution=None, output_path=self.tmp_dir.name))
-        cmd = subprocess.run([installer], env=tmp_env, check=True)
+        cmd = subprocess.run([str(installer.absolute())], env=tmp_env, check=True)
 
         # assert
         self.assertFalse(cmd.returncode, f"Installationprocess exited with returncode != 0")
@@ -121,7 +121,7 @@ class TestIntegrationBuildExecutable(TestCommon):
             pwsh_str = "%s run -p %s album --version" % (mamba_exe, album_env_path)
             album_test_cmd = subprocess.run(["powershell", "-Command", pwsh_str], check=True)
         else:
-            album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version', '--log', 'DEBUG'], check=True)
+            album_test_cmd = subprocess.run([str(mamba_exe.absolute()), 'run', '-p', str(album_env_path.absolute()), 'album', '--version', '--log', 'DEBUG'], check=True)
 
         # assert
         self.assertFalse(album_test_cmd.returncode, "Album environment not functional(version call threw error)")
@@ -149,9 +149,9 @@ class TestIntegrationBuildExecutable(TestCommon):
             solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
             output_path=self.tmp_dir.name))
         if platform.system() == "Windows":
-            cmd = subprocess.run(["powershell", "-Command", installer], env=tmp_env, check=True)
+            cmd = subprocess.run(["powershell", "-Command", str(installer.absolute())], env=tmp_env, check=True)
         else:
-            cmd = subprocess.run([installer], env=tmp_env, capture_output=True, text=True)
+            cmd = subprocess.run([str(installer.absolute())], env=tmp_env, check=True)
 
         # assert
         self.assertFalse(cmd.returncode, f"Installationprocess exited with returncode != 0: \n{cmd.stdout}\n{cmd.stderr}")
