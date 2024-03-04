@@ -242,8 +242,8 @@
 #
 .macos_base_template_micromamba:
   tags:
-    - macos
-    - shell
+    - saas-macos-medium-m1
+  image: macos-14-xcode-15
   before_script:
     - echo "$(uname)"
     - sw_vers
@@ -272,8 +272,8 @@
 #
 .macos_base_template_conda:
   tags:
-    - macos
-    - shell
+    - saas-macos-medium-m1
+  image: macos-14-xcode-15
   before_script:
     - echo "$(uname)"
     - sw_vers
@@ -303,8 +303,8 @@
 
 .macos_base_template_conda_with_mamba:
   tags:
-    - macos
-    - shell
+    - saas-macos-medium-m1
+  image: macos-14-xcode-15
   before_script:
     - echo "$(uname)"
     - sw_vers
