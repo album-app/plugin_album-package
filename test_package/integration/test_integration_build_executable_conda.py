@@ -64,7 +64,23 @@ class TestIntegrationBuildExecutable(TestCommon):
 
         # call
         build_executable.run(self.album_mock, Namespace(solution=None, output_path=self.tmp_dir.name))
-        cmd = subprocess.run([str(installer)], env=tmp_env, check=True)
+        try:
+            if platform.system() != "Darwin":
+                cmd = subprocess.run([str(installer.absolute())], env=tmp_env, check=True, capture_output=True,
+                                     text=True)
+            else:
+                # FIXME: currently, we need to rename the macos installer app to not have the app ending in order for the runner to be able to execute it.
+                # not sure if this is also problematic for the users. We are currently providing the installer.app file, but testing the renamed installer file.
+                installer_renamed = Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer")
+                os.rename(str(installer), str(installer_renamed))
+
+                cmd = subprocess.run([str(installer_renamed.absolute())], env=tmp_env, check=True, capture_output=True,
+                                     text=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Command failed with return code {e.returncode}")
+            print(f"STDOUT: {e.stdout}")
+            print(f"STDERR: {e.stderr}")
+            self.fail(e.stderr)
 
         # assert
         # assert
@@ -104,10 +120,23 @@ class TestIntegrationBuildExecutable(TestCommon):
         build_executable.run(self.album_mock, Namespace(
             solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
             output_path=self.tmp_dir.name))
-        if platform.system() == "Windows":
-            cmd = subprocess.run(["powershell", "-Command", installer], env=tmp_env, check=True)
-        else:
-            cmd = subprocess.run([str(installer)], env=tmp_env, check=True)
+        try:
+            if platform.system() != "Darwin":
+                cmd = subprocess.run([str(installer.absolute())], env=tmp_env, check=True, capture_output=True,
+                                     text=True)
+            else:
+                # FIXME: currently, we need to rename the macos installer app to not have the app ending in order for the runner to be able to execute it.
+                # not sure if this is also problematic for the users. We are currently providing the installer.app file, but testing the renamed installer file.
+                installer_renamed = Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer")
+                os.rename(str(installer), str(installer_renamed))
+
+                cmd = subprocess.run([str(installer_renamed.absolute())], env=tmp_env, check=True, capture_output=True,
+                                     text=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Command failed with return code {e.returncode}")
+            print(f"STDOUT: {e.stdout}")
+            print(f"STDERR: {e.stderr}")
+            self.fail(e.stderr)
         
         # assert
         self.assertFalse(cmd.returncode, f"Installationprocess exited with returncode != 0")
