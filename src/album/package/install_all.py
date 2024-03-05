@@ -75,7 +75,7 @@ def _install_missing_gui(album_base_path, mamba_base_path, album_env_path, album
         mamba_exe = install_mamba(album_base_path, mamba_base_path)
 
     if check_for_installed_album(album_env_path, mamba_exe):
-        cmd = subprocess.run([mamba_exe, "run", "-p", album_env_path, "pip", "install", album_gui_url],
+        cmd = subprocess.run([mamba_exe, "install", "-p", album_env_path, "-c", "conda-forge", album_gui_url],
                              capture_output=True)
         if cmd.returncode == 0:
             print("Successfully installed album gui.")
@@ -108,17 +108,12 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
 
     print("Installing album into %s..." % album_env_path)
 
-    a = subprocess.run([mamba_exe, 'create', '--yes', '-p', album_env_path, '-c', 'conda-forge', 'album'], capture_output=True)
+    album_env_install_call = [mamba_exe, 'create', '--yes', '-p', album_env_path, '-c', 'conda-forge', album_gui_url]
+    print("installing album via %s.." % " ".join(album_env_install_call))
+    a = subprocess.run(album_env_install_call, check=True)
 
     if a.returncode == 0:
         print("Successfully installed album.")
-        print("Installing album gui...")
-        g = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'pip', 'install', album_gui_url],
-                           capture_output=True)
-        if g.returncode == 0:
-            print("Successfully installed album gui.")
-        else:
-            print("An error occurred installing album gui: %s" % g.stderr)
         if solution != "None":
             print("Installing the solution...")
             install_solution(mamba_exe, album_env_path, solution)
@@ -260,9 +255,7 @@ def handle_remove_readonly(func, path, exc):
 
 def create_shortcut(mamba_exe, album_env_path):
     """Creates a shortcut for the album gui on the users desktop"""
-    p = subprocess.Popen([mamba_exe, 'run', '-p', album_env_path, 'album', 'add-shortcut'], stdout=sys.stdout,
-                         stderr=sys.stderr)
-    p.communicate()
+    subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', 'add-shortcut'], check=True)
 
 
 def get_album_base_path():
@@ -297,7 +290,7 @@ def main():
     mamba_base_path = str(Path(album_base_path).joinpath("micromamba"))
     mamba_exe = get_mamba_exe(mamba_base_path)
     album_env_path = str(get_album_env_path(album_base_path))
-    album_gui_url = "album-gui~=0.3.0"
+    album_gui_url = "album-gui=0.4.*"
     solution_info = read_solution_info()
     solution_path = solution_info[0]
     coordinates = solution_info[1]
@@ -325,6 +318,7 @@ def main():
                 print("Installing the solution...")
                 install_solution(mamba_exe, album_env_path, solution_path)
 
+    print("Creating shortcut..")
     create_shortcut(mamba_exe, album_env_path)
 
     print("Installation successfully finished.")

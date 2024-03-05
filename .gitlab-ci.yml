@@ -28,12 +28,11 @@
     - '[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12'                                                                                                                                                                                                                                                                                          # set Security download protocol to avoid https errors
     - 'if(-Not (Test-Path $7ZIP_EXE)) {if(-Not (Test-Path $7ZIP_INSTALLER)){Invoke-Webrequest -URI https://www.7-zip.org/a/7z2201-x64.exe -OutFile $7ZIP_INSTALLER}}'
     - 'if(-Not (Test-Path $7ZIP_EXE)) {Start-Process -FilePath $7ZIP_INSTALLER -Args "/S" -Verb RunAs -Wait}'
-    - 'Invoke-Webrequest -URI https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/micromamba-1.0.0_WINDOWS.tar.bz2?inline=false -OutFile micromamba.tar.bz2'
+    - 'Invoke-Webrequest -URI https://micro.mamba.pm/api/micromamba/win-64/1.5.6 -OutFile micromamba.tar.bz2'
     - '& $7ZIP_EXE x micromamba.tar.bz2 -aoa'
     - '& $7ZIP_EXE x micromamba.tar -ttar -aoa -r Library\bin\micromamba.exe $("-o" + $Env:MAMBA_ROOT_PREFIX)'
     - '$progressPreference = $oldProgressPreference'
-    - '.\micromamba\Library\bin\micromamba.exe create -y -n album album -c conda-forge python=3.10'
-    - '.\micromamba\Library\bin\micromamba.exe run -n album pip uninstall -y album'
+    - '.\micromamba\Library\bin\micromamba.exe create -y -n album -c conda-forge python=3.12'
     - '.\micromamba\Library\bin\micromamba.exe run -n album pip install --no-cache-dir $Env:CI_PROJECT_DIR'
     - '.\micromamba\Library\bin\micromamba.exe shell init -s powershell -p $Env:MAMBA_ROOT_PREFIX '
 
@@ -133,15 +132,14 @@
     - apt update
     - apt install -y curl
     - apt install -y bzip2
-    - apt-get update && apt-get install -y binutils
+    - apt-get update && apt-get install -y binutils libgl1-mesa-glx
     - export MAMBA_ROOT_PREFIX=$CI_PROJECT_DIR/micromamba
     - export ALBUM_CONDA_PATH=$CI_PROJECT_DIR/bin/micromamba
     - mkdir -p $CI_PROJECT_DIR/bin/
-    - curl -Ls https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/micromamba-1.0.0_LINUX_X86_64.tar.bz2?inline=false | tar -xvj -C $CI_PROJECT_DIR/bin/ --strip-components=1 bin/micromamba
+    - curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/1.5.6 | tar -xvj -C $CI_PROJECT_DIR/bin/ --strip-components=1 bin/micromamba
     - eval "$($CI_PROJECT_DIR/bin/micromamba shell hook -s posix)"
-    - micromamba create -y -n album album -c conda-forge python=3.10
+    - micromamba create -y -n album -c conda-forge python=3.12 git
     - micromamba activate album
-    - pip uninstall -y album
     - pip install --no-cache-dir $CI_PROJECT_DIR
     - python -V
     - pip list
@@ -171,8 +169,8 @@
     - python -V  # Print out python version for debugging
     - pwd
     - which python
-    - apt-get update && apt-get install -y binutils
-    - conda create -y --channel=conda-forge -n album python=3.9 pip git
+    - apt-get update && apt-get install -y binutils libgl1-mesa-glx
+    - conda create -y --channel=conda-forge -n album python=3.12 pip git
     - conda init bash
     - source ~/.bashrc
     - conda activate album
@@ -209,8 +207,8 @@
     - python -V  # Print out python version for debugging
     - pwd
     - which python
-    - apt-get update && apt-get install -y binutils
-    - conda create -y --channel=conda-forge -n album python=3.9 pip git
+    - apt-get update && apt-get install -y binutils libgl1-mesa-glx
+    - conda create -y --channel=conda-forge -n album python=3.12 pip git
     - conda init bash
     - source ~/.bashrc
     - conda install -y mamba -c conda-forge
@@ -244,8 +242,8 @@
 #
 .macos_base_template_micromamba:
   tags:
-    - macos
-    - shell
+    - saas-macos-medium-m1
+  image: macos-14-xcode-15
   before_script:
     - echo "$(uname)"
     - sw_vers
@@ -255,11 +253,10 @@
     - export MAMBA_ROOT_PREFIX=$tmpdir/micromamba
     - export ALBUM_CONDA_PATH=$tmpdir/bin/micromamba
     - mkdir -p $tmpdir/bin/
-    - curl -Ls https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/micromamba-1.0.0_MACOS_X86_64.tar.bz2?inline=false | tar -xvj -C $tmpdir/bin/ --strip-components=1 bin/micromamba
+    - curl -Ls https://micro.mamba.pm/api/micromamba/osx-64/1.5.6 | tar -xvj -C $tmpdir/bin/ --strip-components=1 bin/micromamba
     - eval "$($tmpdir/bin/micromamba shell hook -s posix)"
-    - micromamba create -y -n album album -c conda-forge python=3.10
+    - micromamba create -y -n album -c conda-forge python=3.12 git
     - micromamba activate album
-    - pip uninstall -y album
     - pip install --no-cache-dir $CI_PROJECT_DIR
     - python -V
     - pip list
@@ -275,8 +272,8 @@
 #
 .macos_base_template_conda:
   tags:
-    - macos
-    - shell
+    - saas-macos-medium-m1
+  image: macos-14-xcode-15
   before_script:
     - echo "$(uname)"
     - sw_vers
@@ -287,7 +284,7 @@
     - bash $tmpdir/miniconda.sh -b -p $tmpdir/miniconda
     - export PATH=$PATH:$tmpdir/miniconda/bin/
     - echo $PATH
-    - conda create -y --channel=conda-forge -n album python=3.9 pip git
+    - conda create -y --channel=conda-forge -n album python=3.12 pip git
     - source $tmpdir/miniconda/bin/activate
     - conda activate album
     - pip install --no-cache-dir $CI_PROJECT_DIR
@@ -306,8 +303,8 @@
 
 .macos_base_template_conda_with_mamba:
   tags:
-    - macos
-    - shell
+    - saas-macos-medium-m1
+  image: macos-14-xcode-15
   before_script:
     - echo "$(uname)"
     - sw_vers
@@ -318,7 +315,7 @@
     - bash $tmpdir/miniconda.sh -b -p $tmpdir/miniconda
     - export PATH=$PATH:$tmpdir/miniconda/bin/
     - echo $PATH
-    - conda create -y --channel=conda-forge -n album python=3.9 pip git
+    - conda create -y --channel=conda-forge -n album python=3.12 pip git
     - source $tmpdir/miniconda/bin/activate
     - conda install -y mamba -c conda-forge
     - conda activate album
@@ -574,7 +571,7 @@ unit tests windows conda:
   extends: .windows_base_template_conda
   stage: test
   script:
-    - $cmnd = powershell.exe -command {conda create -y --channel=conda-forge -n album python=3.9 pip git 2>&1 | Write-Host; conda activate album 2>&1 | Write-Host; pip install --no-cache-dir $env:CI_PROJECT_DIR 2>&1 | Write-Host; python -m unittest test_package\unit\run_all_unit.py 2>&1 | Write-Host; exit($lastexitcode)}
+    - $cmnd = powershell.exe -command {conda create -y --channel=conda-forge -n album python=3.12 pip git 2>&1 | Write-Host; conda activate album 2>&1 | Write-Host; pip install --no-cache-dir $env:CI_PROJECT_DIR 2>&1 | Write-Host; python -m unittest test_package\unit\run_all_unit.py 2>&1 | Write-Host; exit($lastexitcode)}
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
@@ -582,7 +579,7 @@ unit tests windows conda with mamba:
   extends: .windows_base_template_conda_with_mamba
   stage: test
   script:
-    - $cmnd = powershell.exe -command {conda create -y --channel=conda-forge -n album python=3.9 pip git 2>&1 | Write-Host; conda activate album 2>&1 | Write-Host; pip install --no-cache-dir $env:CI_PROJECT_DIR 2>&1 | Write-Host; python -m unittest test_package\unit\run_all_unit.py 2>&1 | Write-Host; exit($lastexitcode)}
+    - $cmnd = powershell.exe -command {conda create -y --channel=conda-forge -n album python=3.12 pip git 2>&1 | Write-Host; conda activate album 2>&1 | Write-Host; pip install --no-cache-dir $env:CI_PROJECT_DIR 2>&1 | Write-Host; python -m unittest test_package\unit\run_all_unit.py 2>&1 | Write-Host; exit($lastexitcode)}
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
@@ -590,7 +587,7 @@ integration tests windows conda with mamba:
   extends: .windows_base_template_conda_with_mamba
   stage: test
   script:
-    - $cmnd = powershell.exe -command {conda create -y --channel=conda-forge -n album python=3.9 pip git 2>&1 | Write-Host; conda activate album 2>&1 | Write-Host; pip install --no-cache-dir $env:CI_PROJECT_DIR 2>&1 | Write-Host; python -m unittest test_package\integration\run_all_integration_conda.py 2>&1 | Write-Host; exit($lastexitcode)}
+    - $cmnd = powershell.exe -command {conda create -y --channel=conda-forge -n album python=3.12 pip git 2>&1 | Write-Host; conda activate album 2>&1 | Write-Host; pip install --no-cache-dir $env:CI_PROJECT_DIR 2>&1 | Write-Host; python -m unittest test_package\integration\run_all_integration_conda.py 2>&1 | Write-Host; exit($lastexitcode)}
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
@@ -608,7 +605,7 @@ integration tests windows conda:
   extends: .windows_base_template_conda
   stage: test
   script:
-    - $cmnd = powershell.exe -command {conda create -y --channel=conda-forge -n album python=3.9 pip git 2>&1 | Write-Host; conda activate album 2>&1 | Write-Host; pip install --no-cache-dir $env:CI_PROJECT_DIR 2>&1 | Write-Host; python -m unittest test_package\integration\run_all_integration_conda.py 2>&1 | Write-Host; exit($lastexitcode)}
+    - $cmnd = powershell.exe -command {conda create -y --channel=conda-forge -n album python=3.12 pip git 2>&1 | Write-Host; conda activate album 2>&1 | Write-Host; pip install --no-cache-dir $env:CI_PROJECT_DIR 2>&1 | Write-Host; python -m unittest test_package\integration\run_all_integration_conda.py 2>&1 | Write-Host; exit($lastexitcode)}
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
