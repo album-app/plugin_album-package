@@ -618,6 +618,9 @@ linux_installer_build:
   script:
     - album package --output_path $CI_PROJECT_DIR/installer
     - |
+      if [ ! -f "$CI_PROJECT_DIR/installer/album_installer" ]; then
+        echo "File not found!"
+        exit 1
       fi
   rules:
     - if: $CI_PIPELINE_SOURCE == "pipeline"
@@ -636,7 +639,11 @@ macos_installer_build:
   stage: installer-build
   script:
     - album package --output_path $CI_PROJECT_DIR/installer
+    - ls -lah $CI_PROJECT_DIR/installer
     - |
+      if [ ! -f "$CI_PROJECT_DIR/installer/album_installer.app" ]; then
+        echo "File not found!"
+        exit 1
       fi
   rules:
     - if: $CI_PIPELINE_SOURCE == "pipeline"
@@ -655,6 +662,7 @@ windows_installer_build:
   stage: installer-build
   script:
     - $cmnd = powershell.exe -command {micromamba activate album 2>&1 | Write-Host; album package --output_path $env:CI_PROJECT_DIR/installer 2>&1 | Write-Host; exit($lastexitcode)}
+    - if (-Not (Test-Path $env:CI_PROJECT_DIR\installer\album_installer.exe -PathType Leaf)) { exit(1) }
   rules:
     - if: $CI_PIPELINE_SOURCE == "pipeline"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
