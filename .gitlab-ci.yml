@@ -111,10 +111,10 @@
     - pip install --no-cache-dir $CI_PROJECT_DIR
     - python -V
     - pip list
-  after_script:
-    - tmpdir=$(</tmp/tmpdir)
-    - echo $tmpdir
-    - rm -rf $tmpdir
+#  after_script:
+#    - tmpdir=$(</tmp/tmpdir)
+#    - echo $tmpdir
+#    - rm -rf $tmpdir
 
 
 #----------------------------
@@ -263,7 +263,7 @@ integration tests linux:
 
 # MacOs Tests
 
-unit tests macos:
+unit tests macos arm64:
   extends: .macos_base_template
   stage: test
   script:
@@ -271,11 +271,27 @@ unit tests macos:
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
-integration tests macos:
+unit tests macos x86_64:
+  extends: .macos_base_template
+  stage: test
+  script:
+    - arch -x86_64 python -m unittest test_package/unit/run_all_unit.py
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
+
+integration tests macos arm64:
   extends: .macos_base_template
   stage: test
   script:
     - python -m unittest test_package/integration/run_all_integration_micromamba.py
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
+
+integration tests macos x86_64:
+  extends: .macos_base_template
+  stage: test
+  script:
+    - arch -x86_64 python -m unittest test_package/integration/run_all_integration_micromamba.py
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
@@ -322,28 +338,45 @@ linux_installer_build:
     paths:
       - $CI_PROJECT_DIR/installer/album_installer
 
-macos_installer_build:
+macos_installer_build_arm64:
   extends: .macos_base_template
   stage: installer-build
   script:
-    - album package --output_path $CI_PROJECT_DIR/installer
-    - ls -lah $CI_PROJECT_DIR/installer
-    - |
-      if [ ! -f "$CI_PROJECT_DIR/installer/album_installer.app" ]; then
-        echo "File not found!"
-        exit 1
-      fi
+    - echo "Building for Apple silicon (M1/arm64)..."
+    - mkdir -p $CI_PROJECT_DIR/installer/arm64
+    - album package --output_path $CI_PROJECT_DIR/installer/arm64
+    - ls -lah $CI_PROJECT_DIR/installer/arm64
+    - if [ ! -f "$CI_PROJECT_DIR/installer/arm64/album_installer.app" ]; then echo "Installer not found for arm64!" && exit 1; fi
+  artifacts:
+    expire_in: never
+    paths:
+      - $CI_PROJECT_DIR/installer/arm64
   rules:
     - if: $CI_PIPELINE_SOURCE == "pipeline"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - setup.cfg
-      when: always
     - when: manual
+
+macos_installer_build_x86_64:
+  extends: .macos_base_template
+  stage: installer-build
+  script:
+    - echo "Building for Intel x86-64 using Rosetta 2..."
+    - mkdir -p $CI_PROJECT_DIR/installer/x86_64
+    - arch -x86_64 album package --output_path $CI_PROJECT_DIR/installer/x86_64
+    - ls -lah $CI_PROJECT_DIR/installer/x86_64
+    - if [ ! -f "$CI_PROJECT_DIR/installer/x86_64/album_installer.app" ]; then echo "Installer not found for x86_64!" && exit 1; fi
   artifacts:
     expire_in: never
     paths:
-      - $CI_PROJECT_DIR/installer/album_installer.app
+      - $CI_PROJECT_DIR/installer/x86_64
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "pipeline"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - setup.cfg
+    - when: manual
 
 windows_installer_build:
   extends: .windows_base_template
