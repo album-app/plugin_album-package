@@ -618,19 +618,6 @@ linux_installer_build:
   script:
     - album package --output_path $CI_PROJECT_DIR/installer
     - |
-      if [ "$CI_COMMIT_BRANCH" != "" ]; then
-        TAG_NAME="installer_linux_$CI_COMMIT_BRANCH"
-
-        # Attempt to delete the existing tag
-        curl --request DELETE \
-             --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
-             "https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/repository/tags/$TAG_NAME" || true # Ignore failures
-
-        # Create the new tag
-        curl --request POST \
-             --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
-             --data "id=$CI_PROJECT_ID&ref=$CI_COMMIT_SHA&tag_name=$TAG_NAME&message=Auto-tagged by CI" \
-             "https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/repository/tags"
       fi
   rules:
     - if: $CI_PIPELINE_SOURCE == "pipeline"
@@ -650,19 +637,6 @@ macos_installer_build:
   script:
     - album package --output_path $CI_PROJECT_DIR/installer
     - |
-      if [ "$CI_COMMIT_BRANCH" != "" ]; then
-        TAG_NAME="installer_macos_$CI_COMMIT_BRANCH"
-
-        # Attempt to delete the existing tag
-        curl --request DELETE \
-             --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
-             "https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/repository/tags/$TAG_NAME" || true # Ignore failures
-
-        # Create the new tag
-        curl --request POST \
-             --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
-             --data "id=$CI_PROJECT_ID&ref=$CI_COMMIT_SHA&tag_name=$TAG_NAME&message=Auto-tagged by CI" \
-             "https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/repository/tags"
       fi
   rules:
     - if: $CI_PIPELINE_SOURCE == "pipeline"
@@ -681,25 +655,6 @@ windows_installer_build:
   stage: installer-build
   script:
     - $cmnd = powershell.exe -command {micromamba activate album 2>&1 | Write-Host; album package --output_path $env:CI_PROJECT_DIR/installer 2>&1 | Write-Host; exit($lastexitcode)}
-    - |
-      if (-Not (Test-Path $env:CI_PROJECT_DIR\installer\album_installer.exe -PathType Leaf)) { exit(1) }
-    - |
-      if ($env:CI_COMMIT_BRANCH -ne $null -and $env:CI_COMMIT_BRANCH -ne "") {
-        $TagName = "installer_windows_$($env:CI_COMMIT_BRANCH)"
-
-        # Attempt to delete the existing tag
-        Invoke-RestMethod -Uri "https://gitlab.com/api/v4/projects/$($env:CI_PROJECT_ID)/repository/tags/$TagName" -Method Delete -Headers @{"PRIVATE-TOKEN"="$($env:GITLAB_API_TOKEN)"} -ErrorAction SilentlyContinue
-
-        # Create the new tag
-        $body = @{
-          id = $env:CI_PROJECT_ID
-          ref = $env:CI_COMMIT_SHA
-          tag_name = $TagName
-          message = "Auto-tagged by CI"
-        }
-
-        Invoke-RestMethod -Uri "https://gitlab.com/api/v4/projects/$($env:CI_PROJECT_ID)/repository/tags" -Method Post -Body $body -Headers @{"PRIVATE-TOKEN"="$($env:GITLAB_API_TOKEN)"}
-      }
   rules:
     - if: $CI_PIPELINE_SOURCE == "pipeline"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
