@@ -343,14 +343,14 @@ macos_installer_build_arm64:
   stage: installer-build
   script:
     - echo "Building for Apple silicon (M1/arm64)..."
-    - mkdir -p $CI_PROJECT_DIR/installer/arm64
-    - album package --output_path $CI_PROJECT_DIR/installer/arm64
-    - ls -lah $CI_PROJECT_DIR/installer/arm64
-    - if [ ! -f "$CI_PROJECT_DIR/installer/arm64/album_installer.app" ]; then echo "Installer not found for arm64!" && exit 1; fi
+    - mkdir -p /Users/gitlab/builds/album-app/plugins/album-package/installer/arm64
+    - album package --output_path /Users/gitlab/builds/album-app/plugins/album-package/installer/arm64
+    - ls -lah /Users/gitlab/builds/album-app/plugins/album-package/installer/arm64
+    - if [ ! -f "/Users/gitlab/builds/album-app/plugins/album-package/installer/arm64/album_installer.app" ]; then echo "Installer not found for arm64!" && exit 1; fi
   artifacts:
     expire_in: never
     paths:
-      - $CI_PROJECT_DIR/installer/arm64
+      - /Users/gitlab/builds/album-app/plugins/album-package/installer/arm64/album_installer.app
   rules:
     - if: $CI_PIPELINE_SOURCE == "pipeline"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
@@ -363,14 +363,14 @@ macos_installer_build_x86_64:
   stage: installer-build
   script:
     - echo "Building for Intel x86-64 using Rosetta 2..."
-    - mkdir -p $CI_PROJECT_DIR/installer/x86_64
-    - arch -x86_64 album package --output_path $CI_PROJECT_DIR/installer/x86_64
-    - ls -lah $CI_PROJECT_DIR/installer/x86_64
-    - if [ ! -f "$CI_PROJECT_DIR/installer/x86_64/album_installer.app" ]; then echo "Installer not found for x86_64!" && exit 1; fi
+    - mkdir -p /Users/gitlab/builds/album-app/plugins/album-package/installer/x86_64
+    - arch -x86_64 album package --output_path /Users/gitlab/builds/album-app/plugins/album-package/installer/x86_64
+    - ls -lah /Users/gitlab/builds/album-app/plugins/album-package/installer/x86_64
+    - if [ ! -f "/Users/gitlab/builds/album-app/plugins/album-package/installer/x86_64/album_installer.app" ]; then echo "Installer not found for x86_64!" && exit 1; fi
   artifacts:
     expire_in: never
     paths:
-      - $CI_PROJECT_DIR/installer/x86_64
+      - /Users/gitlab/builds/album-app/plugins/album-package/installer/x86_64/album_installer.app
   rules:
     - if: $CI_PIPELINE_SOURCE == "pipeline"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
