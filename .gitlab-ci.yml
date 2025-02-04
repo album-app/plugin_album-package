@@ -20,22 +20,17 @@
     - 'if(-Not (Test-Path .\micromamba)) {echo "Cache micromamba not found! Creating..."; New-Item -ItemType Directory -Force -Path .\micromamba} else { echo ".\micromamba cache found! with content:"; Get-ChildItem -Path .\micromamba}'
     - '$7ZIP_EXE=(Join-Path $env:ProgramFiles -ChildPath 7-Zip\7z.exe)'
     - '$7ZIP_INSTALLER=(Join-Path downloads -ChildPath 7z.exe)'
-    - '$Env:MAMBA_ROOT_PREFIX=(Join-Path -Path (Get-Location) -ChildPath micromamba)'
-    - '$Env:MAMBA_EXE=(Join-Path -Path (Get-Location) -ChildPath micromamba\Library\bin\micromamba.exe)'
     - '$Env:USERPROFILE=$pwd'
-    - '$Env:ALBUM_CONDA_PATH=(Join-Path -Path ($CI_PROJECT_DIR) -ChildPath micromamba\Library\bin\micromamba.exe)'
     - '$oldProgressPreference = $progressPreference; $progressPreference = "SilentlyContinue";'
     - '[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12'                                                                                                                                                                                                                                                                                          # set Security download protocol to avoid https errors
     - 'if(-Not (Test-Path $7ZIP_EXE)) {if(-Not (Test-Path $7ZIP_INSTALLER)){Invoke-Webrequest -URI https://www.7-zip.org/a/7z2201-x64.exe -OutFile $7ZIP_INSTALLER}}'
     - 'if(-Not (Test-Path $7ZIP_EXE)) {Start-Process -FilePath $7ZIP_INSTALLER -Args "/S" -Verb RunAs -Wait}'
     - 'Invoke-Webrequest -URI https://micro.mamba.pm/api/micromamba/win-64/1.5.6 -OutFile micromamba.tar.bz2'
     - '& $7ZIP_EXE x micromamba.tar.bz2 -aoa'
-    - '& $7ZIP_EXE x micromamba.tar -ttar -aoa -r Library\bin\micromamba.exe $("-o" + $Env:MAMBA_ROOT_PREFIX)'
+    - '& $7ZIP_EXE x micromamba.tar -ttar -aoa -r Library\bin\micromamba.exe $("-o" + (Join-Path -Path (Get-Location) -ChildPath micromamba_installation))'
     - '$progressPreference = $oldProgressPreference'
-    - '.\micromamba\Library\bin\micromamba.exe create -y -n album -c conda-forge python=3.12'
-    - '.\micromamba\Library\bin\micromamba.exe run -n album pip install --no-cache-dir $Env:CI_PROJECT_DIR'
-    - '.\micromamba\Library\bin\micromamba.exe shell init -s powershell -p $Env:MAMBA_ROOT_PREFIX '
-
+    - '.\micromamba_installation\Library\bin\micromamba.exe create -y -n album album-gui -c conda-forge python=3.10'
+    - '.\micromamba_installation\Library\bin\micromamba.exe run -n album pip install --no-cache-dir $Env:CI_PROJECT_DIR'
   tags:
     - windows
   variables:
@@ -62,29 +57,18 @@
     - apt update
     - apt install -y curl
     - apt install -y bzip2
-    - apt-get update && apt-get install -y binutils libgl1-mesa-glx
-    - export MAMBA_ROOT_PREFIX=$CI_PROJECT_DIR/micromamba
-    - export ALBUM_CONDA_PATH=$CI_PROJECT_DIR/bin/micromamba
     - mkdir -p $CI_PROJECT_DIR/bin/
     - curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/1.5.6 | tar -xvj -C $CI_PROJECT_DIR/bin/ --strip-components=1 bin/micromamba
-    - eval "$($CI_PROJECT_DIR/bin/micromamba shell hook -s posix)"
-    - micromamba create -y -n album -c conda-forge python=3.12 git
-    - micromamba activate album
-    - pip install --no-cache-dir $CI_PROJECT_DIR
-    - python -V
-    - pip list
+    - $CI_PROJECT_DIR/bin/micromamba create -y -n album -c conda-forge python=3.10 pip
+    - $CI_PROJECT_DIR/bin/micromamba run -n album pip install --no-cache-dir $CI_PROJECT_DIR
+    - $CI_PROJECT_DIR/bin/micromamba run -n album python -V
+    - $CI_PROJECT_DIR/bin/micromamba run -n album pip list
   variables:
     PIP_CACHE_DIR: $CI_PROJECT_DIR/.cache/pip
-    CONDA_ENV_NAME: album
-    CONDA_PREFIX: /opt/conda
-    PREFIX: $CONDA_PREFIX/envs/$CONDA_ENV_NAME
   cache:
     key: one-key-to-rule-them-all-linux
     paths:
-      - ${CONDA_PREFIX}/pkgs/*.tar.bz2
-      - ${CONDA_PREFIX}/pkgs/urls.txt
       - .cache/pip
-
 
 # Macos base template for running tests with micromamba as package manager
 #
@@ -101,20 +85,17 @@
     - tmpdir=$(mktemp -d /tmp/album-test.XXXXXX)
     - echo $tmpdir
     - echo $tmpdir > /tmp/tmpdir
-    - export MAMBA_ROOT_PREFIX=$tmpdir/micromamba
-    - export ALBUM_CONDA_PATH=$tmpdir/bin/micromamba
     - mkdir -p $tmpdir/bin/
     - curl -Ls https://micro.mamba.pm/api/micromamba/osx-64/1.5.6 | tar -xvj -C $tmpdir/bin/ --strip-components=1 bin/micromamba
-    - eval "$($tmpdir/bin/micromamba shell hook -s posix)"
-    - micromamba create -y -n album -c conda-forge python=3.12 git
-    - micromamba activate album
-    - pip install --no-cache-dir $CI_PROJECT_DIR
-    - python -V
-    - pip list
-#  after_script:
-#    - tmpdir=$(</tmp/tmpdir)
-#    - echo $tmpdir
-#    - rm -rf $tmpdir
+    - MICROMAMBA_EXECUTABLE=$tmpdir/bin/micromamba
+    - $MICROMAMBA_EXECUTABLE create -y -n album pip python=3.10 -c conda-forge
+    - $MICROMAMBA_EXECUTABLE run -n album pip install --no-cache-dir $CI_PROJECT_DIR
+    - $MICROMAMBA_EXECUTABLE run -n album python -V
+    - $MICROMAMBA_EXECUTABLE run -n album pip list
+  after_script:
+    - tmpdir=$(</tmp/tmpdir)
+    - echo $tmpdir
+    - rm -rf $tmpdir
 
 
 #----------------------------
@@ -240,7 +221,7 @@ cmdline linux:
   stage: build
   script:
     # album commands
-    - album package -h
+    - $CI_PROJECT_DIR/bin/micromamba run -n album album package -h
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
@@ -249,7 +230,7 @@ unit tests linux:
   extends: .linux_base_template
   stage: test
   script:
-    - ALBUM_CONDA_PATH=$CI_PROJECT_DIR/bin/micromamba python -m unittest test_package/unit/run_all_unit.py
+    - $CI_PROJECT_DIR/bin/micromamba run -n album python -m unittest test_package/unit/run_all_unit.py
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
@@ -257,7 +238,7 @@ integration tests linux:
   extends: .linux_base_template
   stage: test
   script:
-    - python -m unittest test_package/integration/run_all_integration_micromamba.py
+    - $CI_PROJECT_DIR/bin/micromamba run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
@@ -267,7 +248,7 @@ unit tests macos arm64:
   extends: .macos_base_template
   stage: test
   script:
-    - python -m unittest test_package/unit/run_all_unit.py
+    - $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/unit/run_all_unit.py
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
@@ -275,7 +256,7 @@ unit tests macos x86_64:
   extends: .macos_base_template
   stage: test
   script:
-    - arch -x86_64 python -m unittest test_package/unit/run_all_unit.py
+    - arch -x86_64 $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/unit/run_all_unit.py
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
@@ -283,7 +264,7 @@ integration tests macos arm64:
   extends: .macos_base_template
   stage: test
   script:
-    - python -m unittest test_package/integration/run_all_integration_micromamba.py
+    - $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
@@ -291,7 +272,7 @@ integration tests macos x86_64:
   extends: .macos_base_template
   stage: test
   script:
-    - arch -x86_64 python -m unittest test_package/integration/run_all_integration_micromamba.py
+    - arch -x86_64 $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
@@ -301,7 +282,7 @@ unit tests windows:
   extends: .windows_base_template
   stage: test
   script:
-    - $cmnd = powershell.exe -command {micromamba activate album 2>&1 | Write-Host; python -m unittest test_package\unit\run_all_unit.py 2>&1 | Write-Host; exit($lastexitcode)}
+    - .\micromamba_installation\Library\bin\micromamba.exe run -n album python -m unittest test_package\unit\run_all_unit.py
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
@@ -309,7 +290,7 @@ integration tests windows:
   extends: .windows_base_template
   stage: test
   script:
-    - $cmnd = powershell.exe -command {micromamba activate album 2>&1 | Write-Host; python -m unittest test_package\integration\run_all_integration_micromamba.py 2>&1 | Write-Host; exit($lastexitcode)}
+    - .\micromamba_installation\Library\bin\micromamba.exe run -n album python -m unittest test_package\integration\run_all_integration_micromamba.py
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
@@ -320,7 +301,7 @@ linux_installer_build:
   extends: .linux_base_template
   stage: installer-build
   script:
-    - album package --output_path $CI_PROJECT_DIR/installer
+    - $CI_PROJECT_DIR/bin/micromamba run -n album album package --output_path $CI_PROJECT_DIR/installer
     - |
       if [ ! -f "$CI_PROJECT_DIR/installer/album_installer" ]; then
         echo "File not found!"
@@ -344,7 +325,7 @@ macos_installer_build_arm64:
   script:
     - echo "Building for Apple silicon (M1/arm64)..."
     - mkdir -p /Users/gitlab/builds/album-app/plugins/album-package/installer/arm64
-    - album package --output_path /Users/gitlab/builds/album-app/plugins/album-package/installer/arm64
+    - $MICROMAMBA_EXECUTABLE run -n album album package --output_path /Users/gitlab/builds/album-app/plugins/album-package/installer/arm64
     - ls -lah /Users/gitlab/builds/album-app/plugins/album-package/installer/arm64
     - if [ ! -f "/Users/gitlab/builds/album-app/plugins/album-package/installer/arm64/album_installer.app" ]; then echo "Installer not found for arm64!" && exit 1; fi
   artifacts:
@@ -364,7 +345,7 @@ macos_installer_build_x86_64:
   script:
     - echo "Building for Intel x86-64 using Rosetta 2..."
     - mkdir -p /Users/gitlab/builds/album-app/plugins/album-package/installer/x86_64
-    - arch -x86_64 album package --output_path /Users/gitlab/builds/album-app/plugins/album-package/installer/x86_64
+    - arch -x86_64 $MICROMAMBA_EXECUTABLE run -n album album package --output_path /Users/gitlab/builds/album-app/plugins/album-package/installer/x86_64
     - ls -lah /Users/gitlab/builds/album-app/plugins/album-package/installer/x86_64
     - if [ ! -f "/Users/gitlab/builds/album-app/plugins/album-package/installer/x86_64/album_installer.app" ]; then echo "Installer not found for x86_64!" && exit 1; fi
   artifacts:
@@ -382,7 +363,7 @@ windows_installer_build:
   extends: .windows_base_template
   stage: installer-build
   script:
-    - $cmnd = powershell.exe -command {micromamba activate album 2>&1 | Write-Host; album package --output_path $env:CI_PROJECT_DIR/installer 2>&1 | Write-Host; exit($lastexitcode)}
+    - $cmnd = powershell.exe -command {.\micromamba_installation\Library\bin\micromamba.exe run -n album album package --output_path $env:CI_PROJECT_DIR/installer}
     - if (-Not (Test-Path $env:CI_PROJECT_DIR\installer\album_installer.exe -PathType Leaf)) { exit(1) }
   rules:
     - if: $CI_PIPELINE_SOURCE == "pipeline"
