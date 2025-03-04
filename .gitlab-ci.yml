@@ -57,6 +57,7 @@
     - apt update
     - apt install -y curl
     - apt install -y bzip2
+    - apt install binutils
     - mkdir -p $CI_PROJECT_DIR/bin/
     - curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/1.5.6 | tar -xvj -C $CI_PROJECT_DIR/bin/ --strip-components=1 bin/micromamba
     - $CI_PROJECT_DIR/bin/micromamba create -y -n album python=3.10 pip git -c conda-forge
