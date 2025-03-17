@@ -60,10 +60,11 @@
     - apt install -y binutils
     - mkdir -p $CI_PROJECT_DIR/bin/
     - curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/1.5.6 | tar -xvj -C $CI_PROJECT_DIR/bin/ --strip-components=1 bin/micromamba
-    - $CI_PROJECT_DIR/bin/micromamba create -y -n album python=3.10 pip git -c conda-forge
-    - $CI_PROJECT_DIR/bin/micromamba run -n album pip install --no-cache-dir $CI_PROJECT_DIR
-    - $CI_PROJECT_DIR/bin/micromamba run -n album python -V
-    - $CI_PROJECT_DIR/bin/micromamba run -n album pip list
+    - MICROMAMBA_EXECUTABLE=$CI_PROJECT_DIR/bin/micromamba
+    - $MICROMAMBA_EXECUTABLE create -y -n album python=3.10 pip git -c conda-forge
+    - $MICROMAMBA_EXECUTABLE run -n album pip install --no-cache-dir $CI_PROJECT_DIR
+    - $MICROMAMBA_EXECUTABLE run -n album python -V
+    - $MICROMAMBA_EXECUTABLE run -n album pip list
   variables:
     PIP_CACHE_DIR: $CI_PROJECT_DIR/.cache/pip
   cache:
@@ -179,7 +180,7 @@ gitlab pypi deploy:
       artifacts: true
   script:
     - echo "deploying gitlab pypi version $VERSION"
-    - pip install twine
+    - pip install twine setuptools
     - python setup.py sdist bdist_wheel
     - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi dist/*
   rules:
@@ -205,7 +206,7 @@ pypi deploy:
     - echo "deploying pypi version $VERSION"
     - echo "using pypi deploy user $PYPI_DEPLOY_USER"
   script:
-    - pip install twine
+    - pip install twine setuptools
     - python setup.py sdist bdist_wheel
     - TWINE_PASSWORD=$PYPI_DEPLOY_TOKEN TWINE_USERNAME=$PYPI_DEPLOY_USER python -m twine upload --repository-url https://upload.pypi.org/legacy/  dist/*
   rules:
@@ -222,7 +223,7 @@ cmdline linux:
   stage: build
   script:
     # album commands
-    - $CI_PROJECT_DIR/bin/micromamba run -n album album package -h
+    - $MICROMAMBA_EXECUTABLE run -n album album package -h
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
@@ -231,7 +232,7 @@ unit tests linux:
   extends: .linux_base_template
   stage: test
   script:
-    - $CI_PROJECT_DIR/bin/micromamba run -n album python -m unittest test_package/unit/run_all_unit.py
+    - $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/unit/run_all_unit.py
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
@@ -239,7 +240,7 @@ integration tests linux:
   extends: .linux_base_template
   stage: test
   script:
-    - $CI_PROJECT_DIR/bin/micromamba run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py
+    - $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
@@ -283,7 +284,7 @@ unit tests windows:
   extends: .windows_base_template
   stage: test
   script:
-    - .\micromamba_installation\Library\bin\micromamba.exe run -n album python -m unittest test_package\unit\run_all_unit.py
+    - $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package\unit\run_all_unit.py
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
@@ -302,7 +303,7 @@ linux_installer_build:
   extends: .linux_base_template
   stage: installer-build
   script:
-    - $CI_PROJECT_DIR/bin/micromamba run -n album album package --output_path $CI_PROJECT_DIR/installer
+    - $MICROMAMBA_EXECUTABLE run -n album album package --output_path $CI_PROJECT_DIR/installer
     - if [ ! -f "$CI_PROJECT_DIR/installer/album_installer" ]; then echo "Installer not found!" && exit 1; fi
   rules:
     - if: $CI_PIPELINE_SOURCE == "pipeline"
