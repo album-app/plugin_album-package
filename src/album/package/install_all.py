@@ -16,6 +16,10 @@ from urllib3.util import Retry
 from album.package.install_mamba import install_mamba
 
 
+# default python version for creation of an environment, in which the album-gui gets installed. 
+DEFAULT_PYTHON_VERSION = "3.10"
+
+
 def is_downloadable(url):
     """Shows if url is a downloadable resource."""
     with _get_session() as s:
@@ -108,7 +112,7 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
 
     print("Installing album into %s..." % album_env_path)
 
-    album_env_install_call = [mamba_exe, 'create', '--yes', '-p', album_env_path, '-c', 'conda-forge', album_gui_url]
+    album_env_install_call = [mamba_exe, 'create', '--yes', '-p', album_env_path, '-c', 'conda-forge', f"python={DEFAULT_PYTHON_VERSION}", album_gui_url]
     print("installing album via %s.." % " ".join(album_env_install_call))
     a = subprocess.run(album_env_install_call, check=True)
 
