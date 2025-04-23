@@ -16,8 +16,11 @@ from urllib3.util import Retry
 from album.package.install_mamba import install_mamba
 
 
-# default python version for creation of an environment, in which the album-gui gets installed. 
-DEFAULT_PYTHON_VERSION = "3.10"
+# Default python version for creation of an environment, in which the album-gui gets installed.
+# This is the python version of the current album environment that is used to run this script.
+# By doing this, we can ensure that the album-gui uses the same python version is compatible with what is currently in use.
+# This allows to leave the lower bound for the album dependency in the setup.cfg as it is. 
+RUNTIME_PYTHON_VERSION = sys.version.split()[0]
 
 
 def is_downloadable(url):
@@ -112,7 +115,7 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
 
     print("Installing album into %s..." % album_env_path)
 
-    album_env_install_call = [mamba_exe, 'create', '--yes', '-p', album_env_path, '-c', 'conda-forge', f"python={DEFAULT_PYTHON_VERSION}", album_gui_url]
+    album_env_install_call = [mamba_exe, 'create', '--yes', '-p', album_env_path, '-c', 'conda-forge', f"python={RUNTIME_PYTHON_VERSION}", album_gui_url]
     print("installing album via %s.." % " ".join(album_env_install_call))
     a = subprocess.run(album_env_install_call, check=True)
 
@@ -294,7 +297,7 @@ def main():
     mamba_base_path = str(Path(album_base_path).joinpath("micromamba"))
     mamba_exe = get_mamba_exe(mamba_base_path)
     album_env_path = str(get_album_env_path(album_base_path))
-    album_gui_url = "album-gui=0.4.*"
+    album_gui_url = "album-gui" # take the latest version. the env-resolver has to match it to the python version in use. This also defines the album version indirectly. 
     solution_info = read_solution_info()
     solution_path = solution_info[0]
     coordinates = solution_info[1]
