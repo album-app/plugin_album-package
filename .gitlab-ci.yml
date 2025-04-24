@@ -284,7 +284,7 @@ unit tests windows:
   extends: .windows_base_template
   stage: test
   script:
-    - $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package\unit\run_all_unit.py
+    - .\micromamba_installation\Library\bin\micromamba.exe run -n album python -m unittest test_package\unit\run_all_unit.py
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
