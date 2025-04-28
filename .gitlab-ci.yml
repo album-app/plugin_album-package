@@ -61,7 +61,7 @@
     - mkdir -p $CI_PROJECT_DIR/bin/
     - curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/1.5.6 | tar -xvj -C $CI_PROJECT_DIR/bin/ --strip-components=1 bin/micromamba
     - MICROMAMBA_EXECUTABLE=$CI_PROJECT_DIR/bin/micromamba
-    - $MICROMAMBA_EXECUTABLE create -y -n album python=$env:TEST_PYTHON_VERSION pip git -c conda-forge
+    - $MICROMAMBA_EXECUTABLE create -y -n album python=$TEST_PYTHON_VERSION pip git -c conda-forge
     - $MICROMAMBA_EXECUTABLE run -n album pip install --no-cache-dir $CI_PROJECT_DIR
     - $MICROMAMBA_EXECUTABLE run -n album python -V
     - $MICROMAMBA_EXECUTABLE run -n album pip list
@@ -90,7 +90,7 @@
     - mkdir -p $tmpdir/bin/
     - curl -Ls https://micro.mamba.pm/api/micromamba/osx-64/1.5.6 | tar -xvj -C $tmpdir/bin/ --strip-components=1 bin/micromamba
     - MICROMAMBA_EXECUTABLE=$tmpdir/bin/micromamba
-    - $MICROMAMBA_EXECUTABLE create -y -n album python=$env:TEST_PYTHON_VERSION pip git -c conda-forge
+    - $MICROMAMBA_EXECUTABLE create -y -n album python=$TEST_PYTHON_VERSION pip git -c conda-forge
     - $MICROMAMBA_EXECUTABLE run -n album pip install --no-cache-dir $CI_PROJECT_DIR
     - $MICROMAMBA_EXECUTABLE run -n album python -V
     - $MICROMAMBA_EXECUTABLE run -n album pip list
