@@ -77,7 +77,7 @@
     - set -euo pipefail; [[ "${ALBUM_DEV_ONLY}" == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album.git@dev
     - set -euo pipefail; [[ "${ALBUM_DEV_ONLY}" == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/plugins/album-gui.git@dev
     - set -euo pipefail; [[ "${ALBUM_DEV_ONLY}" == "True" ]] && $MICROMAMBA_EXECUTABLE install -n album rattler-build -c conda-forge
-    - set -euo pipefail; [[ "${ALBUM_DEV_ONLY}" == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album rattler-build .
+    - set -euo pipefail; [[ "${ALBUM_DEV_ONLY}" == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album rattler-build
     - set -euo pipefail; [[ "${ALBUM_DEV_ONLY}" == "True" ]] && ALBUM_GUI_INSTALL_BASE=$CI_PROJECT_DIR/output/linux-64/
     - set +e +u; set +o pipefail
     - $MICROMAMBA_EXECUTABLE run -n album pip install --no-cache-dir $CI_PROJECT_DIR
