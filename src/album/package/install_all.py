@@ -7,6 +7,8 @@ import shutil
 import stat
 import subprocess
 import sys
+from glob import glob
+import os
 from pathlib import Path
 
 import requests
@@ -113,13 +115,26 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
 
         install_mamba(album_base_path, mamba_base_path)
 
-    print("Installing album into %s..." % album_env_path)
+    print("Installing environment into %s..." % album_env_path)
+    album_env_install_call = [mamba_exe, 'create', '--yes', '-p', album_env_path, '-c', 'conda-forge', f"python={RUNTIME_PYTHON_VERSION}"]
 
-    album_env_install_call = [mamba_exe, 'create', '--yes', '-p', album_env_path, '-c', 'conda-forge', f"python={RUNTIME_PYTHON_VERSION}", album_gui_url]
     print("installing album via %s.." % " ".join(album_env_install_call))
     a = subprocess.run(album_env_install_call, check=True)
 
-    if a.returncode == 0:
+    # install album gui
+    print("Installing album gui...")
+    if Path(album_gui_url).is_dir():
+        channel = "local"
+        # grep for package in local directory
+        album_gui_url = glob(os.path.join(album_gui_url, "album-gui*"))[0]
+        print("Installing album gui from local directory %s" % album_gui_url)
+    else:
+        channel = "conda-forge"
+
+    album_gui_install_call = [mamba_exe, 'install', '--yes', '-p', album_env_path, '-c', channel, album_gui_url]
+    b = subprocess.run(album_gui_install_call, check=True)
+
+    if a.returncode == 0 and b.returncode == 0:
         print("Successfully installed album.")
         if solution != "None":
             print("Installing the solution...")
@@ -297,7 +312,10 @@ def main():
     mamba_base_path = str(Path(album_base_path).joinpath("micromamba"))
     mamba_exe = get_mamba_exe(mamba_base_path)
     album_env_path = str(get_album_env_path(album_base_path))
-    album_gui_url = "album-gui" # take the latest version. the env-resolver has to match it to the python version in use. This also defines the album version indirectly. 
+    # Load via Env-variable - or take the latest version
+    # The env-resolver has to match it to the python version in use.
+    # This also defines the album version as a dependency of the chosen album-gui.
+    album_gui_url = os.environ.get("ALBUM_GUI_INSTALL_BASE", "album-gui")
     solution_info = read_solution_info()
     solution_path = solution_info[0]
     coordinates = solution_info[1]
