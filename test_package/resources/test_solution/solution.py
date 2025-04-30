@@ -6,7 +6,6 @@ from album.runner.api import setup, get_args
 env_file = """name: import_unittest
 channels:
   - conda-forge
-  - defaults
 dependencies:
   - python=3.9
   - pip
@@ -48,7 +47,7 @@ setup(
         "description": "Dummy cover image.",
         "source": "cover.png"
     }],
-    album_api_version="0.4.2",
+    album_api_version="0.7.0",
     install=install,
     run=run,
     close=close,

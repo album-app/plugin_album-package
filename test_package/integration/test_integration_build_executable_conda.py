@@ -3,9 +3,8 @@ import platform
 import subprocess
 import unittest
 from argparse import Namespace
+from importlib.resources import files
 from pathlib import Path
-
-import pkg_resources
 
 from album.package import build_executable
 from test_package.test_common import TestCommon
@@ -33,7 +32,7 @@ class TestIntegrationBuildExecutable(TestCommon):
     def test_build_solution_installer(self):
         # call
         build_executable.run(self.album_mock, Namespace(
-            solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
+            solution=str(files('test_package.resources.test_solution').joinpath('solution.py')),
             output_path=self.tmp_dir.name))
 
         # assert
@@ -118,7 +117,7 @@ class TestIntegrationBuildExecutable(TestCommon):
 
         # call
         build_executable.run(self.album_mock, Namespace(
-            solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
+            solution=str(files('test_package.resources.test_solution').joinpath('solution.py')),
             output_path=self.tmp_dir.name))
         try:
             if platform.system() != "Darwin":

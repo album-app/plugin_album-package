@@ -1,8 +1,8 @@
 import platform
+from importlib.resources import files
 from pathlib import Path
 from unittest.mock import patch
 
-import pkg_resources
 
 from album.package import install_all
 from test_package.test_common import TestCommon
@@ -53,7 +53,7 @@ class TestUnitInstallAll(TestCommon):
     def test_read_solution_info(self, realpath):
         # prepare
         solution_info = ["<solution_placeholder>"]  # "<solution_placeholder>\nalbum:import_unittest:0.1.0"
-        realpath.return_value = pkg_resources.resource_filename('album.package', 'solution_info.txt')
+        realpath.return_value = str(files('album.package').joinpath('solution_info.txt'))
         # call
         script_solution_info = install_all.read_solution_info()
 

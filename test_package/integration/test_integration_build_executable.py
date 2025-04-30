@@ -1,12 +1,11 @@
 import os
 import platform
-import stat
 import subprocess
 import unittest
 from argparse import Namespace
 from pathlib import Path
 
-import pkg_resources
+from importlib.resources import files
 
 from album.package import build_executable
 from test_package.test_common import TestCommon
@@ -22,7 +21,7 @@ class TestIntegrationBuildExecutable(TestCommon):
     def test_output_path(self):
         # test if an output path that didn't exist prior to the test was created
         build_executable.run(self.album_mock, Namespace(
-            solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
+            solution=str(files('test_package.resources.test_solution').joinpath('solution.py')),
             output_path=Path(self.tmp_dir.name).joinpath('test_output')))
 
         self.assertTrue(Path(self.tmp_dir.name).joinpath('test_output').is_dir(),
@@ -31,7 +30,7 @@ class TestIntegrationBuildExecutable(TestCommon):
     def test_clean_up(self):
         # call
         build_executable.run(self.album_mock, Namespace(
-            solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
+            solution=str(files('test_package.resources.test_solution').joinpath('solution.py')),
             output_path=self.tmp_dir.name))
 
         # assert
@@ -50,7 +49,7 @@ class TestIntegrationBuildExecutable(TestCommon):
 
             # call
             build_executable.run(self.album_mock, Namespace(
-                solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'bla.py'),
+                solution=str(files('test_package.resources.test_solution').joinpath('bla.py')),
                 output_path=self.tmp_dir.name))
         except Exception:
             pass
@@ -62,7 +61,7 @@ class TestIntegrationBuildExecutable(TestCommon):
                 Path(self.tmp_dir.name).joinpath('album_album_import_unittest_0_1_0_installer.spec').is_file(),
                 "build_executable.spec was not deleted.")
             self.assertFalse(Path(self.tmp_dir.name).joinpath('solution_info.txt').is_file(),
-                         "solution_info.txt was not deleted.")
+                             "solution_info.txt was not deleted.")
 
     def test_build_album_installer(self):
         # call
@@ -79,7 +78,7 @@ class TestIntegrationBuildExecutable(TestCommon):
     def test_build_solution_installer(self):
         # call
         build_executable.run(self.album_mock, Namespace(
-            solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
+            solution=str(files('test_package.resources.test_solution').joinpath('solution.py')),
             output_path=self.tmp_dir.name))
 
         # assert
@@ -115,8 +114,10 @@ class TestIntegrationBuildExecutable(TestCommon):
                 cmd = subprocess.run([str(installer.absolute())], env=tmp_env, check=True, capture_output=True,
                                      text=True)
             else:
-                # FIXME: currently, we need to rename the macos installer app to not have the app ending in order for the runner to be able to execute it.
-                # not sure if this is also problematic for the users. We are currently providing the installer.app file, but testing the renamed installer file.
+                # FIXME: currently, we need to rename the macos installer app to not have the app ending in order
+                #  for the runner to be able to execute it.
+                # not sure if this is also problematic for the users. We are currently providing the installer.app file,
+                # but testing the renamed installer file.
                 installer_renamed = Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer")
                 os.rename(str(installer), str(installer_renamed))
 
@@ -129,16 +130,18 @@ class TestIntegrationBuildExecutable(TestCommon):
             self.fail(e.stderr)
 
         # assert
-        self.assertFalse(cmd.returncode, f"Installationprocess exited with returncode != 0")
-        self.assertTrue(Path(mamba_exe).is_file(), "micromamba executable not found!")
-        self.assertTrue(Path(album_env_path).is_dir(), "Album environmanet not found!")
+        self.assertFalse(cmd.returncode, f"Installation process exited with returncode != 0")
+        self.assertTrue(Path(mamba_exe).is_file(), "Micromamba executable not found!")
+        self.assertTrue(Path(album_env_path).is_dir(), "Album environment not found!")
 
         # get album version
         if platform.system() == "Windows":
             pwsh_str = "%s run -p %s album --version" % (mamba_exe, album_env_path)
             album_test_cmd = subprocess.run(["powershell", "-Command", pwsh_str], check=True)
         else:
-            album_test_cmd = subprocess.run([str(mamba_exe.absolute()), 'run', '-p', str(album_env_path.absolute()), 'album', '--version', '--log', 'DEBUG'], check=True)
+            album_test_cmd = subprocess.run(
+                [str(mamba_exe.absolute()), 'run', '-p', str(album_env_path.absolute()), 'album', '--version', '--log',
+                 'DEBUG'], check=True)
 
         # assert
         self.assertFalse(album_test_cmd.returncode, "Album environment not functional(version call threw error)")
@@ -163,18 +166,20 @@ class TestIntegrationBuildExecutable(TestCommon):
 
         # call
         build_executable.run(self.album_mock, Namespace(
-            solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
+            solution=str(files('test_package.resources.test_solution').joinpath('solution.py')),
             output_path=self.tmp_dir.name))
         try:
             if platform.system() != "Darwin":
-                cmd = subprocess.run([str(installer.absolute())], env=tmp_env, check=True, capture_output=True, text=True)
+                cmd = subprocess.run([str(installer.absolute())], env=tmp_env, check=True, capture_output=True,
+                                     text=True)
             else:
-                #FIXME: currently, we need to rename the macos installer app to not have the app ending in order for the runner to be able to execute it.
+                # FIXME: currently, we need to rename the macos installer app to not have the app ending in order for the runner to be able to execute it.
                 # not sure if this is also problematic for the users. We are currently providing the installer.app file, but testing the renamed installer file.
                 installer_renamed = Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer")
                 os.rename(str(installer), str(installer_renamed))
 
-                cmd = subprocess.run([str(installer_renamed.absolute())], env=tmp_env, check=True, capture_output=True, text=True)
+                cmd = subprocess.run([str(installer_renamed.absolute())], env=tmp_env, check=True, capture_output=True,
+                                     text=True)
         except subprocess.CalledProcessError as e:
             print(f"Command failed with return code {e.returncode}")
             print(f"STDOUT: {e.stdout}")
@@ -182,12 +187,12 @@ class TestIntegrationBuildExecutable(TestCommon):
             self.fail(e.stderr)
 
         # assert
-        self.assertFalse(cmd.returncode, f"Installationprocess exited with returncode != 0: \n{cmd.stdout}\n{cmd.stderr}")
-        self.assertTrue(Path(mamba_exe).is_file(), "micromamba executable not found!")
-        self.assertTrue(Path(album_env_path).is_dir(), "Album environmanet not found!")
+        self.assertFalse(cmd.returncode,
+                         f"Installation process exited with return code != 0: \n{cmd.stdout}\n{cmd.stderr}")
+        self.assertTrue(Path(mamba_exe).is_file(), "Micromamba executable not found!")
+        self.assertTrue(Path(album_env_path).is_dir(), "Album environment not found!")
 
         # call album and solution
-
         if platform.system() == "Windows":
             pwsh_str = "%s run -p %s album --version" % (mamba_exe, album_env_path)
             album_test_cmd = subprocess.run(["powershell", "-Command", pwsh_str], env=tmp_env, check=True)
@@ -195,13 +200,22 @@ class TestIntegrationBuildExecutable(TestCommon):
             solution_test_cmd = subprocess.run(["powershell", "-Command", pwsh_sol_str], env=tmp_env, check=True)
 
         else:
-            album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], check=True)
+            album_test_cmd = subprocess.run(
+                [mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], check=True
+            )
             solution_test_cmd = subprocess.run(
-                [mamba_exe, 'run', '-p', album_env_path, 'album', 'info', 'album:import_unittest:0.1.0'], env=tmp_env, check=True)
+                [mamba_exe, 'run', '-p', album_env_path, 'album', 'info', 'album:import_unittest:0.1.0'],
+                env=tmp_env,
+                check=True
+            )
 
         # assert
-        self.assertFalse(album_test_cmd.returncode, "Album environment not functional(version call threw error)")
-        self.assertFalse(solution_test_cmd.returncode, "Solution seems not to be installed.(info solution threw error)")
+        self.assertFalse(
+            album_test_cmd.returncode, "Album environment not functional(version call threw error)"
+        )
+        self.assertFalse(
+            solution_test_cmd.returncode, "Solution seems not to be installed.(info solution threw error)"
+        )
 
 
 if __name__ == '__main__':

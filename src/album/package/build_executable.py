@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 
 import PyInstaller.__main__
-import pkg_resources
+from importlib.resources import open_text, files
 
 from album.api import Album
 from album.runner.album_logging import get_active_logger
@@ -20,7 +20,7 @@ for handler in logging.root.handlers[:]:
 def fill_placeholder(output_path, solution_path, coordinates):
     """Fills the path and the coordinates of the passed solution into a cache file which gets copied into the executable
     so the information is availabe in the executable without destroying pyinstallers import structure"""
-    with open(pkg_resources.resource_filename('album.package', 'solution_info.txt'), 'r') as file:
+    with open_text('album.package', 'solution_info.txt') as file:
         template_str = file.read()
 
     # make windowspaths readable by escaping backslashes
@@ -42,8 +42,8 @@ def create_pyinstaller_params(args, name_param):
     spec_path = Path(args.output_path)
     spec_path_param = '--specpath=%s' % str(args.output_path)
     log_level_param = '--log-level=ERROR'
-    script_path = str(pkg_resources.resource_filename('album.package', 'install_all.py'))
-    install_mamba_script = pkg_resources.resource_filename('album.package', 'install_mamba.py')
+    script_path = str(files('album.package').joinpath('install_all.py'))
+    install_mamba_script = files('album.package').joinpath('install_mamba.py')
     install_mamba_param = '--add-data=%s%s%s' % (install_mamba_script, os.pathsep, '.')
     solution_info_path = str(Path(args.output_path).joinpath('solution_info.txt'))
     solution_info_param = '--add-data=%s%s%s' % (solution_info_path, os.pathsep, '.')
@@ -65,7 +65,7 @@ def clean_up(output_path, name):
 
 
 def run(album_instance: Album, args):
-    """builds an executable which installs album and inf wanted an album solution"""
+    """Build an executable which installs Album and the solution (in case provided)."""
     try:
         name = ""
         if not Path(args.output_path).is_dir():
