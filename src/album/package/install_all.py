@@ -124,9 +124,9 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
     print("Installing environment into %s..." % album_env_path)
 
     if album_dev_mode:
-        album_env_install_call = [mamba_exe, 'create', '--yes', '-p', album_env_path, '-c', 'conda-forge', f"python={RUNTIME_PYTHON_VERSION} git"]
+        album_env_install_call = [mamba_exe, 'create', '--yes', '-p', album_env_path, f"git python={RUNTIME_PYTHON_VERSION}", '-c', 'conda-forge']
     else:    
-        album_env_install_call = [mamba_exe, 'create', '--yes', '-p', album_env_path, '-c', 'conda-forge', f"python={RUNTIME_PYTHON_VERSION}"]
+        album_env_install_call = [mamba_exe, 'create', '--yes', '-p', album_env_path, f"python={RUNTIME_PYTHON_VERSION}", '-c', 'conda-forge']
 
     print("installing album via %s.." % " ".join(album_env_install_call))
     album_install_output = subprocess.run(album_env_install_call, check=True)
@@ -343,6 +343,7 @@ def main():
     # ALBUM_DEV_ONLY = os.environ.get("ALBUM_DEV_ONLY", "False")
     # NOTE: Let's use the contraints directly
     ALBUM_DEV_ONLY_CONSTRAINTS = os.environ.get("ALBUM_DEV_ONLY_CONSTRAINTS", "")
+
 
     if not Path(album_base_path).is_dir():
         Path(album_base_path).mkdir()
