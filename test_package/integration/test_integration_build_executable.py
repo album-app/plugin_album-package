@@ -111,8 +111,12 @@ class TestIntegrationBuildExecutable(TestCommon):
         build_executable.run(self.album_mock, Namespace(solution=None, output_path=self.tmp_dir.name))
         try:
             if platform.system() != "Darwin":
-                cmd = subprocess.run([str(installer.absolute())], env=tmp_env, check=True, capture_output=True,
-                                     text=True)
+                print(f"Running installer: {installer.absolute()}")
+                print(f"Using mamba executable: {mamba_exe.absolute()}")
+                print(f"MAMBA_ROOT_PREFIX: {tmp_env['MAMBA_ROOT_PREFIX']}")
+
+                cmd: subprocess.CompletedProcess[str] = subprocess.run([str(installer.absolute())], env=tmp_env, check=True, capture_output=True,
+                                                            text=True)
             else:
                 # FIXME: currently, we need to rename the macos installer app to not have the app ending in order
                 #  for the runner to be able to execute it.
@@ -122,7 +126,7 @@ class TestIntegrationBuildExecutable(TestCommon):
                 os.rename(str(installer), str(installer_renamed))
 
                 cmd = subprocess.run([str(installer_renamed.absolute())], env=tmp_env, check=True, capture_output=True,
-                                     text=True)
+                                                            text=True)
         except subprocess.CalledProcessError as e:
             print(f"Command failed with return code {e.returncode}")
             print(f"STDOUT: {e.stdout}")

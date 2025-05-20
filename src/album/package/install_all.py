@@ -15,13 +15,14 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
+import album
 from album.package.install_mamba import install_mamba
 
 
 # Default python version for creation of an environment, in which the album-gui gets installed.
 # This is the python version of the current album environment that is used to run this script.
 # By doing this, we can ensure that the album-gui uses the same python version is compatible with what is currently in use.
-# This allows to leave the lower bound for the album dependency in the setup.cfg as it is. 
+# This allows to leave the lower bound for the album dependency in the setup.cfg as it is.
 RUNTIME_PYTHON_VERSION = sys.version.split()[0]
 
 
@@ -74,7 +75,7 @@ def download_resource(url, path):
     return path
 
 
-def _install_missing_gui(album_base_path, mamba_base_path, album_env_path, album_gui_url, solution):
+def _install_missing_gui(album_base_path, mamba_base_path, album_env_path, album_gui_url, solution, album_dev_mode=""):
     """Function to install album gui if only the album env is present"""
     # install album gui and if needed mamba
     print("Found album, but not album gui. Installing album gui...")
@@ -84,21 +85,26 @@ def _install_missing_gui(album_base_path, mamba_base_path, album_env_path, album
         mamba_exe = install_mamba(album_base_path, mamba_base_path)
 
     if check_for_installed_album(album_env_path, mamba_exe):
-        cmd = subprocess.run([mamba_exe, "install", "-p", album_env_path, "-c", "conda-forge", album_gui_url],
+        if album_dev_mode:
+            # TODO: make sure this is okay.
+            cmd = subprocess.run([mamba_exe, "run -p", album_env_path, "install --yes", "pip git", "-c conda-forge"], check=True)
+            cmd = subprocess.run([mamba_exe, "run -p", album_env_path, "pip", "install", album_gui_url, album_dev_mode], capture_output=True)
+        else:
+            cmd = subprocess.run([mamba_exe, "install --yes", "-p", album_env_path, album_gui_url, "-c", "conda-forge"],
                              capture_output=True)
         if cmd.returncode == 0:
             print("Successfully installed album gui.")
         else:
             print("There was an error installing album gui: %s" % cmd.stderr)
     else:
-        _install_album_full(album_base_path, mamba_base_path, album_env_path, album_gui_url, solution)
+        _install_album_full(album_base_path, mamba_base_path, album_env_path, album_gui_url, solution, album_dev_mode)
 
 
-def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_gui_url, solution):
+def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_gui_url, solution, album_dev_mode=""):
     """
         Function to install album, album gui, a solution if passed and micromamba if it is not already installed
     """
-
+    # TODO: adjust to pip install for devs
     if (solution == "None") and Path(album_env_path).is_dir():
         print("Removing old album environment...")
         force_remove(album_env_path)
@@ -116,10 +122,14 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
         install_mamba(album_base_path, mamba_base_path)
 
     print("Installing environment into %s..." % album_env_path)
-    album_env_install_call = [mamba_exe, 'create', '--yes', '-p', album_env_path, '-c', 'conda-forge', f"python={RUNTIME_PYTHON_VERSION}"]
+
+    if album_dev_mode:
+        album_env_install_call = [mamba_exe, 'create', '--yes', '-p', album_env_path, '-c', 'conda-forge', f"python={RUNTIME_PYTHON_VERSION} git"]
+    else:    
+        album_env_install_call = [mamba_exe, 'create', '--yes', '-p', album_env_path, '-c', 'conda-forge', f"python={RUNTIME_PYTHON_VERSION}"]
 
     print("installing album via %s.." % " ".join(album_env_install_call))
-    a = subprocess.run(album_env_install_call, check=True)
+    album_install_output = subprocess.run(album_env_install_call, check=True)
 
     # install album gui
     print("Installing album gui...")
@@ -131,16 +141,20 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
     else:
         channel = "conda-forge"
 
-    album_gui_install_call = [mamba_exe, 'install', '--yes', '-p', album_env_path, '-c', channel, album_gui_url]
-    b = subprocess.run(album_gui_install_call, check=True)
+    if album_dev_mode:
+        album_gui_install_call = [mamba_exe, "run", '-p', album_env_path, "pip install", album_gui_url, album_dev_mode]
+    else:
+        album_gui_install_call = [mamba_exe, 'install', '--yes', '-p', album_env_path, '-c', channel, album_gui_url]
+    
+    gui_install_output = subprocess.run(album_gui_install_call, check=True)
 
-    if a.returncode == 0 and b.returncode == 0:
+    if album_install_output.returncode == 0 and gui_install_output.returncode == 0:
         print("Successfully installed album.")
         if solution != "None":
             print("Installing the solution...")
             install_solution(mamba_exe, album_env_path, solution)
     else:
-        print("An error occurred installing album: %s" % a.stderr)
+        print("An error occurred installing album: %s" % album_install_output.stderr)
         sys.exit()
     return True
 
@@ -315,11 +329,20 @@ def main():
     # Load via Env-variable - or take the latest version
     # The env-resolver has to match it to the python version in use.
     # This also defines the album version as a dependency of the chosen album-gui.
+    # NOTE: no, the rattler-built album-gui does not contain the correct album version as a dependency as it ignores setup.cfg
     album_gui_url = os.environ.get("ALBUM_GUI_INSTALL_BASE", "album-gui")
     solution_info = read_solution_info()
     solution_path = solution_info[0]
     coordinates = solution_info[1]
     full_install = False
+
+    # Check if we are testing in a development environment
+    # This is used to replace the mamba installation of album-gui
+    # and album itself with a pip constraints file to overwrite
+    # the source to the dev-branches of the repositories
+    # ALBUM_DEV_ONLY = os.environ.get("ALBUM_DEV_ONLY", "False")
+    # NOTE: Let's use the contraints directly
+    ALBUM_DEV_ONLY_CONSTRAINTS = os.environ.get("ALBUM_DEV_ONLY_CONSTRAINTS", "")
 
     if not Path(album_base_path).is_dir():
         Path(album_base_path).mkdir()
@@ -330,12 +353,19 @@ def main():
         install_mamba(album_base_path, mamba_base_path)
 
     if not check_for_installed_album(album_env_path, mamba_exe) or (solution_path == "None"):
-        full_install = _install_album_full(album_base_path, mamba_base_path, album_env_path, album_gui_url, solution_path)
+        full_install = _install_album_full(
+            album_base_path,
+            mamba_base_path,
+            album_env_path,
+            album_gui_url,
+            solution_path,
+            album_dev_mode=ALBUM_DEV_ONLY_CONSTRAINTS,
+        )
 
     if not full_install:
         print("Checking for album gui installation...")
         if not check_for_installed_gui(album_env_path, mamba_exe):
-            _install_missing_gui(album_base_path, mamba_base_path, album_env_path, album_gui_url, solution_path)
+            _install_missing_gui(album_base_path, mamba_base_path, album_env_path, album_gui_url, solution_path, ALBUM_DEV_ONLY)
 
         if solution_path != "None":
             print("Checking if the solution is installed...")
