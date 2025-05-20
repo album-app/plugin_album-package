@@ -9,14 +9,16 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
-MAMBA_LINK_LINUX_X86_64 = "https://micro.mamba.pm/api/micromamba/linux-64/1.5.6"
-MAMBA_LINK_LINUX_ARM64 = "https://micro.mamba.pm/api/micromamba/linux-aarch64/1.5.6"
-MAMBA_LINK_LINUX_POWER = "https://micro.mamba.pm/api/micromamba/linux-ppc64le/1.5.6"
+MAMBA_LINK_LINUX_X86_64 = "https://micro.mamba.pm/api/micromamba/linux-64/latest"
+MAMBA_LINK_LINUX_ARM64 = "https://micro.mamba.pm/api/micromamba/linux-aarch64/latest"
+MAMBA_LINK_LINUX_POWER = "https://micro.mamba.pm/api/micromamba/linux-ppc64le/latest"
 
-MAMBA_LINK_MACOS_X86_64 = "https://micro.mamba.pm/api/micromamba/osx-64/1.5.6"
-MAMBA_LINK_MACOS_ARM64 = "https://micro.mamba.pm/api/micromamba/osx-arm64/1.5.6"
+MAMBA_LINK_MACOS_X86_64 = "https://micro.mamba.pm/api/micromamba/osx-64/latest"
+MAMBA_LINK_MACOS_ARM64 = "https://micro.mamba.pm/api/micromamba/osx-arm64/latest"
 
-MAMBA_LINK_WINDOWS = "https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/win-64_micromamba-1.5.6-0.zip?ref_type=heads&inline=false"
+# NOTE: removes the old zip link (1.5.6) with the latest micromamba version
+# MAMBA_LINK_WINDOWS = "https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/win-64_micromamba-1.5.6-0.zip?ref_type=heads&inline=false"
+MAMBA_LINK_WINDOWS = "https://micro.mamba.pm/api/micromamba/win-64/latest"
 
 
 def is_downloadable(url):
@@ -77,7 +79,7 @@ def check_architecture():
 def _download_mamba(mamba_base_path):
     """downloads micromamba"""
     if platform.system() == 'Windows':
-        return _download_mamba_win(Path(mamba_base_path).joinpath('micromamba.zip'))
+        return _download_mamba_win(Path(mamba_base_path).joinpath('micromamba.tar.bz2'))
     elif platform.system() == 'Darwin':
         return _download_mamba_macos(Path(mamba_base_path).joinpath('micromamba.tar'))
     elif platform.system() == 'Linux':
@@ -114,9 +116,9 @@ def _download_mamba_linux(mamba_installer_path):
 
 
 def _unpack_mamba_win(mamba_installer, mamba_base_path):
-    """unpacks the windows version of the micromamba archive"""
-    with zipfile.ZipFile(Path(mamba_installer)) as zip:
-        zip.extractall(Path(mamba_base_path))
+    """unpacks the windows version of the micromamba archive (tar.bz2)"""
+    with tarfile.open(Path(mamba_installer), 'r:bz2') as tar:
+        tar.extractall(Path(mamba_base_path))
 
 
 def _unpack_mamba_unix(mamba_installer, mamba_base_path):
