@@ -82,9 +82,13 @@
     # - set -euo pipefail; [[ "${ALBUM_DEV_ONLY}" == "True" ]] && ALBUM_GUI_INSTALL_BASE=$CI_PROJECT_DIR/output/linux-64/
     - set +e +u; set +o pipefail
     - echo $ALBUM_GUI_INSTALL_BASE
-    - set -eou pipefail; if [ "$ALBUM_DEV_ONLY" = "True" ]; then ALBUM_DEV_ONLY_CONSTRAINTS="-c $CI_PROJECT_DIR/test_package/dev_mode_constraints.txt"; else ALBUM_DEV_ONLY_CONSTRAINTS=""; fi
+    # The following requires a constraints file to be present in the repository at album-package/test_package/dev_mode_constraints.txt
+    # check if the constraints file exists
+    - if [ -f "$CI_PROJECT_DIR/test_package/dev_mode_constraints.txt" ]; then echo "Constraints file exists"; else echo "Constraints file does not exist"; fi
+    - if [ "$ALBUM_DEV_ONLY" = "True" ]; then ALBUM_DEV_ONLY_CONSTRAINTS="-c $CI_PROJECT_DIR/test_package/dev_mode_constraints.txt"; else ALBUM_DEV_ONLY_CONSTRAINTS=""; fi
     - echo $ALBUM_DEV_ONLY_CONSTRAINTS
-    - $MICROMAMBA_EXECUTABLE run -n album pip install --no-cache-dir $CI_PROJECT_DIR
+    # install album_packages
+    - $MICROMAMBA_EXECUTABLE run -n album pip install --no-cache-dir $CI_PROJECT_DIR $ALBUM_DEV_ONLY_CONSTRAINTS
     - $MICROMAMBA_EXECUTABLE run -n album python -V
     - $MICROMAMBA_EXECUTABLE run -n album pip list
   variables:
