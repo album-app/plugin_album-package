@@ -273,7 +273,7 @@ integration tests linux:
   extends: .linux_base_template
   stage: test
   script:
-    - ALBUM_GUI_INSTALL_BASE=$ALBUM_GUI_INSTALL_BASE $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py
+    - ALBUM_GUI_INSTALL_BASE=$ALBUM_GUI_INSTALL_BASE ALBUM_DEV_ONLY_CONSTRAINTS=$ALBUM_DEV_ONLY_CONSTRAINTS $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
