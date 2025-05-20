@@ -365,7 +365,7 @@ def main():
     if not full_install:
         print("Checking for album gui installation...")
         if not check_for_installed_gui(album_env_path, mamba_exe):
-            _install_missing_gui(album_base_path, mamba_base_path, album_env_path, album_gui_url, solution_path, ALBUM_DEV_ONLY)
+            _install_missing_gui(album_base_path, mamba_base_path, album_env_path, album_gui_url, solution_path, ALBUM_DEV_ONLY_CONSTRAINTS)
 
         if solution_path != "None":
             print("Checking if the solution is installed...")
