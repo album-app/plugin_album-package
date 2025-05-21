@@ -52,7 +52,7 @@ class TestUnitInstallAll(TestCommon):
     @patch("os.path.realpath")
     def test_read_solution_info(self, realpath):
         # prepare
-        solution_info = ["<solution_placeholder>"]  # "<solution_placeholder>\nalbum:import_unittest:0.1.0"
+        solution_info = ["<solution_placeholder>"]  # "<solution_placeholder>\nalbum:import-unittest:0.1.0"
         realpath.return_value = str(files('album.package').joinpath('solution_info.txt'))
         # call
         script_solution_info = install_all.read_solution_info()

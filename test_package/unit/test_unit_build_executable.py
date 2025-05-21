@@ -41,7 +41,7 @@ class TestUnitBuildExecutable(TestCommon):
         output_path = Path(self.tmp_dir.name)
         solution = str(files('test_package.resources.test_solution').joinpath('solution.py'))
         solution_double_backslash = re.sub(r'\\', r'\\\\', solution)
-        coordinates = "album:import_unittest:0.1.0"
+        coordinates = "album:import-unittest:0.1.0"
         test_str = "%s\n%s" % (solution_double_backslash, coordinates)
 
         # call

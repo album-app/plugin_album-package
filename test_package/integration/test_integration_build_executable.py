@@ -200,7 +200,7 @@ class TestIntegrationBuildExecutable(TestCommon):
         if platform.system() == "Windows":
             pwsh_str = "%s run -p %s album --version" % (mamba_exe, album_env_path)
             album_test_cmd = subprocess.run(["powershell", "-Command", pwsh_str], env=tmp_env, check=True)
-            pwsh_sol_str = "%s run -p %s album info album:import_unittest:0.1.0" % (mamba_exe, album_env_path)
+            pwsh_sol_str = "%s run -p %s album info album:import-unittest:0.1.0" % (mamba_exe, album_env_path)
             solution_test_cmd = subprocess.run(["powershell", "-Command", pwsh_sol_str], env=tmp_env, check=True)
 
         else:
@@ -208,7 +208,7 @@ class TestIntegrationBuildExecutable(TestCommon):
                 [mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], check=True
             )
             solution_test_cmd = subprocess.run(
-                [mamba_exe, 'run', '-p', album_env_path, 'album', 'info', 'album:import_unittest:0.1.0'],
+                [mamba_exe, 'run', '-p', album_env_path, 'album', 'info', 'album:import-unittest:0.1.0'],
                 env=tmp_env,
                 check=True
             )
