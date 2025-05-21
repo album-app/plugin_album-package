@@ -65,6 +65,8 @@
     - apt install -y curl
     - apt install -y bzip2
     - apt install -y binutils
+    - apt install -y --no-install-recommends tzdata       # added system dependency for QT
+    - apt install -y libqt5core5a libqt5gui5                 # added system dependency for QT
     - mkdir -p $CI_PROJECT_DIR/bin/
     - curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/1.5.6 | tar -xvj -C $CI_PROJECT_DIR/bin/ --strip-components=1 bin/micromamba
     - MICROMAMBA_EXECUTABLE=$CI_PROJECT_DIR/bin/micromamba
@@ -273,7 +275,7 @@ integration tests linux:
   extends: .linux_base_template
   stage: test
   script:
-    - ALBUM_GUI_INSTALL_BASE=$ALBUM_GUI_INSTALL_BASE ALBUM_DEV_ONLY_CONSTRAINTS=$ALBUM_DEV_ONLY_CONSTRAINTS $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py
+    - QT_QPA_PLATFORM=offscreen ALBUM_GUI_INSTALL_BASE=$ALBUM_GUI_INSTALL_BASE ALBUM_DEV_ONLY_CONSTRAINTS=$ALBUM_DEV_ONLY_CONSTRAINTS $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py   # added offscreen setting
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
