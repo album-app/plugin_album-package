@@ -142,7 +142,7 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
         channel = "conda-forge"
 
     if album_dev_mode:
-        album_gui_install_call = [mamba_exe, "run", '-p', album_env_path, "pip install", album_gui_url, album_dev_mode]
+        album_gui_install_call = [mamba_exe, "run", '-p', album_env_path, "pip", "install", album_gui_url, album_dev_mode]
     else:
         album_gui_install_call = [mamba_exe, 'install', '--yes', '-p', album_env_path, '-c', channel, album_gui_url]
     
