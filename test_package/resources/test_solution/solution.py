@@ -3,7 +3,7 @@ import time
 
 from album.runner.api import setup, get_args
 
-env_file = """name: import_unittest
+env_file = """name: import-unittest
 channels:
   - conda-forge
 dependencies:
@@ -31,7 +31,7 @@ def close():
 
 setup(
     group="album",
-    name="import_unittest",
+    name="import-unittest",
     version="0.1.0",
     title="A Solution the unittest of the album package plugin",
     description="A Solution to run the Vascuec App.",

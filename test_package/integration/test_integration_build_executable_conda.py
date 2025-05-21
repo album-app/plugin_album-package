@@ -37,11 +37,11 @@ class TestIntegrationBuildExecutable(TestCommon):
 
         # assert
         if platform.system() == 'Windows':
-            self.assertTrue(Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer.exe").is_file())
+            self.assertTrue(Path(self.tmp_dir.name).joinpath("album_import-unittest_0_1_0_installer.exe").is_file())
         elif platform.system() == 'Darwin':
-            self.assertTrue(Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer.app").is_file())
+            self.assertTrue(Path(self.tmp_dir.name).joinpath("album_import-unittest_0_1_0_installer.app").is_file())
         else:
-            self.assertTrue(Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer").is_file())
+            self.assertTrue(Path(self.tmp_dir.name).joinpath("album_import-unittest_0_1_0_installer").is_file())
 
     def test_album_installation(self):
         # prepare
@@ -70,7 +70,7 @@ class TestIntegrationBuildExecutable(TestCommon):
             else:
                 # FIXME: currently, we need to rename the macos installer app to not have the app ending in order for the runner to be able to execute it.
                 # not sure if this is also problematic for the users. We are currently providing the installer.app file, but testing the renamed installer file.
-                installer_renamed = Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer")
+                installer_renamed = Path(self.tmp_dir.name).joinpath("album_import-unittest_0_1_0_installer")
                 os.rename(str(installer), str(installer_renamed))
 
                 cmd = subprocess.run([str(installer_renamed.absolute())], env=tmp_env, check=True, capture_output=True,
@@ -103,15 +103,15 @@ class TestIntegrationBuildExecutable(TestCommon):
         album_env_path = Path(self.album_dir).joinpath('envs', 'album')
         tmp_env["MAMBA_ROOT_PREFIX"] = str(Path(self.mamba_dir))
         if platform.system() == 'Windows':
-            installer = Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer.exe")
+            installer = Path(self.tmp_dir.name).joinpath("album_import-unittest_0_1_0_installer.exe")
             mamba_exe = Path(self.mamba_dir).joinpath('Library', 'bin', 'micromamba.exe')
             tmp_env["USERPROFILE"] = str(self.tmp_dir.name)
         elif platform.system() == 'Darwin':
-            installer = Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer.app")
+            installer = Path(self.tmp_dir.name).joinpath("album_import-unittest_0_1_0_installer.app")
             mamba_exe = Path(self.mamba_dir).joinpath('bin', 'micromamba')
             tmp_env["HOME"] = str(self.tmp_dir.name)
         else:
-            installer = Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer")
+            installer = Path(self.tmp_dir.name).joinpath("album_import-unittest_0_1_0_installer")
             mamba_exe = Path(self.mamba_dir).joinpath('bin', 'micromamba')
             tmp_env["HOME"] = str(self.tmp_dir.name)
 
@@ -126,7 +126,7 @@ class TestIntegrationBuildExecutable(TestCommon):
             else:
                 # FIXME: currently, we need to rename the macos installer app to not have the app ending in order for the runner to be able to execute it.
                 # not sure if this is also problematic for the users. We are currently providing the installer.app file, but testing the renamed installer file.
-                installer_renamed = Path(self.tmp_dir.name).joinpath("album_import_unittest_0_1_0_installer")
+                installer_renamed = Path(self.tmp_dir.name).joinpath("album_import-unittest_0_1_0_installer")
                 os.rename(str(installer), str(installer_renamed))
 
                 cmd = subprocess.run([str(installer_renamed.absolute())], env=tmp_env, check=True, capture_output=True,
@@ -145,13 +145,13 @@ class TestIntegrationBuildExecutable(TestCommon):
         if platform.system() == "Windows":
             pwsh_str = "%s run -p %s album --version" % (mamba_exe, album_env_path)
             album_test_cmd = subprocess.run(["powershell", "-Command", pwsh_str], env=tmp_env, check=True)
-            pwsh_sol_str = "%s run -p %s album info album:import_unittest:0.1.0" % (mamba_exe, album_env_path)
+            pwsh_sol_str = "%s run -p %s album info album:import-unittest:0.1.0" % (mamba_exe, album_env_path)
             solution_test_cmd = subprocess.run(["powershell", "-Command", pwsh_sol_str], env=tmp_env, check=True)
 
         else:
             album_test_cmd = subprocess.run([mamba_exe, 'run', '-p', album_env_path, 'album', '--version'], check=True)
             solution_test_cmd = subprocess.run(
-                [mamba_exe, 'run', '-p', album_env_path, 'album', 'info', 'album:import_unittest:0.1.0'], env=tmp_env, check=True)
+                [mamba_exe, 'run', '-p', album_env_path, 'album', 'info', 'album:import-unittest:0.1.0'], env=tmp_env, check=True)
 
         self.assertFalse(album_test_cmd.returncode, "Album environment not functional(version call threw error)")
         self.assertFalse(solution_test_cmd.returncode, "Solution seems not to be installed.(info solution threw error)")
