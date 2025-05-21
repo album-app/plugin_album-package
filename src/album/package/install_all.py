@@ -87,7 +87,7 @@ def _install_missing_gui(album_base_path, mamba_base_path, album_env_path, album
     if check_for_installed_album(album_env_path, mamba_exe):
         if album_dev_mode:
             # TODO: make sure this is okay.
-            cmd = subprocess.run([mamba_exe, "run -p", album_env_path, "install --yes", "pip git", "-c conda-forge"], check=True)
+            cmd = subprocess.run([mamba_exe, "run -p", album_env_path, "install --yes", "git", "pip", "-c conda-forge"], check=True)
             cmd = subprocess.run([mamba_exe, "run -p", album_env_path, "pip", "install", album_gui_url, album_dev_mode], capture_output=True)
         else:
             cmd = subprocess.run([mamba_exe, "install --yes", "-p", album_env_path, album_gui_url, "-c", "conda-forge"],
@@ -124,7 +124,7 @@ def _install_album_full(album_base_path, mamba_base_path, album_env_path, album_
     print("Installing environment into %s..." % album_env_path)
 
     if album_dev_mode:
-        album_env_install_call = [mamba_exe, 'create', '--yes', '-p', album_env_path, f"git python={RUNTIME_PYTHON_VERSION}", '-c', 'conda-forge']
+        album_env_install_call = [mamba_exe, 'create', '--yes', '-p', album_env_path, 'git', f"python={RUNTIME_PYTHON_VERSION}", '-c', 'conda-forge']
     else:    
         album_env_install_call = [mamba_exe, 'create', '--yes', '-p', album_env_path, f"python={RUNTIME_PYTHON_VERSION}", '-c', 'conda-forge']
 
