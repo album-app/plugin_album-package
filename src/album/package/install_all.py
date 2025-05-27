@@ -303,9 +303,9 @@ def check_for_installed_gui(album_env_path, mamba_exe):
 def install_solution(mamba_exe, album_env_path, solution):
     """Function to install an album solution"""
     try:
-        _ = subprocess.run(
+        cmd = subprocess.run(
             [mamba_exe, "run", "-p", album_env_path, "album", "install", str(solution)],
-            capture_output=True,
+            capture_output=True, check=True
         )
     except Exception as e:
         raise RuntimeError("An error occurred installing the solution") from e
@@ -318,7 +318,7 @@ def check_for_solution(mamba_exe, album_env_path, coordinates):
             [mamba_exe, "run", "-p", album_env_path, "album", "index", "--json"],
             capture_output=True,
         )
-        check_solutions_dict(get_solution_list_json(cmd.stdout), coordinates)
+        return check_solutions_dict(get_solution_list_json(cmd.stdout), coordinates)
     except Exception:
         return False
 
@@ -363,6 +363,10 @@ def check_solutions_dict(solution_dicts, coordinates):
                 print("solution already installed")
                 return True
             else:
+                # print(
+                #     "solution %s:%s:%s not installed, but found in the collection."
+                #     % (tmp_group, tmp_name, tmp_version)
+                # )
                 return False
 
     return False
@@ -450,12 +454,11 @@ def main():
     coordinates = solution_info[1]
     full_install = False
 
-    # Check if we are testing in a development environment
+    # NOTE: Check if we are testing in a development environment
     # This is used to replace the mamba installation of album-gui
     # and album itself with a pip constraints file to overwrite
     # the source to the dev-branches of the repositories
-    # ALBUM_DEV_ONLY = os.environ.get("ALBUM_DEV_ONLY", "False")
-    # NOTE: Let's use the contraints directly
+    # Let's use the contraints directly in a pip install call when ALBUM_DEV_ONLY is set in the CI/CD environment.
     ALBUM_DEV_ONLY_CONSTRAINTS = os.environ.get("ALBUM_DEV_ONLY_CONSTRAINTS", "")
 
     if not Path(album_base_path).is_dir():
@@ -495,7 +498,7 @@ def main():
 
         if solution_path != "None":
             print("Checking if the solution is installed...")
-            if not check_for_solution(mamba_exe, album_env_path, solution_path):
+            if not check_for_solution(mamba_exe, album_env_path, coordinates):
                 print("Installing the solution...")
                 install_solution(mamba_exe, album_env_path, solution_path)
 

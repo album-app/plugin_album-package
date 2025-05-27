@@ -33,11 +33,14 @@
     - 'Write-Output "CI_COMMIT_REF_NAME: $env:CI_COMMIT_REF_NAME"'
     - 'Write-Output "ALBUM_DEV_ONLY: $env:ALBUM_DEV_ONLY"'
     - 'if($env:ALBUM_DEV_ONLY -match "True") { echo "CAUTION! DEV ONLY OPTION ACTIVE. ENABLE/DISABLE BY SETTING ALBUM_DEV_ONLY GITLAB-RUNNER VARIABLE." }'
-    - 'if($env:ALBUM_DEV_ONLY -match "True") { .\micromamba_installation\Library\bin\micromamba.exe run -n album pip install git+https://gitlab.com/album-app/album-solution-api.git@dev}'
-    - 'if($env:ALBUM_DEV_ONLY -match "True") { .\micromamba_installation\Library\bin\micromamba.exe run -n album pip install git+https://gitlab.com/album-app/album-environments.git@dev}'
-    - 'if($env:ALBUM_DEV_ONLY -match "True") { .\micromamba_installation\Library\bin\micromamba.exe run -n album pip install git+https://gitlab.com/album-app/album.git@dev}'
-    - 'if($env:ALBUM_DEV_ONLY -match "True") { .\micromamba_installation\Library\bin\micromamba.exe run -n album pip install git+https://gitlab.com/album-app/plugins/album-gui.git@dev}'
+    # NOTE: The following requires a constraints file to be present in the repository at album-package/test_package/dev_mode_constraints.txt
+    # NOTE: How do we handle release in conjunction with constraint files?
+    - 'if (Test-Path (Join-Path $Env:CI_PROJECT_DIR "test_package\dev_mode_constraints.txt")) { Write-Output "Constraints file exists" } else { Write-Output "Constraints file does not exist" }'
+    - 'if ($Env:ALBUM_DEV_ONLY -eq "True") { $Env:ALBUM_DEV_ONLY_CONSTRAINTS = "-c " + (Join-Path $Env:CI_PROJECT_DIR "test_package\dev_mode_constraints.txt") } else { $Env:ALBUM_DEV_ONLY_CONSTRAINTS = "" }'
+    - 'Write-Output $Env:ALBUM_DEV_ONLY_CONSTRAINTS'
     - '.\micromamba_installation\Library\bin\micromamba.exe run -n album pip install --no-cache-dir $Env:CI_PROJECT_DIR'
+    - '.\micromamba_installation\Library\bin\micromamba.exe run -n album python -V'
+    - '.\micromamba_installation\Library\bin\micromamba.exe run -n album pip list'
   tags:
     - windows
   variables:
@@ -71,21 +74,13 @@
     - curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/1.5.6 | tar -xvj -C $CI_PROJECT_DIR/bin/ --strip-components=1 bin/micromamba
     - MICROMAMBA_EXECUTABLE=$CI_PROJECT_DIR/bin/micromamba
     - $MICROMAMBA_EXECUTABLE create -y -n album python=$TEST_PYTHON_VERSION pip git -c conda-forge
-    - ALBUM_GUI_INSTALL_BASE="album-gui" # why was is conda-forge here and in the code it is album-gui by default? I changed it here now
+    - ALBUM_GUI_INSTALL_BASE="album-gui" # NOTE: There was conda-forge here and in the code it is album-gui by default? I changed it here now to what it is in the code, but we should check if it's needed.
     - echo $CI_COMMIT_REF_NAME
     - echo $ALBUM_DEV_ONLY
     - set -euo pipefail; [[ "${ALBUM_DEV_ONLY}" == "True" ]] && echo "CAUTION! DEV ONLY OPTION ACTIVE. ENABLE/DISABLE BY SETTING ALBUM_DEV_ONLY GITLAB-RUNNER VARIABLE."
-    # - set -euo pipefail; [[ "${ALBUM_DEV_ONLY}" == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album-solution-api.git@dev
-    # - set -euo pipefail; [[ "${ALBUM_DEV_ONLY}" == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album-environments.git@dev
-    # - set -euo pipefail; [[ "${ALBUM_DEV_ONLY}" == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album.git@dev
-    # - set -euo pipefail; [[ "${ALBUM_DEV_ONLY}" == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/plugins/album-gui.git@dev
-    # - set -euo pipefail; [[ "${ALBUM_DEV_ONLY}" == "True" ]] && $MICROMAMBA_EXECUTABLE install -n album rattler-build -c conda-forge
-    # - set -euo pipefail; [[ "${ALBUM_DEV_ONLY}" == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album rattler-build build
-    # - set -euo pipefail; [[ "${ALBUM_DEV_ONLY}" == "True" ]] && ALBUM_GUI_INSTALL_BASE=$CI_PROJECT_DIR/output/linux-64/
     - set +e +u; set +o pipefail
-    - echo $ALBUM_GUI_INSTALL_BASE
-    # The following requires a constraints file to be present in the repository at album-package/test_package/dev_mode_constraints.txt
-    # check if the constraints file exists
+    # NOTE: The following requires a constraints file to be present in the repository at album-package/test_package/dev_mode_constraints.txt
+    # NOTE: How do we handle release in conjunction with constraint files?
     - if [ -f "$CI_PROJECT_DIR/test_package/dev_mode_constraints.txt" ]; then echo "Constraints file exists"; else echo "Constraints file does not exist"; fi
     - if [ "$ALBUM_DEV_ONLY" = "True" ]; then ALBUM_DEV_ONLY_CONSTRAINTS="-c $CI_PROJECT_DIR/test_package/dev_mode_constraints.txt"; else ALBUM_DEV_ONLY_CONSTRAINTS=""; fi
     - echo $ALBUM_DEV_ONLY_CONSTRAINTS
@@ -122,11 +117,12 @@
     - echo $CI_COMMIT_REF_NAME
     - echo $ALBUM_DEV_ONLY
     - set -euo pipefail; [[ "${ALBUM_DEV_ONLY}" == "True" ]] && echo "CAUTION! DEV ONLY OPTION ACTIVE. ENABLE/DISABLE BY SETTING ALBUM_DEV_ONLY GITLAB-RUNNER VARIABLE."
-    - set -euo pipefail; [[ "${ALBUM_DEV_ONLY}" == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album-solution-api.git@dev
-    - set -euo pipefail; [[ "${ALBUM_DEV_ONLY}" == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album-environments.git@dev
-    - set -euo pipefail; [[ "${ALBUM_DEV_ONLY}" == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album.git@dev
-    - set -euo pipefail; [[ "${ALBUM_DEV_ONLY}" == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/plugins/album-gui.git@dev
     - set +e +u; set +o pipefail
+    # NOTE: The following requires a constraints file to be present in the repository at album-package/test_package/dev_mode_constraints.txt
+    - if [ -f "$CI_PROJECT_DIR/test_package/dev_mode_constraints.txt" ]; then echo "Constraints file exists"; else echo "Constraints file does not exist"; fi
+    - if [ "$ALBUM_DEV_ONLY" = "True" ]; then ALBUM_DEV_ONLY_CONSTRAINTS="-c $CI_PROJECT_DIR/test_package/dev_mode_constraints.txt"; else ALBUM_DEV_ONLY_CONSTRAINTS=""; fi
+    - echo $ALBUM_DEV_ONLY_CONSTRAINTS
+    # install album_packages
     - $MICROMAMBA_EXECUTABLE run -n album pip install --no-cache-dir $CI_PROJECT_DIR
     - $MICROMAMBA_EXECUTABLE run -n album python -V
     - $MICROMAMBA_EXECUTABLE run -n album pip list

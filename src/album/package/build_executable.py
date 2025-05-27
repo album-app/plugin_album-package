@@ -78,6 +78,8 @@ def run(album_instance: Album, args):
         if args.solution is not None:
             get_active_logger().info("Build an executable which installs the solution.")
             coordinates = album_instance.resolve(str(args.solution)).coordinates()
+            if coordinates is None:
+                raise RuntimeError("The provided solution %s does not contain valid coordinates." % args.solution)
             get_active_logger().info(
                 "solution: %s at %s" % (coordinates, args.solution))
             if platform.system() == "Darwin":

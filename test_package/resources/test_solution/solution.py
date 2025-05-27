@@ -35,6 +35,7 @@ setup(
     version="0.1.0",
     title="A Solution the unittest of the album package plugin",
     description="A Solution to run the Vascuec App.",
+    # NOTE:`authors` got replaced with `solution_creators` at some point. When using a newer API, use the setup keywords from the respective API version. 
     authors=["Lucas Rieckert", "Jan Philipp Albrecht"],
     cite=[{
         "text": "Your first citation text",
@@ -47,7 +48,8 @@ setup(
         "description": "Dummy cover image.",
         "source": "cover.png"
     }],
-    album_api_version="0.7.0",
+    # NOTE: this API version will be migrated to the current API version automatically
+    album_api_version="0.4.2", 
     install=install,
     run=run,
     close=close,
