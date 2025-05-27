@@ -38,7 +38,7 @@
     - 'if (Test-Path (Join-Path $Env:CI_PROJECT_DIR "test_package\dev_mode_constraints.txt")) { Write-Output "Constraints file exists" } else { Write-Output "Constraints file does not exist" }'
     - 'if ($Env:ALBUM_DEV_ONLY -eq "True") { $Env:ALBUM_DEV_ONLY_CONSTRAINTS = "-c " + (Join-Path $Env:CI_PROJECT_DIR "test_package\dev_mode_constraints.txt") } else { $Env:ALBUM_DEV_ONLY_CONSTRAINTS = "" }'
     - 'Write-Output $Env:ALBUM_DEV_ONLY_CONSTRAINTS'
-    - '.\micromamba_installation\Library\bin\micromamba.exe run -n album pip install --no-cache-dir $Env:CI_PROJECT_DIR'
+    - '.\micromamba_installation\Library\bin\micromamba.exe run -n album pip install --no-cache-dir $Env:CI_PROJECT_DIR $Env:ALBUM_DEV_ONLY_CONSTRAINTS'
     - '.\micromamba_installation\Library\bin\micromamba.exe run -n album python -V'
     - '.\micromamba_installation\Library\bin\micromamba.exe run -n album pip list'
   tags:
@@ -123,7 +123,7 @@
     - if [ "$ALBUM_DEV_ONLY" = "True" ]; then ALBUM_DEV_ONLY_CONSTRAINTS="-c $CI_PROJECT_DIR/test_package/dev_mode_constraints.txt"; else ALBUM_DEV_ONLY_CONSTRAINTS=""; fi
     - echo $ALBUM_DEV_ONLY_CONSTRAINTS
     # install album_packages
-    - $MICROMAMBA_EXECUTABLE run -n album pip install --no-cache-dir $CI_PROJECT_DIR
+    - $MICROMAMBA_EXECUTABLE run -n album pip install --no-cache-dir $CI_PROJECT_DIR $ALBUM_DEV_ONLY_CONSTRAINTS
     - $MICROMAMBA_EXECUTABLE run -n album python -V
     - $MICROMAMBA_EXECUTABLE run -n album pip list
   after_script:
