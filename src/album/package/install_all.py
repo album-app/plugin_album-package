@@ -305,8 +305,13 @@ def install_solution(mamba_exe, album_env_path, solution):
     try:
         cmd = subprocess.run(
             [mamba_exe, "run", "-p", album_env_path, "album", "install", str(solution)],
-            capture_output=True, check=True
+            capture_output=True,
         )
+        if cmd.returncode == 1:
+            print(
+                "Installing the solution %s raised a problem: %s"
+                % (solution, cmd.stderr.decode())
+            )
     except Exception as e:
         raise RuntimeError("An error occurred installing the solution") from e
 

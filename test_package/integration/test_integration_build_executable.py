@@ -181,10 +181,6 @@ class TestIntegrationBuildExecutable(TestCommon):
         )
         try:
             if platform.system() != "Darwin":
-                print(f"Running installer: {installer.absolute()}")
-                print(f"Using mamba executable: {mamba_exe.absolute()}")
-                print(f"MAMBA_ROOT_PREFIX: {tmp_env['MAMBA_ROOT_PREFIX']}")
-
                 cmd: subprocess.CompletedProcess[str] = subprocess.run(
                     [str(installer.absolute())],
                     env=tmp_env,
