@@ -35,10 +35,16 @@
     - 'if($env:ALBUM_DEV_ONLY -match "True") { echo "CAUTION! DEV ONLY OPTION ACTIVE. ENABLE/DISABLE BY SETTING ALBUM_DEV_ONLY GITLAB-RUNNER VARIABLE." }'
     # NOTE: The following requires a constraints file to be present in the repository at album-package/test_package/dev_mode_constraints.txt
     # NOTE: How do we handle release in conjunction with constraint files?
-    - 'if (Test-Path (Join-Path $Env:CI_PROJECT_DIR "test_package\dev_mode_constraints.txt")) { Write-Output "Constraints file exists" } else { Write-Output "Constraints file does not exist" }'
-    - 'if ($Env:ALBUM_DEV_ONLY -eq "True") { $Env:ALBUM_DEV_ONLY_CONSTRAINTS = "-c " + (Join-Path $Env:CI_PROJECT_DIR "test_package\dev_mode_constraints.txt") } else { $Env:ALBUM_DEV_ONLY_CONSTRAINTS = "" }'
-    - 'Write-Output $Env:ALBUM_DEV_ONLY_CONSTRAINTS'
-    - '.\micromamba_installation\Library\bin\micromamba.exe run -n album pip install --no-cache-dir $Env:CI_PROJECT_DIR $($Env:ALBUM_DEV_ONLY_CONSTRAINTS.Trim())'
+    # Determine project path and constraint file
+    - '$project        = $Env:CI_PROJECT_DIR'
+    - '$constraintFile = Join-Path $project "test_package\dev_mode_constraints.txt"'
+    # Check for existence and build install arguments
+    - 'if (Test-Path $constraintFile) { Write-Output "Constraints file exists" & $installArgs = @($project, "-c", $constraintFile) } else { Write-Output "Constraints file does not exist" & $installArgs = @($project) }'
+
+    - 'Write-Output "Running pip install --no-cache-dir with: $($installArgs -join " ")'
+    - '.\micromamba_installation\Library\bin\micromamba.exe run -n album pip install --no-cache-dir @installArgs'
+
+    - # Verify installation
     - '.\micromamba_installation\Library\bin\micromamba.exe run -n album python -V'
     - '.\micromamba_installation\Library\bin\micromamba.exe run -n album pip list'
   tags:
@@ -263,7 +269,7 @@ unit tests linux:
   extends: .linux_base_template
   stage: test
   script:
-    - $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/unit/run_all_unit.py
+    - QT_QPA_PLATFORM=offscreen ALBUM_GUI_INSTALL_BASE=$ALBUM_GUI_INSTALL_BASE ALBUM_DEV_ONLY_CONSTRAINTS=$ALBUM_DEV_ONLY_CONSTRAINTS $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/unit/run_all_unit.py
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
@@ -297,7 +303,7 @@ integration tests macos arm64:
   extends: .macos_base_template
   stage: test
   script:
-    - $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py
+    - QT_QPA_PLATFORM=offscreen ALBUM_GUI_INSTALL_BASE=$ALBUM_GUI_INSTALL_BASE ALBUM_DEV_ONLY_CONSTRAINTS=$ALBUM_DEV_ONLY_CONSTRAINTS $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
@@ -305,7 +311,7 @@ integration tests macos x86_64:
   extends: .macos_base_template
   stage: test
   script:
-    - arch -x86_64 $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py
+    - arch -x86_64 QT_QPA_PLATFORM=offscreen ALBUM_GUI_INSTALL_BASE=$ALBUM_GUI_INSTALL_BASE ALBUM_DEV_ONLY_CONSTRAINTS=$ALBUM_DEV_ONLY_CONSTRAINTS $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
