@@ -35,16 +35,12 @@
     - 'if($env:ALBUM_DEV_ONLY -match "True") { echo "CAUTION! DEV ONLY OPTION ACTIVE. ENABLE/DISABLE BY SETTING ALBUM_DEV_ONLY GITLAB-RUNNER VARIABLE." }'
     # NOTE: The following requires a constraints file to be present in the repository at album-package/test_package/dev_mode_constraints.txt
     # NOTE: How do we handle release in conjunction with constraint files?
-    # Determine project path and constraint file
-    - '$project        = $Env:CI_PROJECT_DIR'
-    - '$constraintFile = Join-Path $project "test_package\dev_mode_constraints.txt"'
-    # Check for existence and build install arguments
-    - 'if (Test-Path $constraintFile) { Write-Output "Constraints file exists" & $installArgs = @($project, "-c", $constraintFile) } else { Write-Output "Constraints file does not exist" & $installArgs = @($project) }'
+    - 'if (Test-Path (Join-Path $Env:CI_PROJECT_DIR "test_package\dev_mode_constraints.txt")) { Write-Output "Constraints file exists" } else { Write-Output "Constraints file does not exist" }'
+    - 'if ($Env:ALBUM_DEV_ONLY -eq "True") { $Env:ALBUM_DEV_ONLY_CONSTRAINTS = "-c " + (Join-Path $Env:CI_PROJECT_DIR "test_package\dev_mode_constraints.txt") } else { $Env:ALBUM_DEV_ONLY_CONSTRAINTS = "" }'
+    - 'Write-Output $Env:ALBUM_DEV_ONLY_CONSTRAINTS'
 
-    - 'Write-Output "Running pip install --no-cache-dir with: $($installArgs -join " ")'
-    - '.\micromamba_installation\Library\bin\micromamba.exe run -n album pip install --no-cache-dir @installArgs'
-
-    - # Verify installation
+    - 'if ($Env:ALBUM_DEV_ONLY -eq "True") { $ALBUM_DEV_ONLY_CONSTRAINTS_PATH = (Join-Path $Env:CI_PROJECT_DIR "test_package\dev_mode_constraints.txt") } else { $ALBUM_DEV_ONLY_CONSTRAINTS_PATH = "" }'
+    - 'if ($Env:ALBUM_DEV_ONLY -eq "True") { .\micromamba_installation\Library\bin\micromamba.exe run -n album pip install --no-cache-dir $Env:CI_PROJECT_DIR -c $ALBUM_DEV_ONLY_CONSTRAINTS_PATH } else { .\micromamba_installation\Library\bin\micromamba.exe run -n album pip install --no-cache-dir $Env:CI_PROJECT_DIR }'
     - '.\micromamba_installation\Library\bin\micromamba.exe run -n album python -V'
     - '.\micromamba_installation\Library\bin\micromamba.exe run -n album pip list'
   tags:
