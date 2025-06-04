@@ -189,7 +189,7 @@ def _install_album_full(
             "--yes",
             "-p",
             album_env_path,
-            "git",
+            "git", # for the pip constraints to use git urls with declared branches
             f"python={RUNTIME_PYTHON_VERSION}",
             "-c",
             "conda-forge",
@@ -211,25 +211,39 @@ def _install_album_full(
 
     # install album gui
     print("Installing album gui...")
-    if Path(album_gui_url).is_dir():
-        channel = "local"
-        # grep for package in local directory
-        album_gui_url = glob(os.path.join(album_gui_url, "album-gui*"))[0]
-        print("Installing album gui from local directory %s" % album_gui_url)
-    else:
-        channel = "conda-forge"
+    # if Path(album_gui_url).is_dir():
+    #     channel = "local"
+    #     # grep for package in local directory
+    #     album_gui_url = glob(os.path.join(album_gui_url, "album-gui*"))[0]
+    #     print("Installing album gui from local directory %s" % album_gui_url)
+    # else:
+    #     channel = "conda-forge"
 
+    # Dev mode uses pip install with constraints, normal: mamba install
     if album_dev_mode:
-        album_gui_install_call = [
-            mamba_exe,
-            "run",
-            "-p",
-            album_env_path,
-            "pip",
-            "install",
-            album_gui_url,
-            *shlex.split(album_dev_mode),
-        ]
+        # on windows, we need to split the dev mode string for non-posix paths, so it does not eat up the '\\' in the path
+        if platform.system() == "Windows":
+            album_gui_install_call = [
+                mamba_exe,
+                "run",
+                "-p",
+                album_env_path,
+                "pip",
+                "install",
+                album_gui_url,
+                *shlex.split(album_dev_mode, posix=False),
+            ]
+        else:
+            album_gui_install_call = [
+                mamba_exe,
+                "run",
+                "-p",
+                album_env_path,
+                "pip",
+                "install",
+                album_gui_url,
+                *shlex.split(album_dev_mode),
+            ]
     else:
         album_gui_install_call = [
             mamba_exe,
@@ -238,7 +252,7 @@ def _install_album_full(
             "-p",
             album_env_path,
             "-c",
-            channel,
+            "conda-forge",
             album_gui_url,
         ]
 
