@@ -468,6 +468,8 @@ def main():
     # This also defines the album version as a dependency of the chosen album-gui.
     # NOTE: no, the rattler-built album-gui does not contain the correct album version as a dependency as it ignores setup.cfg
     album_gui_url = os.environ.get("ALBUM_GUI_INSTALL_BASE", "album-gui")
+    if not album_gui_url:
+        album_gui_url = "album-gui"
     solution_info = read_solution_info()
     solution_path = solution_info[0]
     coordinates = solution_info[1]
