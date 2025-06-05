@@ -211,13 +211,6 @@ def _install_album_full(
 
     # install album gui
     print("Installing album gui...")
-    # if Path(album_gui_url).is_dir():
-    #     channel = "local"
-    #     # grep for package in local directory
-    #     album_gui_url = glob(os.path.join(album_gui_url, "album-gui*"))[0]
-    #     print("Installing album gui from local directory %s" % album_gui_url)
-    # else:
-    #     channel = "conda-forge"
 
     # Dev mode uses pip install with constraints, normal: mamba install
     if album_dev_mode:
@@ -468,8 +461,6 @@ def main():
     # This also defines the album version as a dependency of the chosen album-gui.
     # NOTE: no, the rattler-built album-gui does not contain the correct album version as a dependency as it ignores setup.cfg
     album_gui_url = os.environ.get("ALBUM_GUI_INSTALL_BASE", "album-gui")
-    if not album_gui_url:
-        album_gui_url = "album-gui"
     solution_info = read_solution_info()
     solution_path = solution_info[0]
     coordinates = solution_info[1]
