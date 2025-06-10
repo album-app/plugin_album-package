@@ -17,7 +17,6 @@ MAMBA_LINK_LINUX_POWER = "https://micro.mamba.pm/api/micromamba/linux-ppc64le/2.
 MAMBA_LINK_MACOS_X86_64 = "https://micro.mamba.pm/api/micromamba/osx-64/2.1.1"
 MAMBA_LINK_MACOS_ARM64 = "https://micro.mamba.pm/api/micromamba/osx-arm64/2.1.1"
 
-# MAMBA_LINK_WINDOWS = "https://gitlab.com/album-app/plugins/album-package/-/raw/micromamba_installer/win-64_micromamba-1.5.6-0.zip?ref_type=heads&inline=false"
 MAMBA_LINK_WINDOWS = "https://micro.mamba.pm/api/micromamba/win-64/2.1.1"
 
 

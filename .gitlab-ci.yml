@@ -38,7 +38,7 @@
     - 'if (Test-Path (Join-Path $Env:CI_PROJECT_DIR "test_package\dev_mode_constraints.txt")) { Write-Output "Constraints file exists" } else { Write-Output "Constraints file does not exist" }'
     - 'if ($Env:ALBUM_DEV_ONLY -eq "True") { $Env:ALBUM_DEV_ONLY_CONSTRAINTS = "-c " + (Join-Path $Env:CI_PROJECT_DIR "test_package\dev_mode_constraints.txt") } else { $Env:ALBUM_DEV_ONLY_CONSTRAINTS = "" }'
     - 'Write-Output $Env:ALBUM_DEV_ONLY_CONSTRAINTS'
-
+    # The variable is within the scope of the current job, so we can use it directly in the next command and enfore correct quoting when using "-c" for constraints.
     - 'if ($Env:ALBUM_DEV_ONLY -eq "True") { $ALBUM_DEV_ONLY_CONSTRAINTS_PATH = (Join-Path $Env:CI_PROJECT_DIR "test_package\dev_mode_constraints.txt") } else { $ALBUM_DEV_ONLY_CONSTRAINTS_PATH = "" }'
     - 'if ($Env:ALBUM_DEV_ONLY -eq "True") { .\micromamba_installation\Library\bin\micromamba.exe run -n album pip install --no-cache-dir $Env:CI_PROJECT_DIR -c $ALBUM_DEV_ONLY_CONSTRAINTS_PATH } else { .\micromamba_installation\Library\bin\micromamba.exe run -n album pip install --no-cache-dir $Env:CI_PROJECT_DIR }'
     - '.\micromamba_installation\Library\bin\micromamba.exe run -n album python -V'

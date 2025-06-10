@@ -80,7 +80,7 @@ def _install_missing_gui(
     album_base_path,
     mamba_base_path,
     album_env_path,
-    album_gui_url,
+    album_gui,
     solution,
     album_dev_mode="",
 ):
@@ -94,7 +94,6 @@ def _install_missing_gui(
 
     if check_for_installed_album(album_env_path, mamba_exe):
         if album_dev_mode:
-            # TODO: make sure this is okay.
             cmd = subprocess.run(
                 [
                     mamba_exe,
@@ -115,7 +114,7 @@ def _install_missing_gui(
                     album_env_path,
                     "pip",
                     "install",
-                    album_gui_url,
+                    album_gui,
                     *shlex.split(album_dev_mode),
                 ],
                 capture_output=True,
@@ -128,7 +127,7 @@ def _install_missing_gui(
                     "--yes",
                     "-p",
                     album_env_path,
-                    album_gui_url,
+                    album_gui,
                     "-c",
                     "conda-forge",
                 ],
@@ -143,7 +142,7 @@ def _install_missing_gui(
             album_base_path,
             mamba_base_path,
             album_env_path,
-            album_gui_url,
+            album_gui,
             solution,
             album_dev_mode,
         )
@@ -153,14 +152,13 @@ def _install_album_full(
     album_base_path,
     mamba_base_path,
     album_env_path,
-    album_gui_url,
+    album_gui,
     solution,
     album_dev_mode="",
 ):
     """
     Function to install album, album gui, a solution if passed and micromamba if it is not already installed
     """
-    # TODO: adjust to pip install for devs
     if (solution == "None") and Path(album_env_path).is_dir():
         print("Removing old album environment...")
         force_remove(album_env_path)
@@ -223,7 +221,7 @@ def _install_album_full(
                 album_env_path,
                 "pip",
                 "install",
-                album_gui_url,
+                album_gui,
                 *shlex.split(album_dev_mode, posix=False),
             ]
         else:
@@ -234,7 +232,7 @@ def _install_album_full(
                 album_env_path,
                 "pip",
                 "install",
-                album_gui_url,
+                album_gui,
                 *shlex.split(album_dev_mode),
             ]
     else:
@@ -246,7 +244,7 @@ def _install_album_full(
             album_env_path,
             "-c",
             "conda-forge",
-            album_gui_url,
+            album_gui,
         ]
 
     gui_install_output = subprocess.run(album_gui_install_call, check=True)
@@ -375,10 +373,10 @@ def check_solutions_dict(solution_dicts, coordinates):
                 print("solution already installed")
                 return True
             else:
-                # print(
-                #     "solution %s:%s:%s not installed, but found in the collection."
-                #     % (tmp_group, tmp_name, tmp_version)
-                # )
+                print(
+                    "solution %s:%s:%s not installed, but found in the collection."
+                    % (tmp_group, tmp_name, tmp_version)
+                )
                 return False
 
     return False
@@ -456,17 +454,13 @@ def main():
     mamba_base_path = str(Path(album_base_path).joinpath("micromamba"))
     mamba_exe = get_mamba_exe(mamba_base_path)
     album_env_path = str(get_album_env_path(album_base_path))
-    # Load via Env-variable - or take the latest version
-    # The env-resolver has to match it to the python version in use.
-    # This also defines the album version as a dependency of the chosen album-gui.
-    # NOTE: no, the rattler-built album-gui does not contain the correct album version as a dependency as it ignores setup.cfg
-    album_gui_url = os.environ.get("ALBUM_GUI_INSTALL_BASE", "album-gui")
+    album_gui = "album-gui"
     solution_info = read_solution_info()
     solution_path = solution_info[0]
     coordinates = solution_info[1]
     full_install = False
 
-    # NOTE: Check if we are testing in a development environment
+    # NOTE: Development environment:
     # This is used to replace the mamba installation of album-gui
     # and album itself with a pip constraints file to overwrite
     # the source to the dev-branches of the repositories
@@ -491,7 +485,7 @@ def main():
             album_base_path,
             mamba_base_path,
             album_env_path,
-            album_gui_url,
+            album_gui,
             solution_path,
             album_dev_mode=ALBUM_DEV_ONLY_CONSTRAINTS,
         )
@@ -503,7 +497,7 @@ def main():
                 album_base_path,
                 mamba_base_path,
                 album_env_path,
-                album_gui_url,
+                album_gui,
                 solution_path,
                 ALBUM_DEV_ONLY_CONSTRAINTS,
             )
