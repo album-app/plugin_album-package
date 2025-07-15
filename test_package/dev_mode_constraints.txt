@@ -1,0 +1,4 @@
+git+https://gitlab.com/album-app/album-solution-api.git@dev#egg=album_solution_api
+git+https://gitlab.com/album-app/album-environments.git@dev#egg=album_environments
+git+https://gitlab.com/album-app/album.git@dev#egg=album
+git+https://gitlab.com/album-app/plugins/album-gui.git@dev#egg=album_gui

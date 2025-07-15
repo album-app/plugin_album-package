@@ -4,9 +4,8 @@ import re
 import sys
 import unittest.mock
 from argparse import Namespace
+from importlib.resources import files
 from pathlib import Path
-
-import pkg_resources
 
 from album.argument_parsing import create_parser
 from album.package.argument_parsing import album_package
@@ -40,9 +39,9 @@ class TestUnitBuildExecutable(TestCommon):
     def test_fill_placeholder(self):
         # prepare
         output_path = Path(self.tmp_dir.name)
-        solution = pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py')
+        solution = str(files('test_package.resources.test_solution').joinpath('solution.py'))
         solution_double_backslash = re.sub(r'\\', r'\\\\', solution)
-        coordinates = "album:import_unittest:0.1.0"
+        coordinates = "album:import-unittest:0.1.0"
         test_str = "%s\n%s" % (solution_double_backslash, coordinates)
 
         # call
@@ -57,11 +56,11 @@ class TestUnitBuildExecutable(TestCommon):
     def test_create_parameter(self):
         # prepare
         ns = Namespace(
-            solution=pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'),
+            solution=str(files('test_package.resources.test_solution').joinpath('solution.py')),
             output_path=self.tmp_dir.name)
-        install_mamba_script = pkg_resources.resource_filename('album.package', 'install_mamba.py')
+        install_mamba_script = str(files('album.package').joinpath('install_mamba.py'))
         solution_info_path = str(Path(self.tmp_dir.name).joinpath('solution_info.txt'))
-        pyinstaller_params = [str(pkg_resources.resource_filename('album.package', 'install_all.py')),
+        pyinstaller_params = [str(files('album.package').joinpath('install_all.py')),
                               '--onefile', '--name=album_installer', '--distpath=%s' % str(self.tmp_dir.name),
                               '--add-data=%s%s%s' % (install_mamba_script, os.pathsep, '.'),
                               '--add-data=%s%s%s' % (solution_info_path, os.pathsep, '.'),
