@@ -157,7 +157,7 @@ prepare release:
     - DeployDocker
   script:
     - echo "preparing release"
-    - VERSION=$(cat setup.cfg | grep "version=*" | awk '{split($0, s, " "); print s[3]}')
+    - VERSION=$(cat pyproject.toml | grep "version=*" | awk '{gsub(/"/, "", $3); print $3}')
     - TAG=v$VERSION
     - echo "prepare to release version $VERSION with tag $TAG"
     - echo "VERSION=$VERSION" >> variables.env
@@ -172,7 +172,7 @@ prepare release:
       when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - setup.cfg
+        - pyproject.toml
 
 gitlab release:
   stage: release
@@ -192,7 +192,7 @@ gitlab release:
         when: never
       - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
         changes:
-          - setup.cfg
+          - pyproject.toml
   release:
     name: 'Release $TAG'
     description: 'Created using the release-cli'
@@ -212,8 +212,8 @@ gitlab pypi deploy:
       artifacts: true
   script:
     - echo "deploying gitlab pypi version $VERSION"
-    - pip install twine setuptools
-    - python setup.py sdist bdist_wheel
+    - pip install twine build
+    - python -m build
     - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi dist/*
   rules:
       - if: $CI_PIPELINE_SOURCE == "pipeline"
@@ -222,7 +222,7 @@ gitlab pypi deploy:
         when: never
       - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
         changes:
-          - setup.cfg
+          - pyproject.toml
 
 pypi deploy:
   image: python:$TEST_PYTHON_VERSION
@@ -238,8 +238,8 @@ pypi deploy:
     - echo "deploying pypi version $VERSION"
     - echo "using pypi deploy user $PYPI_DEPLOY_USER"
   script:
-    - pip install twine setuptools
-    - python setup.py sdist bdist_wheel
+    - pip install twine build
+    - python -m build
     - TWINE_PASSWORD=$PYPI_DEPLOY_TOKEN TWINE_USERNAME=$PYPI_DEPLOY_USER python -m twine upload --repository-url https://upload.pypi.org/legacy/  dist/*
   rules:
       - if: $CI_PIPELINE_SOURCE == "pipeline"
@@ -248,7 +248,7 @@ pypi deploy:
         when: never
       - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
         changes:
-          - setup.cfg
+          - pyproject.toml
 
 cmdline linux:
   extends: .linux_base_template
@@ -341,7 +341,7 @@ linux_installer_build:
     - if: $CI_PIPELINE_SOURCE == "pipeline"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - setup.cfg
+        - pyproject.toml
       when: always
     - when: manual
   artifacts:
@@ -366,7 +366,7 @@ macos_installer_build_arm64:
     - if: $CI_PIPELINE_SOURCE == "pipeline"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - setup.cfg
+        - pyproject.toml
     - when: manual
 
 macos_installer_build_x86_64:
@@ -386,7 +386,7 @@ macos_installer_build_x86_64:
     - if: $CI_PIPELINE_SOURCE == "pipeline"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - setup.cfg
+        - pyproject.toml
     - when: manual
 
 windows_installer_build:
@@ -399,7 +399,7 @@ windows_installer_build:
     - if: $CI_PIPELINE_SOURCE == "pipeline"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - setup.cfg
+        - pyproject.toml
       when: always
     - when: manual
   artifacts:
