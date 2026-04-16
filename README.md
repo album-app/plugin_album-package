@@ -14,10 +14,16 @@ need to have the binutils package installed.
 2. Activate the album environment:
 
 ```
-conda activate album
+micromamba activate album
 ```
 
 3. Install the album package plugin:
+
+```
+micromamba install album-package -c conda-forge
+```
+
+Or via pip:
 
 ```
 pip install album-package

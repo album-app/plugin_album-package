@@ -22,6 +22,8 @@ We use the following:
 
 - pyproject.toml over setup.cfg
 - Changelog to repository 
+- Removed conda support — micromamba is now the only supported package manager
+- Removed conda-specific integration test files
 
 
 [unreleased]: https://gitlab.com/album-app/album-package/-/compare/v0.5.1...HEAD

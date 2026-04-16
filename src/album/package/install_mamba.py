@@ -2,22 +2,21 @@ import os
 import platform
 import subprocess
 from pathlib import Path
-import zipfile
 import tarfile
 
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
-# NOTE: removes the old zip link (1.5.6) with a newer micromamba version. Using `latest` is possible, but we want to ensure version compatibility.  
-MAMBA_LINK_LINUX_X86_64 = "https://micro.mamba.pm/api/micromamba/linux-64/2.1.1"
-MAMBA_LINK_LINUX_ARM64 = "https://micro.mamba.pm/api/micromamba/linux-aarch64/2.1.1"
-MAMBA_LINK_LINUX_POWER = "https://micro.mamba.pm/api/micromamba/linux-ppc64le/2.1.1"
+# NOTE: Using `latest` is possible, but we pin the version to ensure compatibility.
+MAMBA_LINK_LINUX_X86_64 = "https://micro.mamba.pm/api/micromamba/linux-64/2.5.0"
+MAMBA_LINK_LINUX_ARM64 = "https://micro.mamba.pm/api/micromamba/linux-aarch64/2.5.0"
+MAMBA_LINK_LINUX_POWER = "https://micro.mamba.pm/api/micromamba/linux-ppc64le/2.5.0"
 
-MAMBA_LINK_MACOS_X86_64 = "https://micro.mamba.pm/api/micromamba/osx-64/2.1.1"
-MAMBA_LINK_MACOS_ARM64 = "https://micro.mamba.pm/api/micromamba/osx-arm64/2.1.1"
+MAMBA_LINK_MACOS_X86_64 = "https://micro.mamba.pm/api/micromamba/osx-64/2.5.0"
+MAMBA_LINK_MACOS_ARM64 = "https://micro.mamba.pm/api/micromamba/osx-arm64/2.5.0"
 
-MAMBA_LINK_WINDOWS = "https://micro.mamba.pm/api/micromamba/win-64/2.1.1"
+MAMBA_LINK_WINDOWS = "https://micro.mamba.pm/api/micromamba/win-64/2.5.0"
 
 
 def is_downloadable(url):
@@ -138,7 +137,7 @@ def _init_pwsh(mamba_base_path):
     _ = subprocess.run([mamba_exe, 'shell', 'init', '-s', 'powershell', '-p', mamba_base_path, '-y'],
                        capture_output=True)
 
-# Cmd.exe will not be initialised since it will break existing conda installations
+# Cmd.exe will not be initialised since it will break existing micromamba installations
 #def _init_cmd_exe(mamba_base_path):
 #    """initializes the windows cmd.exe for the usage of micromamba"""
 #    mamba_exe = get_mamba_exe(mamba_base_path)
