@@ -263,6 +263,7 @@ cmdline linux:
 unit tests linux:
   extends: .linux_base_template
   stage: test
+  needs: ["cmdline linux"]
   script:
     - QT_QPA_PLATFORM=offscreen ALBUM_DEV_ONLY_CONSTRAINTS=$ALBUM_DEV_ONLY_CONSTRAINTS $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/unit/run_all_unit.py
   rules:
@@ -271,6 +272,7 @@ unit tests linux:
 integration tests linux:
   extends: .linux_base_template
   stage: test
+  needs: ["cmdline linux"]
   script:
     - QT_QPA_PLATFORM=offscreen ALBUM_DEV_ONLY_CONSTRAINTS=$ALBUM_DEV_ONLY_CONSTRAINTS $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py   # added offscreen setting
   rules:
@@ -281,6 +283,7 @@ integration tests linux:
 unit tests macos arm64:
   extends: .macos_base_template
   stage: test
+  needs: ["cmdline linux"]
   script:
     - $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/unit/run_all_unit.py
   rules:
@@ -289,6 +292,7 @@ unit tests macos arm64:
 unit tests macos x86_64:
   extends: .macos_base_template
   stage: test
+  needs: ["cmdline linux"]
   script:
     - arch -x86_64 $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/unit/run_all_unit.py
   rules:
@@ -297,6 +301,7 @@ unit tests macos x86_64:
 integration tests macos arm64:
   extends: .macos_base_template
   stage: test
+  needs: ["cmdline linux"]
   script:
     - QT_QPA_PLATFORM=offscreen ALBUM_DEV_ONLY_CONSTRAINTS=$ALBUM_DEV_ONLY_CONSTRAINTS $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py
   rules:
@@ -305,6 +310,7 @@ integration tests macos arm64:
 integration tests macos x86_64:
   extends: .macos_base_template
   stage: test
+  needs: ["cmdline linux"]
   script:
     - QT_QPA_PLATFORM=offscreen ALBUM_DEV_ONLY_CONSTRAINTS=$ALBUM_DEV_ONLY_CONSTRAINTS arch -x86_64 $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py
   rules:
@@ -315,6 +321,7 @@ integration tests macos x86_64:
 unit tests windows:
   extends: .windows_base_template
   stage: test
+  needs: ["cmdline linux"]
   script:
     - .\micromamba_installation\Library\bin\micromamba.exe run -n album python -m unittest test_package\unit\run_all_unit.py
   rules:
@@ -323,6 +330,7 @@ unit tests windows:
 integration tests windows:
   extends: .windows_base_template
   stage: test
+  needs: ["cmdline linux"]
   script:
     - .\micromamba_installation\Library\bin\micromamba.exe run -n album python -m unittest test_package\integration\run_all_integration_micromamba.py
   rules:
@@ -334,6 +342,7 @@ integration tests windows:
 linux_installer_build:
   extends: .linux_base_template
   stage: installer-build
+  needs: ["unit tests linux", "integration tests linux"]
   script:
     - $MICROMAMBA_EXECUTABLE run -n album album package --output_path $CI_PROJECT_DIR/installer
     - if [ ! -f "$CI_PROJECT_DIR/installer/album_installer" ]; then echo "Installer not found!" && exit 1; fi
@@ -352,6 +361,7 @@ linux_installer_build:
 macos_installer_build_arm64:
   extends: .macos_base_template
   stage: installer-build
+  needs: ["unit tests macos arm64", "integration tests macos arm64"]
   script:
     - echo "Building for Apple silicon (M1/arm64)..."
     - mkdir -p /Users/gitlab/builds/album-app/plugins/album-package/installer/arm64
@@ -372,6 +382,7 @@ macos_installer_build_arm64:
 macos_installer_build_x86_64:
   extends: .macos_base_template
   stage: installer-build
+  needs: ["unit tests macos x86_64", "integration tests macos x86_64"]
   script:
     - echo "Building for Intel x86-64 using Rosetta 2..."
     - mkdir -p /Users/gitlab/builds/album-app/plugins/album-package/installer/x86_64
@@ -392,6 +403,7 @@ macos_installer_build_x86_64:
 windows_installer_build:
   extends: .windows_base_template
   stage: installer-build
+  needs: ["unit tests windows", "integration tests windows"]
   script:
     - .\micromamba_installation\Library\bin\micromamba.exe run -n album album package --output_path $env:CI_PROJECT_DIR/installer
     - if (-Not (Test-Path $env:CI_PROJECT_DIR\installer\album_installer.exe -PathType Leaf)) { exit(1) }
