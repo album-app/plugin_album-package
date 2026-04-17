@@ -51,9 +51,7 @@ def create_pyinstaller_params(args, name_param):
     pyinstaller_params = [script_path, '--onefile', name_param, exe_path_param, install_mamba_param,
                           solution_info_param, workpath_param, spec_path_param, log_level_param]
 
-    hidden_imports = ["pkg_resources"]
-    for hidden_import in hidden_imports:
-        pyinstaller_params.append("--hidden-import=%s" % hidden_import)
+
 
     return pyinstaller_params
 
