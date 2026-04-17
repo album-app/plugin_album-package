@@ -464,8 +464,8 @@ def main():
     # This is used to replace the mamba installation of album-gui
     # and album itself with a pip constraints file to overwrite
     # the source to the dev-branches of the repositories
-    # Let's use the contraints directly in a pip install call when ALBUM_DEV_ONLY is set in the CI/CD environment.
-    ALBUM_DEV_ONLY_CONSTRAINTS = os.environ.get("ALBUM_DEV_ONLY_CONSTRAINTS", "")
+    # Use constraints directly in a pip install call when ALBUM_DEV_PACKAGE is set in CI/CD.
+    ALBUM_DEV_PACKAGE_CONSTRAINTS = os.environ.get("ALBUM_DEV_PACKAGE_CONSTRAINTS", "")
 
     if not Path(album_base_path).is_dir():
         Path(album_base_path).mkdir()
@@ -487,7 +487,7 @@ def main():
             album_env_path,
             album_gui,
             solution_path,
-            album_dev_mode=ALBUM_DEV_ONLY_CONSTRAINTS,
+            album_dev_mode=ALBUM_DEV_PACKAGE_CONSTRAINTS,
         )
 
     if not full_install:
@@ -499,7 +499,7 @@ def main():
                 album_env_path,
                 album_gui,
                 solution_path,
-                ALBUM_DEV_ONLY_CONSTRAINTS,
+                ALBUM_DEV_PACKAGE_CONSTRAINTS,
             )
 
         if solution_path != "None":
