@@ -84,7 +84,7 @@ workflow:
     - $MICROMAMBA_EXECUTABLE create -y -n album python=$TEST_PYTHON_VERSION pip git -c conda-forge
     - echo $CI_COMMIT_REF_NAME
     - echo $ALBUM_DEV_PACKAGE
-    - set -euo pipefail; [[ "${ALBUM_DEV_PACKAGE}" == "True" ]] && echo "CAUTION! DEV ONLY OPTION ACTIVE. ENABLE/DISABLE BY SETTING ALBUM_DEV_PACKAGE GITLAB-RUNNER VARIABLE."
+    - set -euo pipefail; [[ "${ALBUM_DEV_PACKAGE}" == "True" ]] && echo "CAUTION! DEV ONLY OPTION ACTIVE. ENABLE/DISABLE BY SETTING ALBUM_DEV_PACKAGE GITLAB-RUNNER VARIABLE." || echo "ALBUM_DEV_PACKAGE not active"
     - set +e +u; set +o pipefail
     # NOTE: The following requires a constraints file to be present in the repository at album-package/test_package/dev_mode_constraints.txt
     # NOTE: How do we handle release in conjunction with constraint files?
@@ -125,7 +125,7 @@ workflow:
     - $MICROMAMBA_EXECUTABLE create -y -n album python=$TEST_PYTHON_VERSION pip git -c conda-forge
     - echo $CI_COMMIT_REF_NAME
     - echo $ALBUM_DEV_PACKAGE
-    - set -euo pipefail; [[ "${ALBUM_DEV_PACKAGE}" == "True" ]] && echo "CAUTION! DEV ONLY OPTION ACTIVE. ENABLE/DISABLE BY SETTING ALBUM_DEV_PACKAGE GITLAB-RUNNER VARIABLE."
+    - set -euo pipefail; [[ "${ALBUM_DEV_PACKAGE}" == "True" ]] && echo "CAUTION! DEV ONLY OPTION ACTIVE. ENABLE/DISABLE BY SETTING ALBUM_DEV_PACKAGE GITLAB-RUNNER VARIABLE." || echo "ALBUM_DEV_PACKAGE not active"
     - set +e +u; set +o pipefail
     # NOTE: The following requires a constraints file to be present in the repository at album-package/test_package/dev_mode_constraints.txt
     - if [ -f "$CI_PROJECT_DIR/test_package/dev_mode_constraints.txt" ]; then echo "Constraints file exists"; else echo "Constraints file does not exist"; fi
