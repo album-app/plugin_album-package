@@ -1,5 +1,14 @@
 # CI Routine for the album framework.
 
+# Prevent duplicate pipelines: only run branch pipelines and cross-project triggers.
+# Without this, GitLab creates BOTH a branch pipeline and a merge request pipeline
+# for the same commit when an MR exists, doubling all jobs.
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+    - when: always
+
 
 #----------------------------
 # templates
@@ -7,9 +16,9 @@
 
 # Windows base template
 #
-# Downloads conda executable in <current_working_directory>\downloads if executable not present.
-# Installs conda in >current_working_directory>\miniconda if conda not already installed.
-# Runs conda initialization and configuration.
+# Downloads micromamba executable in <current_working_directory>\downloads if executable not present.
+# Installs micromamba in <current_working_directory>\micromamba if not already installed.
+# Runs micromamba initialization and configuration.
 #
 # NOTE: Apparently there is no output for commands split over several lines...
 .windows_base_template:
@@ -25,22 +34,22 @@
     - '[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12'                                                                                                                                                                                                                                                                                          # set Security download protocol to avoid https errors
     - 'if(-Not (Test-Path $7ZIP_EXE)) {if(-Not (Test-Path $7ZIP_INSTALLER)){Invoke-Webrequest -URI https://www.7-zip.org/a/7z2201-x64.exe -OutFile $7ZIP_INSTALLER}}'
     - 'if(-Not (Test-Path $7ZIP_EXE)) {Start-Process -FilePath $7ZIP_INSTALLER -Args "/S" -Verb RunAs -Wait}'
-    - 'Invoke-Webrequest -URI https://micro.mamba.pm/api/micromamba/win-64/1.5.6 -OutFile micromamba.tar.bz2'
+    - 'Invoke-Webrequest -URI https://micro.mamba.pm/api/micromamba/win-64/$env:MICROMAMBA_CI_VERSION -OutFile micromamba.tar.bz2'
     - '& $7ZIP_EXE x micromamba.tar.bz2 -aoa'
     - '& $7ZIP_EXE x micromamba.tar -ttar -aoa -r Library\bin\micromamba.exe $("-o" + (Join-Path -Path (Get-Location) -ChildPath micromamba_installation))'
     - '$progressPreference = $oldProgressPreference'
     - '.\micromamba_installation\Library\bin\micromamba.exe create -y -n album -c conda-forge python=$env:TEST_PYTHON_VERSION'
     - 'Write-Output "CI_COMMIT_REF_NAME: $env:CI_COMMIT_REF_NAME"'
-    - 'Write-Output "ALBUM_DEV_ONLY: $env:ALBUM_DEV_ONLY"'
-    - 'if($env:ALBUM_DEV_ONLY -match "True") { echo "CAUTION! DEV ONLY OPTION ACTIVE. ENABLE/DISABLE BY SETTING ALBUM_DEV_ONLY GITLAB-RUNNER VARIABLE." }'
+    - 'Write-Output "ALBUM_DEV_PACKAGE: $env:ALBUM_DEV_PACKAGE"'
+    - 'if($env:ALBUM_DEV_PACKAGE -match "True") { echo "CAUTION! DEV ONLY OPTION ACTIVE. ENABLE/DISABLE BY SETTING ALBUM_DEV_PACKAGE GITLAB-RUNNER VARIABLE." }'
     # NOTE: The following requires a constraints file to be present in the repository at album-package/test_package/dev_mode_constraints.txt
     # NOTE: How do we handle release in conjunction with constraint files?
     - 'if (Test-Path (Join-Path $Env:CI_PROJECT_DIR "test_package\dev_mode_constraints.txt")) { Write-Output "Constraints file exists" } else { Write-Output "Constraints file does not exist" }'
-    - 'if ($Env:ALBUM_DEV_ONLY -eq "True") { $Env:ALBUM_DEV_ONLY_CONSTRAINTS = "-c " + (Join-Path $Env:CI_PROJECT_DIR "test_package\dev_mode_constraints.txt") } else { $Env:ALBUM_DEV_ONLY_CONSTRAINTS = "" }'
-    - 'Write-Output $Env:ALBUM_DEV_ONLY_CONSTRAINTS'
+    - 'if ($Env:ALBUM_DEV_PACKAGE -eq "True") { $Env:ALBUM_DEV_PACKAGE_CONSTRAINTS = "-c " + (Join-Path $Env:CI_PROJECT_DIR "test_package\dev_mode_constraints.txt") } else { $Env:ALBUM_DEV_PACKAGE_CONSTRAINTS = "" }'
+    - 'Write-Output $Env:ALBUM_DEV_PACKAGE_CONSTRAINTS'
     # The variable is within the scope of the current job, so we can use it directly in the next command and enfore correct quoting when using "-c" for constraints.
-    - 'if ($Env:ALBUM_DEV_ONLY -eq "True") { $ALBUM_DEV_ONLY_CONSTRAINTS_PATH = (Join-Path $Env:CI_PROJECT_DIR "test_package\dev_mode_constraints.txt") } else { $ALBUM_DEV_ONLY_CONSTRAINTS_PATH = "" }'
-    - 'if ($Env:ALBUM_DEV_ONLY -eq "True") { .\micromamba_installation\Library\bin\micromamba.exe run -n album pip install --no-cache-dir $Env:CI_PROJECT_DIR -c $ALBUM_DEV_ONLY_CONSTRAINTS_PATH } else { .\micromamba_installation\Library\bin\micromamba.exe run -n album pip install --no-cache-dir $Env:CI_PROJECT_DIR }'
+    - 'if ($Env:ALBUM_DEV_PACKAGE -eq "True") { $ALBUM_DEV_PACKAGE_CONSTRAINTS_PATH = (Join-Path $Env:CI_PROJECT_DIR "test_package\dev_mode_constraints.txt") } else { $ALBUM_DEV_PACKAGE_CONSTRAINTS_PATH = "" }'
+    - 'if ($Env:ALBUM_DEV_PACKAGE -eq "True") { .\micromamba_installation\Library\bin\micromamba.exe run -n album pip install --no-cache-dir $Env:CI_PROJECT_DIR -c $ALBUM_DEV_PACKAGE_CONSTRAINTS_PATH } else { .\micromamba_installation\Library\bin\micromamba.exe run -n album pip install --no-cache-dir $Env:CI_PROJECT_DIR }'
     - '.\micromamba_installation\Library\bin\micromamba.exe run -n album python -V'
     - '.\micromamba_installation\Library\bin\micromamba.exe run -n album pip list'
   tags:
@@ -62,31 +71,28 @@
 #
 
 .linux_base_template:
-  image: ubuntu:latest
+  image: ubuntu:22.04
   tags:
     - docker
   before_script:
-    - apt update
-    - apt install -y curl
-    - apt install -y bzip2
-    - apt install -y binutils
-    - apt install -y --no-install-recommends tzdata       # added system dependency for QT
-    - apt install -y libqt5core5a libqt5gui5                 # added system dependency for QT
+    - DEBIAN_FRONTEND=noninteractive apt update || (sleep 30 && apt update) && apt install -y --no-install-recommends ca-certificates curl bzip2 binutils tzdata libqt5core5a libqt5gui5
     - mkdir -p $CI_PROJECT_DIR/bin/
-    - curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/1.5.6 | tar -xvj -C $CI_PROJECT_DIR/bin/ --strip-components=1 bin/micromamba
+    - curl -fsSL --retry 5 --retry-delay 3 https://micro.mamba.pm/api/micromamba/linux-64/$MICROMAMBA_CI_VERSION -o /tmp/micromamba.tar.bz2
+    - tar -xvjf /tmp/micromamba.tar.bz2 -C $CI_PROJECT_DIR/bin/ --strip-components=1 bin/micromamba
     - MICROMAMBA_EXECUTABLE=$CI_PROJECT_DIR/bin/micromamba
+    - $MICROMAMBA_EXECUTABLE --version
     - $MICROMAMBA_EXECUTABLE create -y -n album python=$TEST_PYTHON_VERSION pip git -c conda-forge
     - echo $CI_COMMIT_REF_NAME
-    - echo $ALBUM_DEV_ONLY
-    - set -euo pipefail; [[ "${ALBUM_DEV_ONLY}" == "True" ]] && echo "CAUTION! DEV ONLY OPTION ACTIVE. ENABLE/DISABLE BY SETTING ALBUM_DEV_ONLY GITLAB-RUNNER VARIABLE."
+    - echo $ALBUM_DEV_PACKAGE
+    - set -euo pipefail; [[ "${ALBUM_DEV_PACKAGE}" == "True" ]] && echo "CAUTION! DEV ONLY OPTION ACTIVE. ENABLE/DISABLE BY SETTING ALBUM_DEV_PACKAGE GITLAB-RUNNER VARIABLE." || echo "ALBUM_DEV_PACKAGE not active"
     - set +e +u; set +o pipefail
     # NOTE: The following requires a constraints file to be present in the repository at album-package/test_package/dev_mode_constraints.txt
     # NOTE: How do we handle release in conjunction with constraint files?
     - if [ -f "$CI_PROJECT_DIR/test_package/dev_mode_constraints.txt" ]; then echo "Constraints file exists"; else echo "Constraints file does not exist"; fi
-    - if [ "$ALBUM_DEV_ONLY" = "True" ]; then ALBUM_DEV_ONLY_CONSTRAINTS="-c $CI_PROJECT_DIR/test_package/dev_mode_constraints.txt"; else ALBUM_DEV_ONLY_CONSTRAINTS=""; fi
-    - echo $ALBUM_DEV_ONLY_CONSTRAINTS
+    - if [ "$ALBUM_DEV_PACKAGE" = "True" ]; then ALBUM_DEV_PACKAGE_CONSTRAINTS="-c $CI_PROJECT_DIR/test_package/dev_mode_constraints.txt"; else ALBUM_DEV_PACKAGE_CONSTRAINTS=""; fi
+    - echo $ALBUM_DEV_PACKAGE_CONSTRAINTS
     # install album_packages
-    - $MICROMAMBA_EXECUTABLE run -n album pip install --no-cache-dir $CI_PROJECT_DIR $ALBUM_DEV_ONLY_CONSTRAINTS
+    - $MICROMAMBA_EXECUTABLE run -n album pip install --no-cache-dir $CI_PROJECT_DIR $ALBUM_DEV_PACKAGE_CONSTRAINTS
     - $MICROMAMBA_EXECUTABLE run -n album python -V
     - $MICROMAMBA_EXECUTABLE run -n album pip list
   variables:
@@ -112,19 +118,21 @@
     - echo $tmpdir
     - echo $tmpdir > /tmp/tmpdir
     - mkdir -p $tmpdir/bin/
-    - curl -Ls https://micro.mamba.pm/api/micromamba/osx-64/1.5.6 | tar -xvj -C $tmpdir/bin/ --strip-components=1 bin/micromamba
+    - curl -fsSL --retry 5 --retry-delay 3 https://micro.mamba.pm/api/micromamba/osx-64/$MICROMAMBA_CI_VERSION -o $tmpdir/micromamba.tar.bz2
+    - tar -xvjf $tmpdir/micromamba.tar.bz2 -C $tmpdir/bin/ --strip-components=1 bin/micromamba
     - MICROMAMBA_EXECUTABLE=$tmpdir/bin/micromamba
+    - $MICROMAMBA_EXECUTABLE --version
     - $MICROMAMBA_EXECUTABLE create -y -n album python=$TEST_PYTHON_VERSION pip git -c conda-forge
     - echo $CI_COMMIT_REF_NAME
-    - echo $ALBUM_DEV_ONLY
-    - set -euo pipefail; [[ "${ALBUM_DEV_ONLY}" == "True" ]] && echo "CAUTION! DEV ONLY OPTION ACTIVE. ENABLE/DISABLE BY SETTING ALBUM_DEV_ONLY GITLAB-RUNNER VARIABLE."
+    - echo $ALBUM_DEV_PACKAGE
+    - set -euo pipefail; [[ "${ALBUM_DEV_PACKAGE}" == "True" ]] && echo "CAUTION! DEV ONLY OPTION ACTIVE. ENABLE/DISABLE BY SETTING ALBUM_DEV_PACKAGE GITLAB-RUNNER VARIABLE." || echo "ALBUM_DEV_PACKAGE not active"
     - set +e +u; set +o pipefail
     # NOTE: The following requires a constraints file to be present in the repository at album-package/test_package/dev_mode_constraints.txt
     - if [ -f "$CI_PROJECT_DIR/test_package/dev_mode_constraints.txt" ]; then echo "Constraints file exists"; else echo "Constraints file does not exist"; fi
-    - if [ "$ALBUM_DEV_ONLY" = "True" ]; then ALBUM_DEV_ONLY_CONSTRAINTS="-c $CI_PROJECT_DIR/test_package/dev_mode_constraints.txt"; else ALBUM_DEV_ONLY_CONSTRAINTS=""; fi
-    - echo $ALBUM_DEV_ONLY_CONSTRAINTS
+    - if [ "$ALBUM_DEV_PACKAGE" = "True" ]; then ALBUM_DEV_PACKAGE_CONSTRAINTS="-c $CI_PROJECT_DIR/test_package/dev_mode_constraints.txt"; else ALBUM_DEV_PACKAGE_CONSTRAINTS=""; fi
+    - echo $ALBUM_DEV_PACKAGE_CONSTRAINTS
     # install album_packages
-    - $MICROMAMBA_EXECUTABLE run -n album pip install --no-cache-dir $CI_PROJECT_DIR $ALBUM_DEV_ONLY_CONSTRAINTS
+    - $MICROMAMBA_EXECUTABLE run -n album pip install --no-cache-dir $CI_PROJECT_DIR $ALBUM_DEV_PACKAGE_CONSTRAINTS
     - $MICROMAMBA_EXECUTABLE run -n album python -V
     - $MICROMAMBA_EXECUTABLE run -n album pip list
   after_script:
@@ -157,7 +165,7 @@ prepare release:
     - DeployDocker
   script:
     - echo "preparing release"
-    - VERSION=$(cat setup.cfg | grep "version=*" | awk '{split($0, s, " "); print s[3]}')
+    - VERSION=$(cat pyproject.toml | grep "version=*" | awk '{gsub(/"/, "", $3); print $3}')
     - TAG=v$VERSION
     - echo "prepare to release version $VERSION with tag $TAG"
     - echo "VERSION=$VERSION" >> variables.env
@@ -166,13 +174,15 @@ prepare release:
     reports:
       dotenv: variables.env
   rules:
+    - if: $ALBUM_DEV_PACKAGE == "True"
+      when: never
     - if: $CI_PIPELINE_SOURCE == "pipeline"
       when: never
     - if: $CI_COMMIT_TAG
       when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - setup.cfg
+        - pyproject.toml
 
 gitlab release:
   stage: release
@@ -186,13 +196,15 @@ gitlab release:
   script:
     - echo "running release_job for version $VERSION and tag $TAG"
   rules:
+      - if: $ALBUM_DEV_PACKAGE == "True"
+        when: never
       - if: $CI_PIPELINE_SOURCE == "pipeline"
         when: never
       - if: $CI_COMMIT_TAG
         when: never
       - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
         changes:
-          - setup.cfg
+          - pyproject.toml
   release:
     name: 'Release $TAG'
     description: 'Created using the release-cli'
@@ -212,17 +224,19 @@ gitlab pypi deploy:
       artifacts: true
   script:
     - echo "deploying gitlab pypi version $VERSION"
-    - pip install twine setuptools
-    - python setup.py sdist bdist_wheel
+    - pip install twine build
+    - python -m build
     - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi dist/*
   rules:
+      - if: $ALBUM_DEV_PACKAGE == "True"
+        when: never
       - if: $CI_PIPELINE_SOURCE == "pipeline"
         when: never
       - if: $CI_COMMIT_TAG
         when: never
       - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
         changes:
-          - setup.cfg
+          - pyproject.toml
 
 pypi deploy:
   image: python:$TEST_PYTHON_VERSION
@@ -238,17 +252,19 @@ pypi deploy:
     - echo "deploying pypi version $VERSION"
     - echo "using pypi deploy user $PYPI_DEPLOY_USER"
   script:
-    - pip install twine setuptools
-    - python setup.py sdist bdist_wheel
+    - pip install twine build
+    - python -m build
     - TWINE_PASSWORD=$PYPI_DEPLOY_TOKEN TWINE_USERNAME=$PYPI_DEPLOY_USER python -m twine upload --repository-url https://upload.pypi.org/legacy/  dist/*
   rules:
+      - if: $ALBUM_DEV_PACKAGE == "True"
+        when: never
       - if: $CI_PIPELINE_SOURCE == "pipeline"
         when: never
       - if: $CI_COMMIT_TAG
         when: never
       - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
         changes:
-          - setup.cfg
+          - pyproject.toml
 
 cmdline linux:
   extends: .linux_base_template
@@ -263,16 +279,18 @@ cmdline linux:
 unit tests linux:
   extends: .linux_base_template
   stage: test
+  needs: ["cmdline linux"]
   script:
-    - QT_QPA_PLATFORM=offscreen ALBUM_DEV_ONLY_CONSTRAINTS=$ALBUM_DEV_ONLY_CONSTRAINTS $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/unit/run_all_unit.py
+    - QT_QPA_PLATFORM=offscreen ALBUM_DEV_PACKAGE_CONSTRAINTS=$ALBUM_DEV_PACKAGE_CONSTRAINTS $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/unit/run_all_unit.py
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
 integration tests linux:
   extends: .linux_base_template
   stage: test
+  needs: ["cmdline linux"]
   script:
-    - QT_QPA_PLATFORM=offscreen ALBUM_DEV_ONLY_CONSTRAINTS=$ALBUM_DEV_ONLY_CONSTRAINTS $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py   # added offscreen setting
+    - QT_QPA_PLATFORM=offscreen ALBUM_DEV_PACKAGE_CONSTRAINTS=$ALBUM_DEV_PACKAGE_CONSTRAINTS $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py   # added offscreen setting
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
@@ -281,6 +299,7 @@ integration tests linux:
 unit tests macos arm64:
   extends: .macos_base_template
   stage: test
+  needs: ["cmdline linux"]
   script:
     - $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/unit/run_all_unit.py
   rules:
@@ -289,6 +308,7 @@ unit tests macos arm64:
 unit tests macos x86_64:
   extends: .macos_base_template
   stage: test
+  needs: ["cmdline linux"]
   script:
     - arch -x86_64 $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/unit/run_all_unit.py
   rules:
@@ -297,16 +317,18 @@ unit tests macos x86_64:
 integration tests macos arm64:
   extends: .macos_base_template
   stage: test
+  needs: ["cmdline linux"]
   script:
-    - QT_QPA_PLATFORM=offscreen ALBUM_DEV_ONLY_CONSTRAINTS=$ALBUM_DEV_ONLY_CONSTRAINTS $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py
+    - QT_QPA_PLATFORM=offscreen ALBUM_DEV_PACKAGE_CONSTRAINTS=$ALBUM_DEV_PACKAGE_CONSTRAINTS $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
 integration tests macos x86_64:
   extends: .macos_base_template
   stage: test
+  needs: ["cmdline linux"]
   script:
-    - QT_QPA_PLATFORM=offscreen ALBUM_DEV_ONLY_CONSTRAINTS=$ALBUM_DEV_ONLY_CONSTRAINTS arch -x86_64 $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py
+    - QT_QPA_PLATFORM=offscreen ALBUM_DEV_PACKAGE_CONSTRAINTS=$ALBUM_DEV_PACKAGE_CONSTRAINTS arch -x86_64 $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
 
@@ -315,6 +337,7 @@ integration tests macos x86_64:
 unit tests windows:
   extends: .windows_base_template
   stage: test
+  needs: ["cmdline linux"]
   script:
     - .\micromamba_installation\Library\bin\micromamba.exe run -n album python -m unittest test_package\unit\run_all_unit.py
   rules:
@@ -323,6 +346,7 @@ unit tests windows:
 integration tests windows:
   extends: .windows_base_template
   stage: test
+  needs: ["cmdline linux"]
   script:
     - .\micromamba_installation\Library\bin\micromamba.exe run -n album python -m unittest test_package\integration\run_all_integration_micromamba.py
   rules:
@@ -334,14 +358,17 @@ integration tests windows:
 linux_installer_build:
   extends: .linux_base_template
   stage: installer-build
+  needs: ["unit tests linux", "integration tests linux"]
   script:
     - $MICROMAMBA_EXECUTABLE run -n album album package --output_path $CI_PROJECT_DIR/installer
     - if [ ! -f "$CI_PROJECT_DIR/installer/album_installer" ]; then echo "Installer not found!" && exit 1; fi
   rules:
+    - if: $ALBUM_DEV_PACKAGE == "True"
+      when: never
     - if: $CI_PIPELINE_SOURCE == "pipeline"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - setup.cfg
+        - pyproject.toml
       when: always
     - when: manual
   artifacts:
@@ -352,6 +379,7 @@ linux_installer_build:
 macos_installer_build_arm64:
   extends: .macos_base_template
   stage: installer-build
+  needs: ["unit tests macos arm64", "integration tests macos arm64"]
   script:
     - echo "Building for Apple silicon (M1/arm64)..."
     - mkdir -p /Users/gitlab/builds/album-app/plugins/album-package/installer/arm64
@@ -363,15 +391,18 @@ macos_installer_build_arm64:
     paths:
       - /Users/gitlab/builds/album-app/plugins/album-package/installer/arm64/album_installer.app
   rules:
+    - if: $ALBUM_DEV_PACKAGE == "True"
+      when: never
     - if: $CI_PIPELINE_SOURCE == "pipeline"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - setup.cfg
+        - pyproject.toml
     - when: manual
 
 macos_installer_build_x86_64:
   extends: .macos_base_template
   stage: installer-build
+  needs: ["unit tests macos x86_64", "integration tests macos x86_64"]
   script:
     - echo "Building for Intel x86-64 using Rosetta 2..."
     - mkdir -p /Users/gitlab/builds/album-app/plugins/album-package/installer/x86_64
@@ -383,23 +414,28 @@ macos_installer_build_x86_64:
     paths:
       - /Users/gitlab/builds/album-app/plugins/album-package/installer/x86_64/album_installer.app
   rules:
+    - if: $ALBUM_DEV_PACKAGE == "True"
+      when: never
     - if: $CI_PIPELINE_SOURCE == "pipeline"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - setup.cfg
+        - pyproject.toml
     - when: manual
 
 windows_installer_build:
   extends: .windows_base_template
   stage: installer-build
+  needs: ["unit tests windows", "integration tests windows"]
   script:
     - .\micromamba_installation\Library\bin\micromamba.exe run -n album album package --output_path $env:CI_PROJECT_DIR/installer
     - if (-Not (Test-Path $env:CI_PROJECT_DIR\installer\album_installer.exe -PathType Leaf)) { exit(1) }
   rules:
+    - if: $ALBUM_DEV_PACKAGE == "True"
+      when: never
     - if: $CI_PIPELINE_SOURCE == "pipeline"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - setup.cfg
+        - pyproject.toml
       when: always
     - when: manual
   artifacts:
