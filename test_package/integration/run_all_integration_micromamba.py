@@ -3,6 +3,7 @@ import unittest
 
 from test_package.integration import test_integration_build_executable
 from test_package.integration import test_integration_install_mamba
+from test_package.integration import test_integration_package_coordinates
 
 
 def main():
@@ -11,6 +12,7 @@ def main():
 
     suite.addTests(loader.loadTestsFromModule(test_integration_build_executable))
     suite.addTests(loader.loadTestsFromModule(test_integration_install_mamba))
+    suite.addTests(loader.loadTestsFromModule(test_integration_package_coordinates))
 
     runner = unittest.TextTestRunner(verbosity=3)
     result = runner.run(suite)

@@ -16,6 +16,40 @@ We use the following:
 
 ## [unreleased]
 
+### Added
+
+- Solution installers contain the solution now: `album package --solution` bundles the solution directory, the single
+  solution file or, for coordinates (`group:name:version`) and other inputs resolved by album, the directory of the
+  resolved `solution.py` (only the downloaded file for the URL of a single solution file) into the executable. The
+  installer copies it to `~/.album/packaged_solutions/<group>_<name>_<version>/` and installs it from there. The copy
+  is removed after a successful installation and kept if the installation fails.
+
+### Changed
+
+- The installer prints an error (including the last lines of the output of `album install` / `micromamba install`) and
+  exits with a non-zero exit code if installing the solution or album gui fails, instead of printing
+  "Installation successfully finished." Failing micromamba / album calls, download errors and unsupported systems
+  are reported as `ERROR: ...` without a Python traceback.
+- `--output_path` is created including missing parent directories
+- `--output_path` must not be the solution directory itself if a solution directory or coordinates are packaged (the
+  build fails with an error); an output path inside the solution directory is not packaged into the executable
+- `--solution` help text and README: coordinates are accepted, installers are specific to the operating system and the
+  CPU architecture
+- `--solution` help text and README: `catalog:group:name:version` packages the solution of a specific catalog (with
+  `group:name:version` album takes the first catalog containing the solution), covered by integration tests
+
+### Fixed
+
+- Solution installers only contained the absolute path of the solution on the build machine and could not install the
+  solution on any other machine
+- The check for an existing album / album gui installation always failed (`bytes` stderr compared with `""`), so every
+  solution installer ran the full installation (`micromamba create` on the existing `~/.album/envs/album`
+  environment)
+- Installing a missing album gui in development mode (`ALBUM_DEV_PACKAGE_CONSTRAINTS` set): broken micromamba arguments
+  (`"run -p"`, `"install --yes"` passed as single arguments)
+- Micromamba download on Linux arm64 and ppc64le (`uname -m` reports `aarch64` / `ppc64le`)
+- Building with a relative `--output_path` (PyInstaller could not find `solution_info.txt`)
+
 ## [0.5.1]
 
 ### Changed
