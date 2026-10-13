@@ -26,6 +26,16 @@ from album.package.install_mamba import install_mamba
 # This allows to leave the lower bound for the album dependency in the setup.cfg as it is.
 RUNTIME_PYTHON_VERSION = sys.version.split()[0]
 
+# Folder inside the album base directory into which solutions bundled into an installer are copied before they get
+# installed. The files bundled into the executable only exist in a temporary directory while the installer is running.
+# album copies an installed solution into its collection, so the copy is removed after a successful installation. If
+# the installation fails, the copy is kept, so the solution can be installed manually with "album install <copy>".
+PACKAGED_SOLUTIONS_DIR = "packaged_solutions"
+
+
+class InstallationError(RuntimeError):
+    """Raised if a part of the installation failed. The installer exits with a non-zero exit code."""
+
 
 def is_downloadable(url):
     """Shows if url is a downloadable resource."""
@@ -76,6 +86,24 @@ def download_resource(url, path):
     return path
 
 
+def _split_dev_mode_args(album_dev_mode):
+    """Splits the additional pip arguments of the development mode, e.g. "-c /path/to/constraints.txt"."""
+    # on windows, we need to split the dev mode string for non-posix paths, so it does not eat up the '\\' in the path
+    if platform.system() == "Windows":
+        return shlex.split(album_dev_mode, posix=False)
+    return shlex.split(album_dev_mode)
+
+
+def _get_process_output(cmd, max_lines=30):
+    """Returns the last lines of stdout followed by the last lines of stderr of a finished process (text mode).
+    album logs its errors to stdout, while micromamba and python may print unrelated warnings to stderr."""
+    output = []
+    for stream in (cmd.stdout, cmd.stderr):
+        if stream and stream.strip():
+            output.append("\n".join(stream.strip().splitlines()[-max_lines:]))
+    return "\n".join(output)
+
+
 def _install_missing_gui(
     album_base_path,
     mamba_base_path,
@@ -97,9 +125,10 @@ def _install_missing_gui(
             cmd = subprocess.run(
                 [
                     mamba_exe,
-                    "run -p",
+                    "install",
+                    "--yes",
+                    "-p",
                     album_env_path,
-                    "install --yes",
                     "git",
                     "pip",
                     "-c",
@@ -110,14 +139,17 @@ def _install_missing_gui(
             cmd = subprocess.run(
                 [
                     mamba_exe,
-                    "run -p",
+                    "run",
+                    "-p",
                     album_env_path,
                     "pip",
                     "install",
                     album_gui,
-                    *shlex.split(album_dev_mode),
+                    *_split_dev_mode_args(album_dev_mode),
                 ],
                 capture_output=True,
+                text=True,
+                errors="replace",
             )
         else:
             cmd = subprocess.run(
@@ -132,11 +164,16 @@ def _install_missing_gui(
                     "conda-forge",
                 ],
                 capture_output=True,
+                text=True,
+                errors="replace",
             )
         if cmd.returncode == 0:
             print("Successfully installed album gui.")
         else:
-            print("There was an error installing album gui: %s" % cmd.stderr)
+            raise InstallationError(
+                "There was an error installing album gui:\n%s"
+                % _get_process_output(cmd)
+            )
     else:
         _install_album_full(
             album_base_path,
@@ -212,29 +249,16 @@ def _install_album_full(
 
     # Dev mode uses pip install with constraints, normal: mamba install
     if album_dev_mode:
-        # on windows, we need to split the dev mode string for non-posix paths, so it does not eat up the '\\' in the path
-        if platform.system() == "Windows":
-            album_gui_install_call = [
-                mamba_exe,
-                "run",
-                "-p",
-                album_env_path,
-                "pip",
-                "install",
-                album_gui,
-                *shlex.split(album_dev_mode, posix=False),
-            ]
-        else:
-            album_gui_install_call = [
-                mamba_exe,
-                "run",
-                "-p",
-                album_env_path,
-                "pip",
-                "install",
-                album_gui,
-                *shlex.split(album_dev_mode),
-            ]
+        album_gui_install_call = [
+            mamba_exe,
+            "run",
+            "-p",
+            album_env_path,
+            "pip",
+            "install",
+            album_gui,
+            *_split_dev_mode_args(album_dev_mode),
+        ]
     else:
         album_gui_install_call = [
             mamba_exe,
@@ -255,8 +279,7 @@ def _install_album_full(
             print("Installing the solution...")
             install_solution(mamba_exe, album_env_path, solution)
     else:
-        print("An error occurred installing album: %s" % album_install_output.stderr)
-        sys.exit()
+        raise InstallationError("An error occurred installing album.")
     return True
 
 
@@ -266,11 +289,11 @@ def check_for_installed_album(album_env_path, mamba_exe):
         cmd = subprocess.run(
             [mamba_exe, "run", "-p", album_env_path, "album", "index"],
             capture_output=True,
+            text=True,
+            errors="replace",
         )
-        if cmd.stderr == "":
-            return True
-        else:
-            return False
+        # do not check for an empty stderr, micromamba and album may print warnings even if the call succeeded
+        return cmd.returncode == 0
     except Exception as e:
         if Path(album_env_path).is_dir():
             answer = input(
@@ -296,29 +319,33 @@ def check_for_installed_gui(album_env_path, mamba_exe):
         cmd = subprocess.run(
             [mamba_exe, "run", "-p", album_env_path, "album", "gui", "-h"],
             capture_output=True,
+            text=True,
+            errors="replace",
         )
-        if cmd.stderr == "":
-            return True
-        else:
-            return False
+        return cmd.returncode == 0
     except Exception:
         return False
 
 
 def install_solution(mamba_exe, album_env_path, solution):
-    """Function to install an album solution"""
+    """Function to install an album solution. Raises an InstallationError if the installation failed."""
     try:
         cmd = subprocess.run(
             [mamba_exe, "run", "-p", album_env_path, "album", "install", str(solution)],
             capture_output=True,
+            text=True,
+            errors="replace",
         )
-        if cmd.returncode == 1:
-            print(
-                "Installing the solution %s raised a problem: %s"
-                % (solution, cmd.stderr.decode())
-            )
     except Exception as e:
-        raise RuntimeError("An error occurred installing the solution") from e
+        raise InstallationError(
+            "An error occurred installing the solution %s: %s" % (solution, e)
+        ) from e
+    if cmd.returncode != 0:
+        raise InstallationError(
+            "Installing the solution %s failed (album install exited with code %s):\n%s"
+            % (solution, cmd.returncode, _get_process_output(cmd))
+        )
+    print("Successfully installed the solution.")
 
 
 def check_for_solution(mamba_exe, album_env_path, coordinates):
@@ -437,14 +464,71 @@ def get_mamba_exe(mamba_base_path):
         return str(Path(mamba_base_path).joinpath("bin", "micromamba"))
 
 
+def get_bundle_path():
+    """returns the directory containing the files bundled into the executable. PyInstaller onefile executables
+    extract them into a temporary directory (sys._MEIPASS) which gets deleted when the installer exits.
+    Falls back to the directory of this script if it is not run as an executable."""
+    meipass = getattr(sys, "_MEIPASS", None)
+    if meipass:
+        return Path(meipass)
+    return Path(os.path.realpath(__file__)).parent
+
+
+def get_packaged_solution_path(album_base_path, coordinates):
+    """returns the location the bundled solution with the given coordinates gets copied to for the installation"""
+    return Path(album_base_path).joinpath(
+        PACKAGED_SOLUTIONS_DIR, coordinates.replace(":", "_")
+    )
+
+
+def copy_bundled_solution(bundled_solution, coordinates, album_base_path):
+    """Copies the solution bundled into the executable into the album base directory and returns the path which
+    should be passed to album install. Unlike the bundle directory, the copy still exists after the installer exited,
+    so the solution can be installed manually if the installation fails. bundled_solution is the path of the solution
+    (directory or single solution file) relative to the bundle directory, as written into solution_info.txt."""
+    source = get_bundle_path().joinpath(bundled_solution)
+    if not source.exists():
+        raise InstallationError(
+            "The solution %s is not contained in this installer (expected at %s). Please rebuild the installer."
+            % (coordinates, source)
+        )
+    target = get_packaged_solution_path(album_base_path, coordinates)
+    print("Copying the solution %s to %s..." % (coordinates, target))
+    try:
+        # replace leftovers of a previous run of the installer
+        force_remove(target, warning=False)
+        if source.is_dir():
+            shutil.copytree(source, target)
+            return target
+        target.mkdir(parents=True)
+        return Path(shutil.copy2(source, target.joinpath(source.name)))
+    except OSError as e:
+        raise InstallationError(
+            "Could not copy the solution %s to %s: %s" % (coordinates, target, e)
+        ) from e
+
+
+def remove_packaged_solution(coordinates, album_base_path):
+    """Removes the copy of the bundled solution after the solution was installed. album copies an installed solution
+    into its collection, the copy is not needed anymore. A failing removal does not fail the installation."""
+    target = get_packaged_solution_path(album_base_path, coordinates)
+    print("Removing the copy of the solution %s at %s..." % (coordinates, target))
+    try:
+        force_remove(target, warning=False)
+        # remove the packaged solutions folder as well if no other copy is left
+        if target.parent.is_dir() and not any(target.parent.iterdir()):
+            target.parent.rmdir()
+    except OSError as e:
+        print("WARNING: Could not remove %s: %s" % (target, e))
+
+
 def read_solution_info():
     """Function to read the information of the solution which should be installed.
-    Returns path to the solution and it's coordinates. solution_info.txt is used to pass the information about
-    the solution into the executable without destroying the import structure ob pyinstaller
+    Returns the path of the solution inside the executable bundle (relative to get_bundle_path()) and it's
+    coordinates. solution_info.txt is used to pass the information about the solution into the executable without
+    destroying the import structure of pyinstaller
     """
-    with open(
-        Path(os.path.realpath(__file__)).parent.joinpath("solution_info.txt"), "r"
-    ) as file:
+    with open(get_bundle_path().joinpath("solution_info.txt"), "r") as file:
         sol_info = file.read()
     return sol_info.split("\n")
 
@@ -456,7 +540,7 @@ def main():
     album_env_path = str(get_album_env_path(album_base_path))
     album_gui = "album-gui"
     solution_info = read_solution_info()
-    solution_path = solution_info[0]
+    bundled_solution = solution_info[0]
     coordinates = solution_info[1]
     full_install = False
 
@@ -469,6 +553,12 @@ def main():
 
     if not Path(album_base_path).is_dir():
         Path(album_base_path).mkdir()
+
+    solution_path = "None"
+    if bundled_solution != "None":
+        solution_path = str(
+            copy_bundled_solution(bundled_solution, coordinates, album_base_path)
+        )
 
     print("Checking for micromamba installation...")
     if not Path(mamba_exe).is_file():
@@ -508,11 +598,31 @@ def main():
                 print("Installing the solution...")
                 install_solution(mamba_exe, album_env_path, solution_path)
 
+    if solution_path != "None":
+        remove_packaged_solution(coordinates, album_base_path)
+
     print("Creating shortcut..")
     create_shortcut(mamba_exe, album_env_path)
 
     print("Installation successfully finished.")
 
 
+def run():
+    """Entry point of the installer. Exits with a non-zero exit code if the installation failed. Expected errors
+    (failing installation steps, micromamba / album calls or downloads, unsupported systems) are printed without a
+    traceback."""
+    try:
+        main()
+    except (
+        InstallationError,
+        subprocess.CalledProcessError,
+        OSError,
+        NotImplementedError,
+    ) as e:
+        print("ERROR: %s" % e, file=sys.stderr)
+        print("Installation failed.", file=sys.stderr)
+        sys.exit(1)
+
+
 if __name__ == "__main__":
-    main()
+    run()
