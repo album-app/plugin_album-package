@@ -357,7 +357,8 @@ integration tests windows:
 #
 # Only the installers built on main are kept: the docs and the album-gui updater download
 # jobs/artifacts/main/raw/...?job=<name>_installer_build, i.e. main's latest successful installer. On main the builds
-# run for releases (pyproject.toml changed) and album core triggers, otherwise by hand, and the artifacts never expire.
+# run in every pipeline once the tests passed, and the artifacts never expire. A failing build leaves the previous
+# installer in place.
 #
 # On every other branch the same builds run automatically as <name>_installer_build_test, so a broken installer build
 # fails the pipeline, and their artifacts expire after 1 day (GitLab does not allow a variable in artifacts:expire_in,
@@ -369,10 +370,7 @@ integration tests windows:
       when: never
     - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
       when: never
-    - if: $CI_PIPELINE_SOURCE == "pipeline"
-    - changes:
-        - pyproject.toml
-    - when: manual
+    - when: on_success
   artifacts:
     expire_in: never
 
