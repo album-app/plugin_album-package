@@ -110,7 +110,7 @@ workflow:
 .macos_base_template:
   tags:
     - saas-macos-medium-m1
-  image: macos-14-xcode-15
+  image: macos-15-xcode-16
   before_script:
     - echo "$(uname)"
     - sw_vers
@@ -354,29 +354,56 @@ integration tests windows:
 
 
 # Installer build jobs
+#
+# Only the installers built on main are kept: the docs and the album-gui updater download
+# jobs/artifacts/main/raw/...?job=<name>_installer_build, i.e. main's latest successful installer. On main the builds
+# run for releases (pyproject.toml changed) and album core triggers, otherwise by hand, and the artifacts never expire.
+#
+# On every other branch the same builds run automatically as <name>_installer_build_test, so a broken installer build
+# fails the pipeline, and their artifacts expire after 1 day (GitLab does not allow a variable in artifacts:expire_in,
+# hence the second job).
 
-linux_installer_build:
+.installer_build_main_rules:
+  rules:
+    - if: $ALBUM_DEV_PACKAGE == "True"
+      when: never
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "pipeline"
+    - changes:
+        - pyproject.toml
+    - when: manual
+  artifacts:
+    expire_in: never
+
+.installer_build_test_rules:
+  rules:
+    - if: $ALBUM_DEV_PACKAGE == "True"
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: never
+    - when: on_success
+  artifacts:
+    expire_in: 1 day
+
+.linux_installer_build:
   extends: .linux_base_template
   stage: installer-build
   needs: ["unit tests linux", "integration tests linux"]
   script:
     - $MICROMAMBA_EXECUTABLE run -n album album package --output_path $CI_PROJECT_DIR/installer
     - if [ ! -f "$CI_PROJECT_DIR/installer/album_installer" ]; then echo "Installer not found!" && exit 1; fi
-  rules:
-    - if: $ALBUM_DEV_PACKAGE == "True"
-      when: never
-    - if: $CI_PIPELINE_SOURCE == "pipeline"
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      changes:
-        - pyproject.toml
-      when: always
-    - when: manual
   artifacts:
-    expire_in: never
     paths:
       - $CI_PROJECT_DIR/installer/album_installer
 
-macos_installer_build_arm64:
+linux_installer_build:
+  extends: [.linux_installer_build, .installer_build_main_rules]
+
+linux_installer_build_test:
+  extends: [.linux_installer_build, .installer_build_test_rules]
+
+.macos_installer_build_arm64:
   extends: .macos_base_template
   stage: installer-build
   needs: ["unit tests macos arm64", "integration tests macos arm64"]
@@ -387,19 +414,16 @@ macos_installer_build_arm64:
     - ls -lah /Users/gitlab/builds/album-app/plugins/album-package/installer/arm64
     - if [ ! -f "/Users/gitlab/builds/album-app/plugins/album-package/installer/arm64/album_installer.app" ]; then echo "Installer not found for arm64!" && exit 1; fi
   artifacts:
-    expire_in: never
     paths:
       - /Users/gitlab/builds/album-app/plugins/album-package/installer/arm64/album_installer.app
-  rules:
-    - if: $ALBUM_DEV_PACKAGE == "True"
-      when: never
-    - if: $CI_PIPELINE_SOURCE == "pipeline"
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      changes:
-        - pyproject.toml
-    - when: manual
 
-macos_installer_build_x86_64:
+macos_installer_build_arm64:
+  extends: [.macos_installer_build_arm64, .installer_build_main_rules]
+
+macos_installer_build_arm64_test:
+  extends: [.macos_installer_build_arm64, .installer_build_test_rules]
+
+.macos_installer_build_x86_64:
   extends: .macos_base_template
   stage: installer-build
   needs: ["unit tests macos x86_64", "integration tests macos x86_64"]
@@ -410,35 +434,28 @@ macos_installer_build_x86_64:
     - ls -lah /Users/gitlab/builds/album-app/plugins/album-package/installer/x86_64
     - if [ ! -f "/Users/gitlab/builds/album-app/plugins/album-package/installer/x86_64/album_installer.app" ]; then echo "Installer not found for x86_64!" && exit 1; fi
   artifacts:
-    expire_in: never
     paths:
       - /Users/gitlab/builds/album-app/plugins/album-package/installer/x86_64/album_installer.app
-  rules:
-    - if: $ALBUM_DEV_PACKAGE == "True"
-      when: never
-    - if: $CI_PIPELINE_SOURCE == "pipeline"
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      changes:
-        - pyproject.toml
-    - when: manual
 
-windows_installer_build:
+macos_installer_build_x86_64:
+  extends: [.macos_installer_build_x86_64, .installer_build_main_rules]
+
+macos_installer_build_x86_64_test:
+  extends: [.macos_installer_build_x86_64, .installer_build_test_rules]
+
+.windows_installer_build:
   extends: .windows_base_template
   stage: installer-build
   needs: ["unit tests windows", "integration tests windows"]
   script:
     - .\micromamba_installation\Library\bin\micromamba.exe run -n album album package --output_path $env:CI_PROJECT_DIR/installer
     - if (-Not (Test-Path $env:CI_PROJECT_DIR\installer\album_installer.exe -PathType Leaf)) { exit(1) }
-  rules:
-    - if: $ALBUM_DEV_PACKAGE == "True"
-      when: never
-    - if: $CI_PIPELINE_SOURCE == "pipeline"
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      changes:
-        - pyproject.toml
-      when: always
-    - when: manual
   artifacts:
-    expire_in: never
     paths:
       - $CI_PROJECT_DIR\installer\album_installer.exe
+
+windows_installer_build:
+  extends: [.windows_installer_build, .installer_build_main_rules]
+
+windows_installer_build_test:
+  extends: [.windows_installer_build, .installer_build_test_rules]
