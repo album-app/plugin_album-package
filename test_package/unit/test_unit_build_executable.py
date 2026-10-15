@@ -67,7 +67,8 @@ class TestUnitBuildExecutable(TestCommon):
                               '--add-data=%s%s%s' % (install_mamba_script, os.pathsep, '.'),
                               '--add-data=%s%s%s' % (solution_info_path, os.pathsep, '.'),
                               '--workpath=%s' % str(Path(self.tmp_dir.name).joinpath('build')),
-                              '--specpath=%s' % str(self.tmp_dir.name), '--log-level=ERROR']
+                              '--specpath=%s' % str(self.tmp_dir.name), '--log-level=ERROR',
+                              '--exclude-module=cryptography']
 
         # call
         script_pyinstaller_params = create_pyinstaller_params(ns, '--name=album_installer')

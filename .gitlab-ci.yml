@@ -102,6 +102,28 @@ workflow:
     paths:
       - .cache/pip
 
+# Linux template with the dependencies of album-package (as listed in pyproject.toml) from conda-forge instead of PyPI,
+# like after `micromamba install album-package -c conda-forge`. Some conda-forge packages are built differently, e.g.
+# cryptography links the environment's OpenSSL, which once broke HTTPS in the installer.
+# Uses the image and tags of the linux base template, but its own before_script.
+.linux_conda_forge_template:
+  extends: .linux_base_template
+  before_script:
+    - DEBIAN_FRONTEND=noninteractive apt update || (sleep 30 && apt update) && apt install -y --no-install-recommends ca-certificates curl bzip2 binutils tzdata libqt5core5a libqt5gui5
+    - mkdir -p $CI_PROJECT_DIR/bin/
+    - curl -fsSL --retry 5 --retry-delay 3 https://micro.mamba.pm/api/micromamba/linux-64/$MICROMAMBA_CI_VERSION -o /tmp/micromamba.tar.bz2
+    - tar -xvjf /tmp/micromamba.tar.bz2 -C $CI_PROJECT_DIR/bin/ --strip-components=1 bin/micromamba
+    - MICROMAMBA_EXECUTABLE=$CI_PROJECT_DIR/bin/micromamba
+    - $MICROMAMBA_EXECUTABLE --version
+    - $MICROMAMBA_EXECUTABLE create -y -n album python=$TEST_PYTHON_VERSION pip -c conda-forge
+    # the dependencies of this album-package version, not the ones of the album-package release on conda-forge
+    - $MICROMAMBA_EXECUTABLE run -n album python -c "import tomllib; print('\n'.join(tomllib.load(open('pyproject.toml', 'rb'))['project']['dependencies']))" > /tmp/dependencies.txt
+    - cat /tmp/dependencies.txt
+    - xargs -d '\n' -a /tmp/dependencies.txt $MICROMAMBA_EXECUTABLE install -y -n album -c conda-forge
+    - $MICROMAMBA_EXECUTABLE run -n album pip install --no-cache-dir --no-deps $CI_PROJECT_DIR
+    - $MICROMAMBA_EXECUTABLE run -n album python -V
+    - $MICROMAMBA_EXECUTABLE list -n album
+
 # Macos base template for running tests with micromamba as package manager
 #
 # Installs micromamba in a fresh tmp directory and activates it.
@@ -293,6 +315,22 @@ integration tests linux:
     - QT_QPA_PLATFORM=offscreen ALBUM_DEV_PACKAGE_CONSTRAINTS=$ALBUM_DEV_PACKAGE_CONSTRAINTS $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package/integration/run_all_integration_micromamba.py   # added offscreen setting
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
+
+# Builds the album installer with the dependencies of album-package from conda-forge, checks what it contains and runs
+# it. Started manually: run it on main before merging album-package's conda-forge feedstock PR, when all dependencies
+# of the new version are on conda-forge. Before that, conda-forge may not have them yet, so it never blocks a pipeline.
+installer tests linux conda-forge:
+  extends: .linux_conda_forge_template
+  stage: test
+  needs: ["cmdline linux"]
+  script:
+    - QT_QPA_PLATFORM=offscreen $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_package.integration.test_integration_build_executable.TestIntegrationBuildExecutable.test_build_album_installer_without_cryptography test_package.integration.test_integration_build_executable.TestIntegrationBuildExecutable.test_album_installation
+  rules:
+    - if: $ALBUM_DEV_PACKAGE == "True"
+      when: never
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
+      when: manual
+      allow_failure: true
 
 # MacOs Tests
 

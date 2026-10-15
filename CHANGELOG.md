@@ -37,9 +37,14 @@ We use the following:
   CPU architecture
 - `--solution` help text and README: `catalog:group:name:version` packages the solution of a specific catalog (with
   `group:name:version` album takes the first catalog containing the solution), covered by integration tests
+- Installers do not contain `cryptography` anymore, the installer never uses it
 
 ### Fixed
 
+- Installers built on Linux with album-package from conda-forge stopped right away with "Can't connect to HTTPS URL
+  because the SSL module is not available": conda-forge's `cryptography` made PyInstaller bundle the system's
+  `libcrypto` next to the environment's `libssl`. A CI job (started manually) builds and runs the installer with the
+  dependencies from conda-forge
 - Solution installers only contained the absolute path of the solution on the build machine and could not install the
   solution on any other machine
 - The check for an existing album / album gui installation always failed (`bytes` stderr compared with `""`), so every

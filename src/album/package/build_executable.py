@@ -97,9 +97,14 @@ def create_pyinstaller_params(args, name_param, solution_bundle=None):
     # PyInstaller resolves relative data paths relative to the spec path, therefore the absolute path is needed
     solution_info_path = str(Path(args.output_path).absolute().joinpath('solution_info.txt'))
     solution_info_param = '--add-data=%s%s%s' % (solution_info_path, os.pathsep, '.')
+    # The installer never imports cryptography (requests only refers to it as a fallback for an ssl module without SNI
+    # support). Bundling conda-forge's cryptography, whose abi3 builds point to a wrong library folder, made PyInstaller
+    # collect the system's OpenSSL libraries, so the installer could not use HTTPS.
+    exclude_cryptography_param = '--exclude-module=cryptography'
 
     pyinstaller_params = [script_path, '--onefile', name_param, exe_path_param, install_mamba_param,
-                          solution_info_param, workpath_param, spec_path_param, log_level_param]
+                          solution_info_param, workpath_param, spec_path_param, log_level_param,
+                          exclude_cryptography_param]
 
     if solution_bundle is not None:
         pyinstaller_params.append('--add-data=%s%s%s' % (solution_bundle, os.pathsep, SOLUTION_BUNDLE_DIR))
