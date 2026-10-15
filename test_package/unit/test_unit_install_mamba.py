@@ -105,3 +105,24 @@ class TestUnitInstallMamba(TestCommon):
 
         # assert
         self.assertEqual(install_mamba.get_mamba_exe(self.mamba_dir), mamba_exe)
+
+    @patch.dict(os.environ)
+    @patch('album.package.install_mamba.subprocess.run')
+    @patch('album.package.install_mamba._unpack_mamba_unix')
+    @patch('album.package.install_mamba._unpack_mamba_win')
+    @patch('album.package.install_mamba._download_mamba')
+    @patch('album.package.install_mamba.platform.system')
+    def test_install_mamba_does_not_init_shell(self, system_mock, _download_mock, _unpack_win_mock,
+                                               _unpack_unix_mock, run_mock):
+        # "micromamba shell init" edits ~/.bashrc, ~/.zshrc or the PowerShell profile
+        for system in ['Linux', 'Darwin', 'Windows']:
+            # prepare
+            system_mock.return_value = system
+            run_mock.reset_mock()
+
+            # call
+            install_mamba.install_mamba(self.album_dir, self.mamba_dir)
+
+            # assert
+            shell_calls = [c for c in run_mock.call_args_list if 'shell' in c.args[0]]
+            self.assertEqual([], shell_calls, "The shell was initialised on %s." % system)

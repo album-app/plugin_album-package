@@ -239,6 +239,10 @@ class TestIntegrationBuildExecutable(TestCommon):
         )
         self.assertTrue(Path(mamba_exe).is_file(), "Micromamba executable not found!")
         self.assertTrue(Path(album_env_path).is_dir(), "Album environment not found!")
+        if platform.system() != "Windows":
+            # the installer does not initialise the shell
+            for profile in [".bashrc", ".zshrc"]:
+                self.assertFalse(Path(self.tmp_dir.name).joinpath(profile).exists(), "%s was written!" % profile)
 
         # get album version
         if platform.system() == "Windows":

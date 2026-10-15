@@ -39,6 +39,14 @@ We use the following:
   `group:name:version` album takes the first catalog containing the solution), covered by integration tests
 - Installers do not contain `cryptography` anymore, the installer never uses it
 
+### Removed
+
+- The installers do not run `micromamba shell init` anymore and leave `~/.bashrc`, `~/.zshrc` and the PowerShell
+  profile unchanged, so an existing conda / micromamba setup of the shell keeps working. With micromamba 2.x the call
+  failed unnoticed anyway (`shell init` has no `-p` option anymore). The installer, album and the Album shortcut call
+  micromamba by its absolute path; the Album documentation shows how to activate `~/.album/envs/album` on the command
+  line
+
 ### Fixed
 
 - Installers built on Linux with album-package from conda-forge stopped right away with "Can't connect to HTTPS URL
