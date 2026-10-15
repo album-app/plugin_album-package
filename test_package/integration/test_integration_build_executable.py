@@ -7,6 +7,8 @@ from pathlib import Path
 
 from importlib.resources import files
 
+from PyInstaller.archive.readers import pkg_archive_contents
+
 from album.package import build_executable
 from test_package.test_common import TestCommon
 
@@ -120,6 +122,26 @@ class TestIntegrationBuildExecutable(TestCommon):
             self.assertTrue(
                 Path(self.tmp_dir.name).joinpath("album_installer").is_file()
             )
+
+    def test_build_album_installer_without_cryptography(self):
+        # call
+        build_executable.run(
+            self.album_mock, Namespace(solution=None, output_path=self.tmp_dir.name)
+        )
+
+        # assert
+        if platform.system() == "Windows":
+            installer = Path(self.tmp_dir.name).joinpath("album_installer.exe")
+        elif platform.system() == "Darwin":
+            installer = Path(self.tmp_dir.name).joinpath("album_installer.app")
+        else:
+            installer = Path(self.tmp_dir.name).joinpath("album_installer")
+        # the installer does not use cryptography (installed with album on Linux). Bundled from conda-forge, it made
+        # PyInstaller collect the system's OpenSSL libraries, so the installer could not use HTTPS.
+        self.assertEqual(
+            [],
+            [name for name in pkg_archive_contents(str(installer)) if "cryptography" in name],
+        )
 
     def test_build_solution_installer(self):
         # call
