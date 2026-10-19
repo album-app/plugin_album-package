@@ -16,6 +16,8 @@ We use the following:
 
 ## [unreleased]
 
+## [0.6.0]
+
 ### Added
 
 - Solution installers contain the solution now: `album package --solution` bundles the solution directory, the single
@@ -76,7 +78,8 @@ We use the following:
 - Removed conda-specific integration test files
 
 
-[unreleased]: https://gitlab.com/album-app/album-package/-/compare/v0.5.1...HEAD
+[unreleased]: https://gitlab.com/album-app/album-package/-/compare/v0.6.0...HEAD
+[0.6.0]: https://gitlab.com/album-app/album-package/-/compare/v0.5.1...v0.6.0
 [0.5.1]: https://gitlab.com/album-app/album-package/-/compare/v0.5.0...v0.5.1
 [0.5.0]: https://gitlab.com/album-app/album-package/-/compare/v0.4.2...v0.5.0
 [0.4.2]: https://gitlab.com/album-app/album-package/-/compare/v0.4.1...v0.4.2
