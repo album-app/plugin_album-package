@@ -39,6 +39,8 @@ We use the following:
   `group:name:version` album takes the first catalog containing the solution), covered by integration tests
 - Installers do not contain `cryptography` anymore, the installer never uses it
 - Python 3.14 is listed among the supported Python versions; the CI tests it
+- requires album 1.0 and album-gui 0.5.2 (`album>=1.0.0,<2.0.0` and `album-gui>=0.5.2,<0.6`, was
+  `album>=0.12.0,<0.13.0` and `album-gui>=0.5.0,<0.6`)
 
 ### Removed
 
