@@ -38,6 +38,7 @@ We use the following:
 - `--solution` help text and README: `catalog:group:name:version` packages the solution of a specific catalog (with
   `group:name:version` album takes the first catalog containing the solution), covered by integration tests
 - Installers do not contain `cryptography` anymore, the installer never uses it
+- Python 3.14 is listed among the supported Python versions; the CI tests it
 
 ### Removed
 
