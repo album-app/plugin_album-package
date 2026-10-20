@@ -2,6 +2,7 @@ import logging
 import os
 import platform
 import re
+import shutil
 from pathlib import Path
 
 import PyInstaller.__main__
@@ -16,10 +17,18 @@ for handler in logging.root.handlers[:]:
     logging.root.removeHandler(handler)
     handler.close()
 
+# Folder inside the executable which contains the bundled solution. On the target system install_all.py copies it to a
+# persistent location and installs the solution from there.
+SOLUTION_BUNDLE_DIR = 'solution'
+
+# Name of the solution file inside a solution directory (e.g. inside a catalog, an extracted zip file or a DOI download)
+SOLUTION_FILE_NAME = 'solution.py'
+
 
 def fill_placeholder(output_path, solution_path, coordinates):
-    """Fills the path and the coordinates of the passed solution into a cache file which gets copied into the executable
-    so the information is availabe in the executable without destroying pyinstallers import structure"""
+    """Fills the path (relative to the bundle directory of the executable) and the coordinates of the passed solution
+    into a cache file which gets copied into the executable so the information is available in the executable without
+    destroying pyinstallers import structure"""
     with open_text('album.package', 'solution_info.txt') as file:
         template_str = file.read()
 
@@ -34,8 +43,48 @@ def fill_placeholder(output_path, solution_path, coordinates):
         file.write(coordinates)
 
 
-def create_pyinstaller_params(args, name_param):
-    """creates the parameter for the pyinstaller call"""
+def get_solution_files(solution, resolve_result):
+    """Returns the absolute path of the solution files which get bundled into the executable. An existing solution
+    directory or solution file is bundled as it is. Otherwise (e.g. group:name:version, a DOI or a URL) the solution
+    resolved by album is used: if the resolved file is a solution.py (solution in a catalog, extracted zip file or DOI
+    download), its directory gets bundled. Any other resolved file gets bundled as a single file, e.g. a solution file
+    downloaded from a URL, which album stores as a temporary file next to all its other downloads."""
+    if Path(solution).exists():
+        return Path(solution).absolute()
+    resolved_solution_file = Path(resolve_result.path())
+    if resolved_solution_file.name == SOLUTION_FILE_NAME:
+        return resolved_solution_file.parent.absolute()
+    return resolved_solution_file.absolute()
+
+
+def prepare_solution_bundle(solution_files, output_path):
+    """Prepares the solution files for bundling them into the executable.
+    Returns the path which gets added to the executable and the path of the solution inside the executable bundle
+    (relative to the bundle directory, written into solution_info.txt). A solution directory gets copied into the build
+    directory first, so the output path does not get bundled in case it lies inside the solution directory."""
+    solution_files = Path(solution_files)
+    if solution_files.is_file():
+        return solution_files, '%s/%s' % (SOLUTION_BUNDLE_DIR, solution_files.name)
+
+    output_path = Path(output_path).resolve()
+    if output_path == solution_files.resolve():
+        raise RuntimeError("The output path %s must not be the solution directory itself, please use a sub directory "
+                           "or any other directory" % output_path)
+
+    def ignore_output_path(directory, names):
+        if Path(directory).resolve() != output_path.parent:
+            return []
+        return [name for name in names if Path(directory).joinpath(name).resolve() == output_path]
+
+    staging_path = output_path.joinpath('build', 'solution_bundle')
+    force_remove(staging_path)
+    shutil.copytree(solution_files, staging_path, ignore=ignore_output_path)
+    return staging_path, SOLUTION_BUNDLE_DIR
+
+
+def create_pyinstaller_params(args, name_param, solution_bundle=None):
+    """creates the parameter for the pyinstaller call. solution_bundle is the solution file or directory which gets
+    bundled into the executable (SOLUTION_BUNDLE_DIR inside the executable)."""
     work_dir = Path(args.output_path).joinpath('build')
     workpath_param = '--workpath=%s' % str(work_dir)
     exe_path_param = '--distpath=%s' % str(args.output_path)
@@ -45,13 +94,20 @@ def create_pyinstaller_params(args, name_param):
     script_path = str(files('album.package').joinpath('install_all.py'))
     install_mamba_script = files('album.package').joinpath('install_mamba.py')
     install_mamba_param = '--add-data=%s%s%s' % (install_mamba_script, os.pathsep, '.')
-    solution_info_path = str(Path(args.output_path).joinpath('solution_info.txt'))
+    # PyInstaller resolves relative data paths relative to the spec path, therefore the absolute path is needed
+    solution_info_path = str(Path(args.output_path).absolute().joinpath('solution_info.txt'))
     solution_info_param = '--add-data=%s%s%s' % (solution_info_path, os.pathsep, '.')
+    # The installer never imports cryptography (requests only refers to it as a fallback for an ssl module without SNI
+    # support). Bundling conda-forge's cryptography, whose abi3 builds point to a wrong library folder, made PyInstaller
+    # collect the system's OpenSSL libraries, so the installer could not use HTTPS.
+    exclude_cryptography_param = '--exclude-module=cryptography'
 
     pyinstaller_params = [script_path, '--onefile', name_param, exe_path_param, install_mamba_param,
-                          solution_info_param, workpath_param, spec_path_param, log_level_param]
+                          solution_info_param, workpath_param, spec_path_param, log_level_param,
+                          exclude_cryptography_param]
 
-
+    if solution_bundle is not None:
+        pyinstaller_params.append('--add-data=%s%s%s' % (solution_bundle, os.pathsep, SOLUTION_BUNDLE_DIR))
 
     return pyinstaller_params
 
@@ -66,20 +122,21 @@ def run(album_instance: Album, args):
     """Build an executable which installs Album and the solution (in case provided)."""
     try:
         name = ""
-        if not Path(args.output_path).is_dir():
-            Path(args.output_path).mkdir()
+        solution_bundle = None
+        Path(args.output_path).mkdir(parents=True, exist_ok=True)
 
         if args.solution is None:
             get_active_logger().info("Build an executable which installs album.")
-        if (args.solution is not None) and (not (Path(args.solution).exists())):
-            args.solution = album_instance.resolve(str(args.solution)).path()
         if args.solution is not None:
             get_active_logger().info("Build an executable which installs the solution.")
-            coordinates = album_instance.resolve(str(args.solution)).coordinates()
+            # args.solution is either a path to a solution file / directory or the coordinates of a solution
+            resolve_result = album_instance.resolve(str(args.solution))
+            coordinates = resolve_result.coordinates()
             if coordinates is None:
                 raise RuntimeError("The provided solution %s does not contain valid coordinates." % args.solution)
+            solution_files = get_solution_files(args.solution, resolve_result)
             get_active_logger().info(
-                "solution: %s at %s" % (coordinates, args.solution))
+                "solution: %s at %s" % (coordinates, solution_files))
             if platform.system() == "Darwin":
                 name = "%s_%s_%s_installer.app" % (coordinates.group(), coordinates.name(),
                                                    str(coordinates.version()).replace('.', '_'))
@@ -90,7 +147,8 @@ def run(album_instance: Album, args):
                                                str(coordinates.version()).replace('.', '_'))
                 name_param = "--name=%s_%s_%s_installer" % (
                     coordinates.group(), coordinates.name(), str(coordinates.version()).replace('.', '_'))
-            fill_placeholder(str(args.output_path), str(args.solution), coordinates.__str__())
+            solution_bundle, bundled_solution = prepare_solution_bundle(solution_files, args.output_path)
+            fill_placeholder(str(args.output_path), bundled_solution, coordinates.__str__())
         else:
             if platform.system() == "Darwin":
                 name = "album_installer.app"
@@ -102,7 +160,7 @@ def run(album_instance: Album, args):
 
         get_active_logger().info("--output_path: %s" % args.output_path)
 
-        pyinstaller_params = create_pyinstaller_params(args, name_param)
+        pyinstaller_params = create_pyinstaller_params(args, name_param, solution_bundle)
 
     except Exception as e:
         clean_up(args.output_path, name)

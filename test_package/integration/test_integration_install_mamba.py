@@ -1,7 +1,6 @@
 import os
 import platform
 from pathlib import Path
-from unittest.mock import patch
 
 from album.package import install_mamba
 from test_package.test_common import TestCommon
@@ -31,10 +30,7 @@ class TestIntegrationInstallMamba(TestCommon):
         # assert
         self.assertTrue(Path(mamba_test_exe).is_file(), "Error when unpacking mamba.")
 
-    @patch('album.package.install_mamba._init_pwsh')
-    @patch('album.package.install_mamba._init_bash')
-    @patch('album.package.install_mamba._init_zsh')
-    def test_install_mamba(self, pwsh_mock, bash_mock, zsh_mock):
+    def test_install_mamba(self):
         # prepare
         album_test_path = self.album_dir
         mamba_test_path = self.mamba_dir

@@ -93,24 +93,27 @@ def _download_mamba_win(mamba_installer_path):
 
 def _download_mamba_macos(mamba_installer_path):
     """downloads micromamba for macOS depending on the processor architecture"""
-    if check_architecture().__eq__('x86_64'):
+    architecture = check_architecture().lower()
+    if architecture == 'x86_64':
         return download_resource(MAMBA_LINK_MACOS_X86_64, mamba_installer_path)
-    elif check_architecture().lower().__eq__('arm64'):
+    elif architecture == 'arm64':
         return download_resource(MAMBA_LINK_MACOS_ARM64, mamba_installer_path)
     else:
-        raise NotImplementedError("There is no micromamba version for your processor architecture.")
+        raise NotImplementedError("There is no micromamba version for your processor architecture %s." % architecture)
 
 
 def _download_mamba_linux(mamba_installer_path):
     """downloads micromamba for linux depending on the processor architecture"""
-    if check_architecture().__eq__('x86_64'):
+    # "uname -m" reports aarch64 and ppc64le on linux, arm64 and power are accepted as well for backwards compatibility
+    architecture = check_architecture().lower()
+    if architecture == 'x86_64':
         return download_resource(MAMBA_LINK_LINUX_X86_64, mamba_installer_path)
-    elif check_architecture().lower().__eq__('arm64'):
+    elif architecture in ('aarch64', 'arm64'):
         return download_resource(MAMBA_LINK_LINUX_ARM64, mamba_installer_path)
-    elif check_architecture().lower().__eq__('power'):
+    elif architecture in ('ppc64le', 'power'):
         return download_resource(MAMBA_LINK_LINUX_POWER, mamba_installer_path)
     else:
-        raise NotImplementedError("There is no micromamba version for your processor architecture.")
+        raise NotImplementedError("There is no micromamba version for your processor architecture %s." % architecture)
 
 
 def _unpack_mamba_win(mamba_installer, mamba_base_path):
@@ -131,34 +134,6 @@ def _set_mamba_env_vars(mamba_base_path):
     os.environ['MAMBA_EXE'] = str(get_mamba_exe(mamba_base_path))
 
 
-def _init_pwsh(mamba_base_path):
-    """initializes the windows powershell for the usage of micromamba"""
-    mamba_exe = get_mamba_exe(mamba_base_path)
-    _ = subprocess.run([mamba_exe, 'shell', 'init', '-s', 'powershell', '-p', mamba_base_path, '-y'],
-                       capture_output=True)
-
-# Cmd.exe will not be initialised since it will break existing micromamba installations
-#def _init_cmd_exe(mamba_base_path):
-#    """initializes the windows cmd.exe for the usage of micromamba"""
-#    mamba_exe = get_mamba_exe(mamba_base_path)
-#    _ = subprocess.run([mamba_exe, 'shell', 'init', '-s', 'cmd.exe', '-p', mamba_base_path, '-y'],
-#                       capture_output=True)
-
-
-def _init_bash(mamba_base_path):
-    """initializes the bash shell for the usage of micromamba"""
-    mamba_exe = get_mamba_exe(mamba_base_path)
-    _ = subprocess.run([mamba_exe, 'shell', 'init', '-s', 'bash', '-p', mamba_base_path],
-                       capture_output=True)
-
-
-def _init_zsh(mamba_base_path):
-    """initializes the zsh shell for the usage of micromamba"""
-    mamba_exe = get_mamba_exe(mamba_base_path)
-    _ = subprocess.run([mamba_exe, 'shell', 'init', '-s', 'zsh', '-p', mamba_base_path],
-                       capture_output=True)
-
-
 def get_mamba_exe(mamba_base_path):
     """returns the path to the micromamba executable"""
     if platform.system() == 'Windows':
@@ -167,12 +142,14 @@ def get_mamba_exe(mamba_base_path):
         return str(Path(mamba_base_path).joinpath('bin', 'micromamba'))
 
 
+# The shell is not initialised ("micromamba shell init"): it edits ~/.bashrc, ~/.zshrc or the PowerShell profile and
+# can replace an existing conda / micromamba setup. The installer, album and the Album shortcut call micromamba by its
+# absolute path, command line users activate ~/.album/envs/album as described in the Album documentation.
 def _install_mamba_windows(mamba_base_path):
     """installs micromamba on windows"""
     mamba_installer = _download_mamba(mamba_base_path)
     _unpack_mamba_win(mamba_installer, mamba_base_path)
     _set_mamba_env_vars(mamba_base_path)
-    _init_pwsh(mamba_base_path)
 
 
 def _install_mamba_linux(mamba_base_path):
@@ -180,7 +157,6 @@ def _install_mamba_linux(mamba_base_path):
     mamba_installer = _download_mamba(mamba_base_path)
     _unpack_mamba_unix(mamba_installer, mamba_base_path)
     _set_mamba_env_vars(mamba_base_path)
-    _init_bash(mamba_base_path)
 
 
 def _install_mamba_macos(mamba_base_path):
@@ -188,11 +164,10 @@ def _install_mamba_macos(mamba_base_path):
     mamba_installer = _download_mamba(mamba_base_path)
     _unpack_mamba_unix(mamba_installer, mamba_base_path)
     _set_mamba_env_vars(mamba_base_path)
-    _init_zsh(mamba_base_path)
 
 
 def install_mamba(album_base_path, mamba_base_path):
-    """installs micormamba"""
+    """installs micromamba and returns the path to the micromamba executable"""
     if not Path(album_base_path).exists():
         Path(album_base_path).mkdir()
     if not Path(mamba_base_path).exists():
@@ -206,3 +181,5 @@ def install_mamba(album_base_path, mamba_base_path):
         _install_mamba_linux(mamba_base_path)
     else:
         raise NotImplementedError("Your operating system is currently not supported")
+
+    return get_mamba_exe(mamba_base_path)
