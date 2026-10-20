@@ -16,6 +16,8 @@ We use the following:
 
 ## [unreleased]
 
+## [0.6.0]
+
 ### Added
 
 - Solution installers contain the solution now: `album package --solution` bundles the solution directory, the single
@@ -38,6 +40,9 @@ We use the following:
 - `--solution` help text and README: `catalog:group:name:version` packages the solution of a specific catalog (with
   `group:name:version` album takes the first catalog containing the solution), covered by integration tests
 - Installers do not contain `cryptography` anymore, the installer never uses it
+- Python 3.14 is listed among the supported Python versions; the CI tests it
+- requires album 1.0 and album-gui 0.5.2 (`album>=1.0.0,<2.0.0` and `album-gui>=0.5.2,<0.6`, was
+  `album>=0.12.0,<0.13.0` and `album-gui>=0.5.0,<0.6`)
 
 ### Removed
 
@@ -73,7 +78,8 @@ We use the following:
 - Removed conda-specific integration test files
 
 
-[unreleased]: https://gitlab.com/album-app/album-package/-/compare/v0.5.1...HEAD
+[unreleased]: https://gitlab.com/album-app/album-package/-/compare/v0.6.0...HEAD
+[0.6.0]: https://gitlab.com/album-app/album-package/-/compare/v0.5.1...v0.6.0
 [0.5.1]: https://gitlab.com/album-app/album-package/-/compare/v0.5.0...v0.5.1
 [0.5.0]: https://gitlab.com/album-app/album-package/-/compare/v0.4.2...v0.5.0
 [0.4.2]: https://gitlab.com/album-app/album-package/-/compare/v0.4.1...v0.4.2
