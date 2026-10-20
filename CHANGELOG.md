@@ -43,6 +43,7 @@ We use the following:
 - Python 3.14 is listed among the supported Python versions; the CI tests it
 - requires album 1.0 and album-gui 0.5.2 (`album>=1.0.0,<2.0.0` and `album-gui>=0.5.2,<0.6`, was
   `album>=0.12.0,<0.13.0` and `album-gui>=0.5.0,<0.6`)
+- requires Python 3.11 or newer (was 3.10), as album 1.0 does
 
 ### Removed
 
