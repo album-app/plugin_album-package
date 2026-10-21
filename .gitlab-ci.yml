@@ -401,6 +401,9 @@ integration tests windows:
 # On every other branch the same builds run automatically as <name>_installer_build_test, so a broken installer build
 # fails the pipeline, and their artifacts expire after 1 day (GitLab does not allow a variable in artifacts:expire_in,
 # hence the second job).
+#
+# A pipeline triggered by album (`rebuild_album_installer` after an album release) skips the tests and only rebuilds the
+# installers on main, so the builds need the tests only if they are in the pipeline (`optional: true`).
 
 .installer_build_main_rules:
   rules:
@@ -425,7 +428,7 @@ integration tests windows:
 .linux_installer_build:
   extends: .linux_base_template
   stage: installer-build
-  needs: ["unit tests linux", "integration tests linux"]
+  needs: [{job: "unit tests linux", optional: true}, {job: "integration tests linux", optional: true}]
   script:
     - $MICROMAMBA_EXECUTABLE run -n album album package --output_path $CI_PROJECT_DIR/installer
     - if [ ! -f "$CI_PROJECT_DIR/installer/album_installer" ]; then echo "Installer not found!" && exit 1; fi
@@ -442,7 +445,7 @@ linux_installer_build_test:
 .macos_installer_build_arm64:
   extends: .macos_base_template
   stage: installer-build
-  needs: ["unit tests macos arm64", "integration tests macos arm64"]
+  needs: [{job: "unit tests macos arm64", optional: true}, {job: "integration tests macos arm64", optional: true}]
   script:
     - echo "Building for Apple silicon (M1/arm64)..."
     - mkdir -p /Users/gitlab/builds/album-app/plugins/album-package/installer/arm64
@@ -462,7 +465,7 @@ macos_installer_build_arm64_test:
 .macos_installer_build_x86_64:
   extends: .macos_base_template
   stage: installer-build
-  needs: ["unit tests macos x86_64", "integration tests macos x86_64"]
+  needs: [{job: "unit tests macos x86_64", optional: true}, {job: "integration tests macos x86_64", optional: true}]
   script:
     - echo "Building for Intel x86-64 using Rosetta 2..."
     - mkdir -p /Users/gitlab/builds/album-app/plugins/album-package/installer/x86_64
@@ -482,7 +485,7 @@ macos_installer_build_x86_64_test:
 .windows_installer_build:
   extends: .windows_base_template
   stage: installer-build
-  needs: ["unit tests windows", "integration tests windows"]
+  needs: [{job: "unit tests windows", optional: true}, {job: "integration tests windows", optional: true}]
   script:
     - .\micromamba_installation\Library\bin\micromamba.exe run -n album album package --output_path $env:CI_PROJECT_DIR/installer
     - if (-Not (Test-Path $env:CI_PROJECT_DIR\installer\album_installer.exe -PathType Leaf)) { exit(1) }

@@ -16,6 +16,11 @@ We use the following:
 
 ## [unreleased]
 
+### Fixed
+
+- After an album release, the installers are rebuilt again: in the pipeline that album triggers, which skips the
+  tests, the installer builds no longer need them
+
 ## [0.6.0]
 
 ### Added
